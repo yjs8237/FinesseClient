@@ -1,0 +1,11 @@
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\bin\Debug\CTIFnClientTest.exe.config
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\obj\Debug\CTIFnClientTest.csprojResolveAssemblyReference.cache
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\obj\Debug\CTIFnClientTest.Form1.resources
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\obj\Debug\CTIFnClientTest.Properties.Resources.resources
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\obj\Debug\CTIFnClientTest.csproj.GenerateResource.Cache
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\bin\Debug\CTIFnClientTest.exe
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\bin\Debug\CTIFnClientTest.pdb
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\bin\Debug\CTIFnClient.dll
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\bin\Debug\CTIFnClient.pdb
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\obj\Debug\CTIFnClientTest.exe
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClientTest\obj\Debug\CTIFnClientTest.pdb
