@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace CTIFnClient
 {
     class CallEvent : EventArgs
     {
         private String message;
-
 
         public void setMessage(String msg)
         {
@@ -20,7 +19,6 @@ namespace CTIFnClient
         {
             return this.message;
         }
-
 
     }
 }

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using TCPSOCKET;
 using ThreadGroup;
-
+using CONST;
 
 namespace CTIFnClient
 {
@@ -20,6 +20,10 @@ namespace CTIFnClient
         private LogWrite logwrite;
 
 
+        private bool isFinesseConnected = false;
+        private bool isAEMSConnected = false;
+        private bool isISPSConnected = false;
+
         public Finesse()
         {
             logwrite = LogWrite.getInstance();
@@ -28,7 +32,6 @@ namespace CTIFnClient
         public int fnConnect(String fn_A_IP , String fn_B_IP , String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
         {
             logwrite.write("fnConnect", "call fnConnect()");
-
             
             StringBuilder sb = new StringBuilder();
             logwrite.write("fnConnect", "Finesse A \t [" + fn_A_IP + "]");
@@ -48,38 +51,121 @@ namespace CTIFnClient
             ServerInfo aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port);
             ServerInfo ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port);
 
-            FinesseClient = new FinesseClient(logwrite);
-            FinesseClient.setServerInfo(finesseInfo);
-            if (FinesseClient.startClient() != ERRORCODE.SUCCESS)
+
+            /*
+             *  finesse 세션 연결
+             * */
+            if (isFinesseConnected)
             {
-                return ERRORCODE.FAIL;
+                logwrite.write("fnConnect", "Finesse is Already Connected!!");
             }
-            
-            
+            else
+            {
+                FinesseClient = new FinesseClient(logwrite , this);
+                FinesseClient.setServerInfo(finesseInfo);
+                if (FinesseClient.startClient() != ERRORCODE.SUCCESS)
+                {
+                    return ERRORCODE.FAIL;
+                }
+                else
+                {
+                    isFinesseConnected = true;
+                }
+            }
 
-            
-            return 0;
+            if (isAEMSConnected)
+            {
+                logwrite.write("fnConnect", "AEMS is Already Connected!!");
+            }
+            else
+            {
+                AEMSClient = new AEMSClient(logwrite);
+                AEMSClient.setServerInfo(aemsInfo);
+                if (AEMSClient.startClient() != ERRORCODE.SUCCESS)
+                {
+                    return ERRORCODE.FAIL;
+                }
+                else
+                {
+                    isAEMSConnected = true;
+                }
+            }
+
+
+            if (isISPSConnected)
+            {
+                logwrite.write("fnConnect", "ISPS is Already Connected!!");
+            }
+            else
+            {
+                ISPSClient = new ISPSClient(logwrite);
+                ISPSClient.setServerInfo(ispsInfo);
+                if (ISPSClient.startClient() != ERRORCODE.SUCCESS)
+                {
+                    return ERRORCODE.FAIL;
+                }
+                else
+                {
+                    isISPSConnected = true;
+                }
+            }
+
+            if (isFinesseConnected && isAEMSConnected && isISPSConnected)
+            {
+                raiseEvent(EVENT.OnConnection, "CONNECTED SUCCESS");
+            }
+
+            return ERRORCODE.SUCCESS;
         }
 
-
-
-
-
-
-
-
-
-
-
-        public abstract void GetEventOnConnection();
-
-
-        public void test()
+        public int fnDisconnect()
         {
-            Console.WriteLine("test");
-            logwrite.write("testMethod" , "test");
+            logwrite.write("fnConnect", "call fnDisconnect()");
+
+            FinesseClient.disconnect();
+            AEMSClient.disconnect();
+            ISPSClient.disconnect();
+
+            isFinesseConnected = false;
+            isAEMSConnected = false;
+            isISPSConnected = false;
+
+            return ERRORCODE.SUCCESS;
+
         }
 
+
+        private void raiseEvent(int Evt , String msg)
+        {
+            switch (Evt)
+            {
+                case EVENT.OnConnection:
+                    logwrite.write("raiseEvent", ":: EVENT :: GetEventOnConnection [" + msg + "]");
+                    GetEventOnConnection(msg);
+                    break;
+
+                
+                default :
+
+                    break;
+            }
+
+        }
+
+
+
+        public abstract void GetEventOnConnection(String evt);
+        public abstract void GetEventOnConnectionClosed(String evt);
+        public abstract void GetEventOnCallBegin(String evt);
+        public abstract void GetEventOnCallDelivered(String evt);
+        public abstract void GetEventOnCallEstablished(String evt);
+        public abstract void GetEventOnCallHeld(String evt);
+        public abstract void GetEventOnCallRetrieved(String evt);
+        public abstract void GetEventOnCallConnectionCleared(String evt);
+        public abstract void GetEventOnLoginFail(String evt);
+        public abstract void GetEventOnPasswordChecked(String evt);
+        public abstract void GetEventOnConnectionFail(String evt);
+        
     }
 
 

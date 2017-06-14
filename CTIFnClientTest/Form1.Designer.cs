@@ -47,17 +47,17 @@
             this.label7 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.textBox9 = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.textBox10 = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.textBox11 = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.textBox12 = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.textBox11 = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.textBox10 = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.textBox9 = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -216,6 +216,7 @@
             this.button2.TabIndex = 17;
             this.button2.Text = "Disconnect";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // groupBox1
             // 
@@ -227,6 +228,23 @@
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Server Connection";
+            // 
+            // textBox12
+            // 
+            this.textBox12.Location = new System.Drawing.Point(460, 102);
+            this.textBox12.Name = "textBox12";
+            this.textBox12.Size = new System.Drawing.Size(100, 21);
+            this.textBox12.TabIndex = 21;
+            this.textBox12.Text = "3";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(381, 105);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(72, 12);
+            this.label11.TabIndex = 20;
+            this.label11.Text = "LOG LEVEL";
             // 
             // groupBox2
             // 
@@ -245,37 +263,23 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "CTI Agent";
             // 
-            // textBox9
+            // button4
             // 
-            this.textBox9.Location = new System.Drawing.Point(79, 20);
-            this.textBox9.Name = "textBox9";
-            this.textBox9.Size = new System.Drawing.Size(100, 21);
-            this.textBox9.TabIndex = 21;
+            this.button4.Location = new System.Drawing.Point(603, 49);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(90, 23);
+            this.button4.TabIndex = 26;
+            this.button4.Text = "로그아웃";
+            this.button4.UseVisualStyleBackColor = true;
             // 
-            // label8
+            // button3
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(11, 23);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(48, 12);
-            this.label8.TabIndex = 20;
-            this.label8.Text = "AgentID";
-            // 
-            // textBox10
-            // 
-            this.textBox10.Location = new System.Drawing.Point(272, 20);
-            this.textBox10.Name = "textBox10";
-            this.textBox10.Size = new System.Drawing.Size(100, 21);
-            this.textBox10.TabIndex = 23;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(204, 23);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(62, 12);
-            this.label9.TabIndex = 22;
-            this.label9.Text = "Password";
+            this.button3.Location = new System.Drawing.Point(603, 20);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(90, 23);
+            this.button3.TabIndex = 20;
+            this.button3.Text = "로그인";
+            this.button3.UseVisualStyleBackColor = true;
             // 
             // textBox11
             // 
@@ -293,40 +297,37 @@
             this.label10.TabIndex = 24;
             this.label10.Text = "Extension";
             // 
-            // button3
+            // textBox10
             // 
-            this.button3.Location = new System.Drawing.Point(603, 20);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(90, 23);
-            this.button3.TabIndex = 20;
-            this.button3.Text = "로그인";
-            this.button3.UseVisualStyleBackColor = true;
+            this.textBox10.Location = new System.Drawing.Point(272, 20);
+            this.textBox10.Name = "textBox10";
+            this.textBox10.Size = new System.Drawing.Size(100, 21);
+            this.textBox10.TabIndex = 23;
             // 
-            // button4
+            // label9
             // 
-            this.button4.Location = new System.Drawing.Point(603, 49);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(90, 23);
-            this.button4.TabIndex = 26;
-            this.button4.Text = "로그아웃";
-            this.button4.UseVisualStyleBackColor = true;
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(204, 23);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(62, 12);
+            this.label9.TabIndex = 22;
+            this.label9.Text = "Password";
             // 
-            // textBox12
+            // textBox9
             // 
-            this.textBox12.Location = new System.Drawing.Point(460, 102);
-            this.textBox12.Name = "textBox12";
-            this.textBox12.Size = new System.Drawing.Size(100, 21);
-            this.textBox12.TabIndex = 21;
-            this.textBox12.Text = "3";
+            this.textBox9.Location = new System.Drawing.Point(79, 20);
+            this.textBox9.Name = "textBox9";
+            this.textBox9.Size = new System.Drawing.Size(100, 21);
+            this.textBox9.TabIndex = 21;
             // 
-            // label11
+            // label8
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(381, 105);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(72, 12);
-            this.label11.TabIndex = 20;
-            this.label11.Text = "LOG LEVEL";
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(11, 23);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(48, 12);
+            this.label8.TabIndex = 20;
+            this.label8.Text = "AgentID";
             // 
             // Form1
             // 

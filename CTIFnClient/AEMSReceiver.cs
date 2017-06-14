@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.IO;
 using System.Net.Sockets;
 using CTIFnClient;
 
+
 namespace ThreadGroup
 {
-    class ClientReceiver
+    class AEMSReceiver : ISocketReceiver
     {
-
         private StreamReader reader;
         private LogWrite logwrite;
 
-        public ClientReceiver(StreamReader reader)
+        public AEMSReceiver(StreamReader reader)
         {
             this.reader = reader;
             this.logwrite = LogWrite.getInstance();
@@ -23,7 +23,6 @@ namespace ThreadGroup
 
         public void runThread()
         {
-
             try
             {
                 String readLine = "";
@@ -31,15 +30,19 @@ namespace ThreadGroup
                 while (true)
                 {
                     readLine = reader.ReadLine();
-                    logwrite.write("ClientReceiver runThread", readLine);
+                    logwrite.write("AEMSReceiver runThread", readLine);
                 }
+
             }
             catch (Exception e)
             {
-                logwrite.write("ClientReceiver runThread", e.StackTrace);
+                if (reader != null)
+                {
+                    reader.Close();
+                    reader = null;
+                }
+                logwrite.write("AEMSReceiver runThread", e.StackTrace);
             }
-
         }
-
     }
 }

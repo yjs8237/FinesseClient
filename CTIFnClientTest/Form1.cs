@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using CTIFnClient;
 
@@ -33,8 +33,12 @@ namespace CTIFnClientTest
             int ISPS_Port = Int32.Parse(textBox6.Text);
             int loglevel = Int32.Parse(textBox12.Text);
             
-            
             useDll.fnConnect(finesse_A, finesse_B, AEMS_A, AEMS_B, AEMS_Port, ISPS_A, ISPS_B, ISPS_Port, loglevel);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            useDll.fnDisconnect();
         }
     }
 }
