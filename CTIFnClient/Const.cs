@@ -12,7 +12,7 @@ namespace CONST
         public readonly static int SUCCESS = 0;
         public readonly static int SOCKET_CONNECTION_FAIL = -100;
         public readonly static int FAIL = -1;
-        
+        public readonly static int LOGIN_FAIL = -3;
     }
 
     class CONNECTION

@@ -10,7 +10,7 @@ using System.Collections;
 using ThreadGroup;
 using CONST;
 using System.Net;
-
+using VO;
 
 namespace TCPSOCKET
 {
@@ -23,6 +23,7 @@ namespace TCPSOCKET
 
         protected NetworkStream writeStream;
         protected StreamReader reader;
+        protected StreamWriter writer;
 
         protected ServerInfo serverInfo;    // 서버 정보를 담고 있는 객체
         protected LogWrite logwrite = null;
@@ -81,6 +82,21 @@ namespace TCPSOCKET
                 */
                 
                 sock = new TcpClient();
+
+                var result =  sock.BeginConnect(ip, port, null, null);
+
+                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(CONNECTION.CONNECTION_TIMEOUT));
+
+                if (success)
+                {
+
+                }
+                else
+                {
+                    return ERRORCODE.SOCKET_CONNECTION_FAIL;
+                }
+                
+                /*
                 IAsyncResult result = sock.BeginConnect(ip, port, connect_callback, sock);
 
                 // TCP Socket Connect Timeout 구현
@@ -96,7 +112,7 @@ namespace TCPSOCKET
                     logwrite.write("connect", "[" + ip + "][" + port + "] Connection Timeout " + CONNECTION.CONNECTION_TIMEOUT + " Fail !!");
                     return ERRORCODE.SOCKET_CONNECTION_FAIL;
                 }
-
+                */
 
             }
             catch (Exception e)
@@ -124,6 +140,7 @@ namespace TCPSOCKET
             }
             catch (Exception e)
             {
+                Console.WriteLine(e.StackTrace);
                 isSocketConnected = false;
             }
         }
@@ -154,7 +171,7 @@ namespace TCPSOCKET
 
         // Finesse , AEMS , ISPS 접속 방식을 자식 클래스에게 위임
         public abstract int startClient();
-       
+        public abstract int login(Agent agent);
 
     }
 }

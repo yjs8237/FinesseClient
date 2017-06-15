@@ -9,6 +9,7 @@ using System.IO;
 using ThreadGroup;
 using CTIFnClient;
 using CONST;
+using VO;
 
 namespace TCPSOCKET
 {
@@ -65,5 +66,9 @@ namespace TCPSOCKET
              return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
          }
 
+         public override int login(Agent agent)
+         {
+             throw new NotImplementedException();
+         }
     }
 }

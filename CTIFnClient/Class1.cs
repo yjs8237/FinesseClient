@@ -6,6 +6,7 @@ using System.Threading;
 using TCPSOCKET;
 using ThreadGroup;
 using CONST;
+using VO;
 
 namespace CTIFnClient
 {
@@ -65,6 +66,7 @@ namespace CTIFnClient
                 FinesseClient.setServerInfo(finesseInfo);
                 if (FinesseClient.startClient() != ERRORCODE.SUCCESS)
                 {
+                    logwrite.write("fnConnect", "Finesse Cannot Connect");
                     return ERRORCODE.FAIL;
                 }
                 else
@@ -83,6 +85,7 @@ namespace CTIFnClient
                 AEMSClient.setServerInfo(aemsInfo);
                 if (AEMSClient.startClient() != ERRORCODE.SUCCESS)
                 {
+                    logwrite.write("fnConnect", "AEMS Cannot Connect");
                     return ERRORCODE.FAIL;
                 }
                 else
@@ -102,6 +105,7 @@ namespace CTIFnClient
                 ISPSClient.setServerInfo(ispsInfo);
                 if (ISPSClient.startClient() != ERRORCODE.SUCCESS)
                 {
+                    logwrite.write("fnConnect", "ISPS Cannot Connect");
                     return ERRORCODE.FAIL;
                 }
                 else
@@ -132,6 +136,16 @@ namespace CTIFnClient
 
             return ERRORCODE.SUCCESS;
 
+        }
+
+
+        public int fnLogin(String agentID , String agentPwd , String extension , String peripheralID)
+        {
+            Agent agent = new Agent(agentID , agentPwd, extension , peripheralID);
+
+            FinesseClient.login(agent);
+
+            return ERRORCODE.SUCCESS;
         }
 
 
