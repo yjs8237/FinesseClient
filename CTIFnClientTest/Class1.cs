@@ -65,5 +65,10 @@ namespace CTIFnClientTest
         {
             Console.WriteLine(evt);
         }
+
+        public override void GetEventOnError(String evt)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

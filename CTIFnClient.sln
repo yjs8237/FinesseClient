@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CTIFnClient", "CTIFnClient\CTIFnClient.csproj", "{E5EE896E-0304-423E-9418-B03E753C6322}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CTIFnClientTest", "CTIFnClientTest\CTIFnClientTest.csproj", "{1B91C5DD-8DAA-4BEC-AFD3-DC8663C107C9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E5EE896E-0304-423E-9418-B03E753C6322} = {E5EE896E-0304-423E-9418-B03E753C6322}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

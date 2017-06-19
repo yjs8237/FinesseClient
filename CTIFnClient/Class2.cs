@@ -32,7 +32,7 @@ namespace CTIFnClient
             } else {
                 fs = new FileStream(fileName, FileMode.CreateNew , FileAccess.Write);
             }
-            sw = new StreamWriter(fs, Encoding.UTF8);
+            sw = new StreamWriter(fs, Encoding.Default);
             
         }
 

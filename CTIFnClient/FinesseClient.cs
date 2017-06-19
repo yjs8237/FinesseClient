@@ -10,6 +10,8 @@ using System.IO;
 using ThreadGroup;
 using VO;
 using CONST;
+using HTTP;
+
 
 namespace TCPSOCKET
 {
@@ -21,6 +23,7 @@ namespace TCPSOCKET
         private ISocketReceiver finesseRecv;
         private ISocketSender finesseSend;
         private Agent agent;
+        private HttpHandler httpHandler;
 
 
         public FinesseClient(LogWrite logwrite , Finesse finesseObj) : base(logwrite)
@@ -67,8 +70,8 @@ namespace TCPSOCKET
 
                     Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                     reader = new StreamReader(writeStream, encode);
-                    
-                    logwrite.write("startClient", "Finesse Thread Start!!");
+
+                    connSvrIP = serverIP; // 연결된 서버 IP SET
 
                     break;
                 }
@@ -92,71 +95,148 @@ namespace TCPSOCKET
         {
             this.agent = agent;
 
+            // 소켓이 연결되고 사전 인증절차가 끝나면 스레드를 시작한다.
+            // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작 (Call Event Handle)
+
             // 로그인 시도전 XMPP 사전 인증 절차를 거친다.
-            if (startPreProcess() != ERRORCODE.SUCCESS)
+            
+            if (startPreProcess1() != ERRORCODE.SUCCESS)
             {
                 return ERRORCODE.LOGIN_FAIL;
             }
+            
 
-            // 소켓이 연결되고 사전 인증절차가 끝나면 스레드를 시작한다.
-            // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작 (Call Event Handle)
-            finesseRecv = new FinesseReceiver(reader, finesseObj);
+            finesseRecv = new FinesseReceiver(sock, finesseObj);
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();
 
 
+            // 현재 접속되어 있는 Finesse 서버의 IP 와 Agent 정보를 생성자를 통해 넘겨준다.
+            httpHandler = new HttpHandler(connSvrIP, agent);
+
+
+            /*
             // 소켓이 연결되면 서버로 패킷을 보내는 스레드 시작
             finesseSend = new FinesseSender(writer, finesseObj);
             ThreadStart sendts = new ThreadStart(finesseSend.runThread);
             Thread sendThread = new Thread(sendts);
             sendThread.Start();
 
-
-            return ERRORCODE.SUCCESS;
-        }
-
-        private int startPreProcess()
-        {
-            String returnMsg;
-
-            logwrite.write("startPreProcess", "1. HELLO MESSAGE SEND ");
-            /*
-            CString strMsg = "<?xml version='1.0' ?>"\
-			"<stream:stream to=\'insunginfo.co.kr\' xmlns=\'jabber:client\' "\
-			"xmlns:stream=\'http://etherx.jabber.org/streams\' version=\'1.0\'>";
+            logwrite.write("login", "Finesse Thread Start!!");
             */
-            String strMsg = @"<?xml version='1.0' ?> <stream:stream to='insunginfo.co.kr' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
-            logwrite.write("startPreProcess", strMsg);
-            writer.WriteLine(strMsg);
-            writer.Flush();
-
-            returnMsg = reader.ReadLine();
-            logwrite.write("startPreProcess", "RETURN [" + returnMsg + "]");
-
-
-            logwrite.write("startPreProcess", "2. AUTH MESSAGE SEND ");
-            /*
-            strMsg.Format("<auth xmlns=\'urn:ietf:params:xml:ns:xmpp-sasl\' "\
-		    " mechanism='PLAIN' xmlns:ga=\'http://www.google.com/talk/protocol/auth\' "\
-		    " ga:client-uses-full-bind-result=\'true\'>"\
-		    " %s</auth>", INSUNG::Base64::AuthBase64_IDAndPw(szID, szPW));
-             * */
-
-            UTIL util = new UTIL();
-            strMsg = @"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN' xmlns:ga='http://www.google.com/talk/protocol/auth' ga:client-uses-full-bind-result='true'>";
-            strMsg += util.AuthBase64_IDAndPw(agent.getAgentID(), agent.getAgentPwd()) + "</auth>";
-
-            logwrite.write("startPreProcess", strMsg);
-            writer.WriteLine(strMsg);
-            writer.Flush();
-
-            returnMsg = reader.ReadLine();
-            logwrite.write("startPreProcess", "RETURN [" + returnMsg + "]");
 
             return ERRORCODE.SUCCESS;
         }
 
+        private int startPreProcess1()
+        {
+            UTIL util = new UTIL();
+            string strID = "insungUCDev";
+            Random random = new Random();
+            int ranNum = random.Next(1, 10);
+
+
+            string strMsg = @"<?xml version='1.0' ?><stream:stream to='"+connSvrIP+"' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+            send(strMsg);
+            recv();
+            recv();
+
+            strMsg = @"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN' xmlns:ga='http://www.google.com/talk/protocol/auth' ga:client-uses-full-bind-result='true'>" + util.AuthBase64_IDAndPw(agent.getAgentID(), agent.getAgentPwd()) + "</auth>";
+            send(strMsg);
+            recv();
+
+            strMsg = @"<stream:stream to='"+connSvrIP+"' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+            send(strMsg);
+            recv();
+
+            strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>isi</resource></bind></iq>";
+            send(strMsg);
+            recv();
+            ranNum++;
+
+            strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>";
+            send(strMsg);
+            recv();
+            ranNum++;
+
+
+            strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
+            send(strMsg);
+            recv();
+            ranNum++;
+
+
+            strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
+            send(strMsg);
+            recv();
+            ranNum++;
+
+
+            strMsg = @"<iq type='get' id='"+strID + util.lpad(Convert.ToString(ranNum), "a", 3)+"'><vCard xmlns='vcard-temp'/></iq>";
+            strMsg += @"<iq type='get' id='"+strID + util.lpad(Convert.ToString(ranNum), "a", 3)+"'><query xmlns='jabber:iq:roster'/></iq>";
+            strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items' node='http://jabber.org/protocol/commands'/></iq>";
+            strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy.eu.jabber.org'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
+            send(strMsg);
+            recv();
+            recv();
+            ranNum++;
+
+            strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy." + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
+            send(strMsg);
+            recv();
+            ranNum++;
+
+            strMsg = @"<presence><priority>1</priority><c xmlns='http://jabber.org/protocol/caps' node='http://pidgin.im/' hash='sha-1' ver='I22W7CegORwdbnu0ZiQwGpxr0Go='/><x xmlns='vcard-temp:x:update'><photo/></x></presence>";
+            strMsg += @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
+            send(strMsg);
+            recv();
+            ranNum++;
+
+
+            return ERRORCODE.SUCCESS;
+        }
+
+
+        private void send(String msg)
+        {
+            logwrite.write("send", msg);
+            writer.WriteLine(msg);
+            writer.Flush();
+        }
+
+        private void recv()
+        {
+
+            //int BUFFERSIZE = sock.ReceiveBufferSize;
+            byte[] buffer = new byte[32768];
+            //int bytes = writeStream.Read(buffer, 0, buffer.Length);
+
+            int read;
+
+            read = writeStream.Read(buffer, 0, buffer.Length);
+            if (read > 0)
+            {
+                string message = Encoding.UTF8.GetString(buffer, 0, read);
+                logwrite.write("recv", message);
+            }
+            else 
+            {
+                logwrite.write("recv", "return bytes size -> " + read);    
+            }
+            
+            /*
+            if (bytes > 0)
+            {
+              
+            }
+            else
+            {
+                logwrite.write("recv", "return bytes size -> " + bytes);    
+            }
+             * */
+            
+        }
       
     }
 }

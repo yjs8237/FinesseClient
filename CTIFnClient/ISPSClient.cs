@@ -16,10 +16,11 @@ namespace TCPSOCKET
     class ISPSClient : ClientSocket
     {
          private ArrayList ipArrList;
+         private Finesse finesseObj;
 
-         public ISPSClient(LogWrite logwrite) : base(logwrite)
+         public ISPSClient(LogWrite logwrite ,  Finesse finesseObj) : base(logwrite)
         {
-               
+            this.finesseObj = finesseObj;
         }
          public override int startClient()
          {
@@ -53,8 +54,8 @@ namespace TCPSOCKET
                      reader = new StreamReader(writeStream, encode);
 
                      // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작
-                     ISocketReceiver aemsRecv = new AEMSReceiver(reader);
-                     ThreadStart ts = new ThreadStart(aemsRecv.runThread);
+                     ISocketReceiver ispsRecv = new ISPSReceiver(sock, finesseObj);
+                     ThreadStart ts = new ThreadStart(ispsRecv.runThread);
                      Thread thread = new Thread(ts);
                      thread.Start();
 

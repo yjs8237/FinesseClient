@@ -47,6 +47,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBox13 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.textBox12 = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -220,6 +222,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.textBox13);
+            this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.textBox12);
             this.groupBox1.Controls.Add(this.label11);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
@@ -228,6 +232,23 @@
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Server Connection";
+            // 
+            // textBox13
+            // 
+            this.textBox13.Location = new System.Drawing.Point(79, 78);
+            this.textBox13.Name = "textBox13";
+            this.textBox13.Size = new System.Drawing.Size(100, 21);
+            this.textBox13.TabIndex = 21;
+            this.textBox13.Text = "isifin.isi.icm";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(11, 81);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(48, 12);
+            this.label12.TabIndex = 20;
+            this.label12.Text = "Domain";
             // 
             // textBox12
             // 
@@ -280,6 +301,7 @@
             this.button3.TabIndex = 20;
             this.button3.Text = "로그인";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // textBox11
             // 
@@ -287,6 +309,7 @@
             this.textBox11.Name = "textBox11";
             this.textBox11.Size = new System.Drawing.Size(100, 21);
             this.textBox11.TabIndex = 25;
+            this.textBox11.Text = "7112";
             // 
             // label10
             // 
@@ -303,6 +326,7 @@
             this.textBox10.Name = "textBox10";
             this.textBox10.Size = new System.Drawing.Size(100, 21);
             this.textBox10.TabIndex = 23;
+            this.textBox10.Text = "7112";
             // 
             // label9
             // 
@@ -319,6 +343,7 @@
             this.textBox9.Name = "textBox9";
             this.textBox9.Size = new System.Drawing.Size(100, 21);
             this.textBox9.TabIndex = 21;
+            this.textBox9.Text = "7112";
             // 
             // label8
             // 
@@ -397,6 +422,8 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textBox12;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textBox13;
+        private System.Windows.Forms.Label label12;
     }
 }
 

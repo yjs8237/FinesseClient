@@ -7,7 +7,7 @@ using TCPSOCKET;
 using ThreadGroup;
 using CONST;
 using VO;
-
+using EVENTOBJ;
 namespace CTIFnClient
 {
     public abstract class Finesse
@@ -30,7 +30,7 @@ namespace CTIFnClient
             logwrite = LogWrite.getInstance();
         }
 
-        public int fnConnect(String fn_A_IP , String fn_B_IP , String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
+        public int fnConnect(String fn_A_IP , String fn_B_IP ,String finesseDomain, String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
         {
             logwrite.write("fnConnect", "call fnConnect()");
             
@@ -48,14 +48,16 @@ namespace CTIFnClient
             int finesseport = SERVERINFO.Finesse_PORT;
 
             // 각 서버정보 객체화
-            ServerInfo finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport);
-            ServerInfo aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port);
-            ServerInfo ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port);
+            ServerInfo finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport, finesseDomain);
+            ServerInfo aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port );
+            ServerInfo ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port );
 
 
             /*
              *  finesse 세션 연결
              * */
+
+            
             if (isFinesseConnected)
             {
                 logwrite.write("fnConnect", "Finesse is Already Connected!!");
@@ -74,14 +76,17 @@ namespace CTIFnClient
                     isFinesseConnected = true;
                 }
             }
+             
 
+            
+            /*
             if (isAEMSConnected)
             {
                 logwrite.write("fnConnect", "AEMS is Already Connected!!");
             }
             else
             {
-                AEMSClient = new AEMSClient(logwrite);
+                AEMSClient = new AEMSClient(logwrite , this);
                 AEMSClient.setServerInfo(aemsInfo);
                 if (AEMSClient.startClient() != ERRORCODE.SUCCESS)
                 {
@@ -94,6 +99,7 @@ namespace CTIFnClient
                 }
             }
 
+            /*
 
             if (isISPSConnected)
             {
@@ -101,7 +107,7 @@ namespace CTIFnClient
             }
             else
             {
-                ISPSClient = new ISPSClient(logwrite);
+                ISPSClient = new ISPSClient(logwrite , this);
                 ISPSClient.setServerInfo(ispsInfo);
                 if (ISPSClient.startClient() != ERRORCODE.SUCCESS)
                 {
@@ -119,6 +125,7 @@ namespace CTIFnClient
                 raiseEvent(EVENT.OnConnection, "CONNECTED SUCCESS");
             }
 
+             * */
             return ERRORCODE.SUCCESS;
         }
 
@@ -141,11 +148,14 @@ namespace CTIFnClient
 
         public int fnLogin(String agentID , String agentPwd , String extension , String peripheralID)
         {
+            logwrite.write("fnConnect", "call fnLogin() ID [" + agentID + "] Password [ " + agentPwd + "] extension [" + extension + "]");
             Agent agent = new Agent(agentID , agentPwd, extension , peripheralID);
+            return FinesseClient.login(agent);
+        }
 
-            FinesseClient.login(agent);
-
-            return ERRORCODE.SUCCESS;
+        public void test()
+        {
+            
         }
 
 
@@ -167,7 +177,7 @@ namespace CTIFnClient
         }
 
 
-
+        public abstract void GetEventOnError(String evt);
         public abstract void GetEventOnConnection(String evt);
         public abstract void GetEventOnConnectionClosed(String evt);
         public abstract void GetEventOnCallBegin(String evt);

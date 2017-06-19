@@ -30,6 +30,9 @@ namespace TCPSOCKET
 
         private static bool isSocketConnected = false;
 
+
+        protected string connSvrIP;
+
         protected ClientSocket(LogWrite logwrite)
         {
             this.logwrite = logwrite;

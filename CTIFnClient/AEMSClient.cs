@@ -16,11 +16,15 @@ namespace TCPSOCKET
     {
 
         private ArrayList ipArrList;
+        private Finesse finesseObj;
 
-        public AEMSClient(LogWrite logwrite) : base(logwrite)
+        public AEMSClient(LogWrite logwrite ,  Finesse finesseObj)
+            : base(logwrite)
         {
-               
+            this.finesseObj = finesseObj;
         }
+
+
 
         public override int startClient()
         {
@@ -55,7 +59,7 @@ namespace TCPSOCKET
                     reader = new StreamReader(writeStream, encode);
 
                     // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작
-                    ISocketReceiver aemsRecv = new AEMSReceiver(reader);
+                    ISocketReceiver aemsRecv = new AEMSReceiver(sock , finesseObj);
                     ThreadStart ts = new ThreadStart(aemsRecv.runThread);
                     Thread thread = new Thread(ts);
                     thread.Start();

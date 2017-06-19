@@ -13,6 +13,7 @@ namespace CTIFnClient
 
         private ArrayList ipArrList;
         private int port;
+        private string serverDomain;
 
         public ServerInfo(String aIP, String bIP, int port)
         {
@@ -20,6 +21,15 @@ namespace CTIFnClient
             ipArrList.Add(aIP);
             ipArrList.Add(bIP);
             this.port = port;
+        }
+
+        public ServerInfo(String aIP, String bIP, int port, string domain)
+        {
+            ipArrList = new ArrayList();
+            ipArrList.Add(aIP);
+            ipArrList.Add(bIP);
+            this.port = port;
+            this.serverDomain = domain;
         }
 
         public ServerInfo(String aIP, String bIP, String cIP,int port)
@@ -42,6 +52,8 @@ namespace CTIFnClient
            
         }
 
+
+
         public ArrayList getIPList()
         {
             return this.ipArrList;
@@ -52,6 +64,10 @@ namespace CTIFnClient
             return this.port;
         }
 
+        public string getDomain()
+        {
+            return this.serverDomain;
+        }
 
 
     }
