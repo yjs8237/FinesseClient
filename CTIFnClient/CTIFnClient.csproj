@@ -59,7 +59,9 @@
     <Compile Include="ISPSReceiver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerInfo.cs" />
+    <Compile Include="URLHandler.cs" />
     <Compile Include="UTIL.cs" />
+    <Compile Include="XMLHandler.cs" />
     <Compile Include="XMLParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

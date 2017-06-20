@@ -14,7 +14,7 @@ using VO;
 
 namespace TCPSOCKET
 {
-    abstract class ClientSocket
+    class ClientSocket
     {
 
         protected TcpClient sock = null;
@@ -30,8 +30,6 @@ namespace TCPSOCKET
 
         private static bool isSocketConnected = false;
 
-
-        protected string connSvrIP;
 
         protected ClientSocket(LogWrite logwrite)
         {
@@ -92,7 +90,11 @@ namespace TCPSOCKET
 
                 if (success)
                 {
+                    writeStream = sock.GetStream();
+                    writer = new StreamWriter(writeStream);
 
+                    Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
+                    reader = new StreamReader(writeStream, encode);
                 }
                 else
                 {
@@ -173,8 +175,10 @@ namespace TCPSOCKET
         }
 
         // Finesse , AEMS , ISPS 접속 방식을 자식 클래스에게 위임
+        /*
         public abstract int startClient();
         public abstract int login(Agent agent);
-
+        public abstract int logout();
+         * */
     }
 }

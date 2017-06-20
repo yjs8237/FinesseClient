@@ -5,14 +5,12 @@ using System.Text;
 
 namespace EVENTOBJ
 {
-    class Evt : IEvent
+    public class Evt : IEvent
     {
 
         private int evtCode;
         private string evtType;
         private string evtMsg;
-
-      
 
         public void setEventCode(int evtCode)
         {

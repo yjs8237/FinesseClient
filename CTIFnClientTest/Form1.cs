@@ -15,10 +15,12 @@ namespace CTIFnClientTest
     public partial class Form1 : Form
     {
         private UseDll useDll;
+        private LogWrite logwrite;
         public Form1()
         {
             InitializeComponent();
             useDll = new UseDll();
+            logwrite = LogWrite.getInstance();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -34,12 +36,13 @@ namespace CTIFnClientTest
             int ISPS_Port = Int32.Parse(textBox6.Text);
             int loglevel = Int32.Parse(textBox12.Text);
             
-            useDll.fnConnect(finesse_A, finesse_B, finesseDomain, AEMS_A, AEMS_B, AEMS_Port, ISPS_A, ISPS_B, ISPS_Port, loglevel);
+            int ret = useDll.fnConnect(finesse_A, finesse_B, finesseDomain, AEMS_A, AEMS_B, AEMS_Port, ISPS_A, ISPS_B, ISPS_Port, loglevel);
+            logwrite.write("", "RETURN DATA : " + ret);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            useDll.fnDisconnect();
+            logwrite.write("", "RETURN DATA : " +  useDll.fnDisconnect());
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -49,7 +52,19 @@ namespace CTIFnClientTest
             string agentPwd = textBox10.Text;   // agentPwd
             string extension = textBox11.Text;   // extension
 
-            useDll.fnLogin(agentID, agentPwd, extension, "5000");
+           
+            logwrite.write("", "RETURN DATA : " +  useDll.fnLogin(agentID, agentPwd, extension, "5000"));
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "RETURN DATA : " + useDll.fnLogout());
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            string dialNumber = textBox14.Text;    // dialNumber
+            logwrite.write("", "RETURN DATA : " + useDll.fnMakeCall(dialNumber));
         }
 
     }

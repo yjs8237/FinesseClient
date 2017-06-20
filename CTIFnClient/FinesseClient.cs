@@ -11,7 +11,7 @@ using ThreadGroup;
 using VO;
 using CONST;
 using HTTP;
-
+using XML;
 
 namespace TCPSOCKET
 {
@@ -24,27 +24,32 @@ namespace TCPSOCKET
         private ISocketSender finesseSend;
         private Agent agent;
         private HttpHandler httpHandler;
+        private Hashtable finesseCurrent;  // 현재 접속되어 있는 Finesse 서버 정보를 관리 하기 위함
 
+        private bool isAlreadyAuth;     // 이벤트를 받기위해 XMPP 인증 절차 여부, XMPP 세션이 끊어지지 않으면, XMPP 인증은 한번만 받아야 한다.
 
         public FinesseClient(LogWrite logwrite , Finesse finesseObj) : base(logwrite)
         {
             this.finesseObj = finesseObj;
+            this.finesseCurrent = new Hashtable();
+            this.isAlreadyAuth = false;
         }
 
-        public override int startClient()
+        public int reConnect()
         {
-
-            // 이미 소켓이 연결되어 있는지 체크
-            if (isConnected())
+            if (sock != null && sock.Connected)
             {
-                logwrite.write("startClient", "Finesse Already Connected !!");
-                return ERRORCODE.SUCCESS;
+                logwrite.write("reConnect", "Finesse Already Connected !!");
+                return ERRORCODE.FAIL;
             }
+            return finesseConnect();
+        }
 
+        public int finesseConnect()
+        {
 
             // 서버의 IP ArrayList 를 가져온다. serverInfo 객체는 부모 클래스에 존재
             ipArrList = serverInfo.getIPList();
-
             Random ran = new Random();
             // Finesse 서버 접속은 랜덤으로 접속을 시도한다.
             int randomServer = ran.Next(0, ipArrList.Count);
@@ -64,14 +69,8 @@ namespace TCPSOCKET
                     logwrite.write("startClient", "Finesse Connection SUCCESS!! [" + serverIP + "][" + serverInfo.getPort() + "]");
                     bisConnected = true;
 
-                    writeStream = sock.GetStream();
-
-                    writer = new StreamWriter(writeStream);
-
-                    Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
-                    reader = new StreamReader(writeStream, encode);
-
-                    connSvrIP = serverIP; // 연결된 서버 IP SET
+                    finesseCurrent.Add("IP", serverIP);
+                    finesseCurrent.Add("PORT", serverInfo.getPort());
 
                     break;
                 }
@@ -88,10 +87,33 @@ namespace TCPSOCKET
             }
 
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
+        }
+
+        public  int startClient()
+        {
+
+            // 이미 소켓이 연결되어 있는지 체크
+            if (isConnected())
+            {
+                logwrite.write("startClient", "Finesse Already Connected !!");
+                return ERRORCODE.SUCCESS;
+            }
+
+            return finesseConnect();
             
         }
 
-        public override int login(Agent agent)
+        public  int logout()
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.logoutRequest((string)finesseCurrent["IP"], agent); 
+        }
+
+        public  int login(Agent agent)
         {
             this.agent = agent;
 
@@ -99,23 +121,29 @@ namespace TCPSOCKET
             // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작 (Call Event Handle)
 
             // 로그인 시도전 XMPP 사전 인증 절차를 거친다.
-            
-            if (startPreProcess1() != ERRORCODE.SUCCESS)
+
+            if (!isAlreadyAuth)
             {
-                return ERRORCODE.LOGIN_FAIL;
+                if (startPreProcess() != ERRORCODE.SUCCESS)
+                {
+                    return ERRORCODE.LOGIN_FAIL;
+                }
             }
-            
+
+            isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
             finesseRecv = new FinesseReceiver(sock, finesseObj);
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();
 
-
-            // 현재 접속되어 있는 Finesse 서버의 IP 와 Agent 정보를 생성자를 통해 넘겨준다.
-            httpHandler = new HttpHandler(connSvrIP, agent);
-
-
+            
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            httpHandler.loginRequest((string)finesseCurrent["IP"], agent);
+            
             /*
             // 소켓이 연결되면 서버로 패킷을 보내는 스레드 시작
             finesseSend = new FinesseSender(writer, finesseObj);
@@ -125,19 +153,28 @@ namespace TCPSOCKET
 
             logwrite.write("login", "Finesse Thread Start!!");
             */
-
             return ERRORCODE.SUCCESS;
         }
 
-        private int startPreProcess1()
+        public int makeCall(string dialNumber)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            httpHandler.makeCallRequest((string)finesseCurrent["IP"], agent, dialNumber);
+            return ERRORCODE.SUCCESS;
+        }
+
+
+        private int startPreProcess()
         {
             UTIL util = new UTIL();
             string strID = "insungUCDev";
             Random random = new Random();
             int ranNum = random.Next(1, 10);
 
-
-            string strMsg = @"<?xml version='1.0' ?><stream:stream to='"+connSvrIP+"' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+            string strMsg = @"<?xml version='1.0' ?><stream:stream to='"+(string)finesseCurrent["IP"]+"' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
             send(strMsg);
             recv();
             recv();
@@ -146,7 +183,7 @@ namespace TCPSOCKET
             send(strMsg);
             recv();
 
-            strMsg = @"<stream:stream to='"+connSvrIP+"' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+            strMsg = @"<stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
             send(strMsg);
             recv();
 
@@ -159,7 +196,6 @@ namespace TCPSOCKET
             send(strMsg);
             recv();
             ranNum++;
-
 
             strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
             send(strMsg);
@@ -200,9 +236,22 @@ namespace TCPSOCKET
 
         private void send(String msg)
         {
-            logwrite.write("send", msg);
-            writer.WriteLine(msg);
-            writer.Flush();
+
+            if (sock == null || !sock.Connected)
+            {
+                if (reConnect() == ERRORCODE.SUCCESS)
+                {
+                    logwrite.write("send", msg);
+                    writer.WriteLine(msg);
+                    writer.Flush();
+                }
+            }
+            else
+            {
+                logwrite.write("send", msg);
+                writer.WriteLine(msg);
+                writer.Flush();
+            }
         }
 
         private void recv()

@@ -60,6 +60,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.textBox9 = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.button5 = new System.Windows.Forms.Button();
+            this.textBox14 = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -199,7 +202,7 @@
             this.textBox8.Name = "textBox8";
             this.textBox8.Size = new System.Drawing.Size(100, 21);
             this.textBox8.TabIndex = 12;
-            this.textBox8.Text = "127.0.0.1";
+            this.textBox8.Text = "192.168.230.131";
             // 
             // label7
             // 
@@ -292,6 +295,7 @@
             this.button4.TabIndex = 26;
             this.button4.Text = "로그아웃";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button3
             // 
@@ -354,12 +358,42 @@
             this.label8.TabIndex = 20;
             this.label8.Text = "AgentID";
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(207, 264);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(90, 23);
+            this.button5.TabIndex = 27;
+            this.button5.Text = "MakeCall";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // textBox14
+            // 
+            this.textBox14.Location = new System.Drawing.Point(91, 266);
+            this.textBox14.Name = "textBox14";
+            this.textBox14.Size = new System.Drawing.Size(100, 21);
+            this.textBox14.TabIndex = 29;
+            this.textBox14.Text = "7111";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(23, 269);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(50, 12);
+            this.label13.TabIndex = 28;
+            this.label13.Text = "Number";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(762, 364);
+            this.Controls.Add(this.button5);
             this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.textBox14);
+            this.Controls.Add(this.label13);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.textBox6);
             this.Controls.Add(this.label5);
@@ -424,6 +458,9 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.TextBox textBox13;
         private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.TextBox textBox14;
+        private System.Windows.Forms.Label label13;
     }
 }
 

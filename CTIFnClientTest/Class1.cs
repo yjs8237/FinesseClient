@@ -68,7 +68,12 @@ namespace CTIFnClientTest
 
         public override void GetEventOnError(String evt)
         {
-            throw new NotImplementedException();
+            Console.WriteLine(evt);
+        }
+
+        public override void GetEventOnAgentStateChange(String evt)
+        {
+            Console.WriteLine(evt);
         }
     }
 }

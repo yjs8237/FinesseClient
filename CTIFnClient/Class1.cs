@@ -8,14 +8,16 @@ using ThreadGroup;
 using CONST;
 using VO;
 using EVENTOBJ;
+
+
 namespace CTIFnClient
 {
     public abstract class Finesse
     {
 
-        private ClientSocket FinesseClient;
-        private ClientSocket AEMSClient;
-        private ClientSocket ISPSClient;
+        private FinesseClient FinesseClient;
+        private AEMSClient AEMSClient;
+        private ISPSClient ISPSClient;
 
 
         private LogWrite logwrite;
@@ -32,7 +34,7 @@ namespace CTIFnClient
 
         public int fnConnect(String fn_A_IP , String fn_B_IP ,String finesseDomain, String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
         {
-            logwrite.write("fnConnect", "call fnConnect()");
+            logwrite.write("fnConnect", "call fnConnect() \n");
             
             StringBuilder sb = new StringBuilder();
             logwrite.write("fnConnect", "Finesse A \t [" + fn_A_IP + "]");
@@ -76,10 +78,7 @@ namespace CTIFnClient
                     isFinesseConnected = true;
                 }
             }
-             
-
             
-            /*
             if (isAEMSConnected)
             {
                 logwrite.write("fnConnect", "AEMS is Already Connected!!");
@@ -99,7 +98,7 @@ namespace CTIFnClient
                 }
             }
 
-            /*
+            
 
             if (isISPSConnected)
             {
@@ -122,16 +121,18 @@ namespace CTIFnClient
 
             if (isFinesseConnected && isAEMSConnected && isISPSConnected)
             {
-                raiseEvent(EVENT.OnConnection, "CONNECTED SUCCESS");
+                IEvent evt = new Evt();
+                evt.setEventCode(EVENT.OnConnection);
+                evt.setEventMsg("CONNECTED SUCCESS");
+                raiseEvent(evt);
             }
 
-             * */
             return ERRORCODE.SUCCESS;
         }
 
         public int fnDisconnect()
         {
-            logwrite.write("fnConnect", "call fnDisconnect()");
+            logwrite.write("fnConnect", "call fnDisconnect() \n");
 
             FinesseClient.disconnect();
             AEMSClient.disconnect();
@@ -148,27 +149,53 @@ namespace CTIFnClient
 
         public int fnLogin(String agentID , String agentPwd , String extension , String peripheralID)
         {
-            logwrite.write("fnConnect", "call fnLogin() ID [" + agentID + "] Password [ " + agentPwd + "] extension [" + extension + "]");
+            logwrite.write("fnConnect", "call fnLogin() ID [" + agentID + "] Password [" + agentPwd + "] extension [" + extension + "] \n");
             Agent agent = new Agent(agentID , agentPwd, extension , peripheralID);
             return FinesseClient.login(agent);
         }
 
-        public void test()
+        public int fnLogout()
         {
-            
+            logwrite.write("fnConnect", "call fnLogout() \n");
+            return FinesseClient.logout();
+        }
+
+        public int fnMakeCall(string dialNumber)
+        {
+            logwrite.write("fnConnect", "call fnMakeCall() \n");
+            return FinesseClient.makeCall(dialNumber);
         }
 
 
-        private void raiseEvent(int Evt , String msg)
+        public void raiseEvent(IEvent evt)
         {
-            switch (Evt)
+            if (evt == null)
+            {
+                logwrite.write("raiseEvent", "evt NULL");
+                return;
+            }
+
+            Evt evtObj = (Evt)evt;
+            int evtCode = evtObj.getEventCode();
+            string evtMessage = evtObj.getEventMsg();
+
+            switch (evtCode)
             {
                 case EVENT.OnConnection:
-                    logwrite.write("raiseEvent", ":: EVENT :: GetEventOnConnection [" + msg + "]");
-                    GetEventOnConnection(msg);
+
+                    logwrite.write("raiseEvent", "::::::::::::::: EVENT ::::::::: GetEventOnConnection :::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnConnection(evtMessage);
+                    break;
+                
+                case EVENT.OnAgentStateChange:
+                    logwrite.write("raiseEvent", "::::::::::::::: EVENT ::::::::: GetEventOnAgentStateChange :::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnAgentStateChange(evtMessage);
                     break;
 
-                
                 default :
 
                     break;
@@ -176,7 +203,7 @@ namespace CTIFnClient
 
         }
 
-
+        public abstract void GetEventOnAgentStateChange(String evt);
         public abstract void GetEventOnError(String evt);
         public abstract void GetEventOnConnection(String evt);
         public abstract void GetEventOnConnectionClosed(String evt);

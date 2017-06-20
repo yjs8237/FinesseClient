@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EVENTOBJ
 {
-    interface IEvent
+    public interface IEvent
     {
         void setEventCode(int evtCode);
         int getEventCode();

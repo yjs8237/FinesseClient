@@ -22,7 +22,7 @@ namespace TCPSOCKET
         {
             this.finesseObj = finesseObj;
         }
-         public override int startClient()
+         public  int startClient()
          {
 
              // 이미 소켓이 연결되어 있는지 체크
@@ -67,7 +67,12 @@ namespace TCPSOCKET
              return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
          }
 
-         public override int login(Agent agent)
+         public  int login(Agent agent)
+         {
+             throw new NotImplementedException();
+         }
+
+         public  int logout()
          {
              throw new NotImplementedException();
          }

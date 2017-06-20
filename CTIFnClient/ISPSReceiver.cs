@@ -54,6 +54,12 @@ namespace ThreadGroup
                     reader.Close();
                     reader = null;
                 }
+                if (writeStream != null)
+                {
+                    writeStream.Close();
+                    writeStream = null;
+                }
+
                 logwrite.write("ISPSReceiver runThread", e.StackTrace);
             }
         }

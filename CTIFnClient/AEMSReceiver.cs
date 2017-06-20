@@ -66,6 +66,11 @@ namespace ThreadGroup
                     reader.Close();
                     reader = null;
                 }
+                if (writeStream != null)
+                {
+                    writeStream.Close();
+                    writeStream = null;
+                }
                 logwrite.write("AEMSReceiver runThread", e.StackTrace);
             }
         }

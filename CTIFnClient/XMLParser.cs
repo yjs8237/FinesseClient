@@ -27,30 +27,38 @@ namespace XML
         {
             IEvent evt = null;
 
-            if (xml == null)
+            try
             {
-                return null;
+                if (xml == null)
+                {
+                    return null;
+                }
+                // xml 로드
+                xmlDoucment.LoadXml(xml);
+
+                evt = new Evt();
+                evt.setEventMsg(xml);
+
+                // 에러 
+                nodeList = xmlDoucment.GetElementsByTagName("ApiErrors");
+                if (nodeList.Count > 0)
+                {
+                    evt.setEventCode(EVENT.OnError);
+                    return evt;
+                }
+
+                // Agent State Change
+                nodeList = xmlDoucment.GetElementsByTagName("Update");
+                if (nodeList.Count > 0)
+                {
+                    evt.setEventCode(EVENT.OnAgentStateChange);
+                    return evt;
+                }
             }
-            // xml 로드
-            xmlDoucment.LoadXml(xml);
-
-            evt = new Evt();
-            evt.setEventMsg(xml);
-
-            // 에러 
-            nodeList = xmlDoucment.GetElementsByTagName("ApiErrors");
-            if (nodeList.Count > 0)
+            catch (Exception e)
             {
-                evt.setEventCode(EVENT.OnError);
-                return evt;
-            }
-
-            // Agent State Change
-            nodeList = xmlDoucment.GetElementsByTagName("Update");
-            if (nodeList.Count > 0)
-            {
-                evt.setEventCode(EVENT.OnAgentStateChange);
-                return evt;
+                logwrite.write("parseXML", e.StackTrace);
+                logwrite.write("parseXML", e.ToString());
             }
 
             return evt;

@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using System.Net.Sockets;
+using System.Web;
 using CTIFnClient;
 using XML;
 using EVENTOBJ;
+
 
 
 namespace ThreadGroup
@@ -50,35 +52,67 @@ namespace ThreadGroup
 
                 logwrite.write("FinesseReceiver runThread", " Finesse Recv Thread Start !!");
 
-                /*
-                if (reader == null)
-                {
-                    logwrite.write("FinesseReceiver runThread", "reader null");
-                }
-                
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    // do something with line
-                    logwrite.write("FinesseReceiver runThread", line);
-                }
-                */
 
                 IEvent evt = null;
 
+                if (writeStream == null)
+                {
+                    logwrite.write("FinesseReceiver runThread", "writeStream null");
+                }
+                
+                /*
+                string line;
+                while ((line = reader.ReadToEnd()) != null)
+                {
+                    // do something with line
+                    line = line.Replace("&lt;", "<");
+                    line = line.Replace("&gt;", ">");
+                    logwrite.write("FinesseReceiver runThread", line);
+                }
+                */
+                
                 int BUFFERSIZE = sock.ReceiveBufferSize;
                 byte[] buffer = new byte[BUFFERSIZE];
                 int bytelen = 0;
                 while ((bytelen = writeStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, bytelen);
-                    logwrite.write("recv", message);
+                    message = message.Replace("&lt;", "<");
+                    message = message.Replace("&gt;", ">");
+                    logwrite.write("FinesseReceiver runThread", message);
 
-                    // 서버로부터 받은 이벤트 XML 을 파싱한다.
-                    evt = xmlParser.parseXML(message);
+                    string rootString = "";
 
-                    callRaiseEvent(evt);
+                    int index = 0;
+
+                    while (true)
+                    {
+                        index = message.IndexOf("</message>");
+                        int messageLen = "</message>".Length;
+
+                        if (index < 0) { break; }
+
+                        rootString = message.Substring(0, index + "</message>".Length);
+
+                        // 서버로부터 받은 이벤트 XML 을 파싱한다.
+                        evt = xmlParser.parseXML(rootString);
+                        finesseObj.raiseEvent(evt);
+
+
+                        if (rootString.Length == message.Length)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            message = message.Substring(rootString.Length, message.Length - rootString.Length);
+
+                        }
+
+                    }
+                    
                 }
+        
 
             }
             catch (Exception e)
@@ -88,32 +122,36 @@ namespace ThreadGroup
                     reader.Close();
                     reader = null;
                 }
+
+                if (writeStream != null)
+                {
+                    writeStream.Close();
+                    writeStream = null;
+                }
                 logwrite.write("FinesseReceiver runThread", e.ToString());
                 logwrite.write("FinesseReceiver runThread", e.StackTrace);
             }
         }
 
-
-
-        private void callRaiseEvent(IEvent evt)
+        private string getRootDoc(string xml)
         {
-            // 이벤트 발생 로직 구현 
+            string returnStr = null;
 
-            int evtCode = evt.getEventCode();
-            string evtMsg = evt.getEventMsg();
+            int index = xml.IndexOf("</message>");
 
-            switch (evtCode)
-            {
-                case EVENT.OnError:
-                    finesseObj.GetEventOnError(evtMsg);
-                    logwrite.write("callRaiseEvent", "GetEventOnError");
-                    logwrite.write("callRaiseEvent", evtMsg);
-                    break;
+            if(index > 0) {
+
+                string tempStr = xml.Substring(0, index + "</message>".Length);
+
+                if (tempStr.Length > 0)
+                {
+                    return tempStr;
+                }
+
             }
-
-            //finesseObj.GetEventOnCallBegin(msg);
+            return returnStr;
         }
-       
+
 
     }
 }

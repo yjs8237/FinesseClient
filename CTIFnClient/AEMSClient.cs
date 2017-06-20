@@ -26,7 +26,7 @@ namespace TCPSOCKET
 
 
 
-        public override int startClient()
+        public  int startClient()
         {
 
             // 이미 소켓이 연결되어 있는지 체크
@@ -75,7 +75,12 @@ namespace TCPSOCKET
             
         }
 
-        public override int login(Agent agent)
+        public  int login(Agent agent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public  int logout()
         {
             throw new NotImplementedException();
         }
