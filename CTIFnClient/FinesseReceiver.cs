@@ -79,15 +79,20 @@ namespace ThreadGroup
                     string message = Encoding.UTF8.GetString(buffer, 0, bytelen);
                     message = message.Replace("&lt;", "<");
                     message = message.Replace("&gt;", ">");
-                    logwrite.write("FinesseReceiver runThread", message);
+                    //logwrite.write("FinesseReceiver runThread", message);
 
                     string rootString = "";
 
                     int index = 0;
 
+
+                    /*
+                     * XML Root 가 한번에 두개씩 리턴되는 경우가 있어 XML 파싱이 제대로 되지 않는 현상을 방지하기 위해
+                     * 
+                     * */
                     while (true)
                     {
-                        index = message.IndexOf("</message>");
+                        index = message.IndexOf("</message>");  // Root XML
                         int messageLen = "</message>".Length;
 
                         if (index < 0) { break; }
@@ -106,7 +111,6 @@ namespace ThreadGroup
                         else
                         {
                             message = message.Substring(rootString.Length, message.Length - rootString.Length);
-
                         }
 
                     }

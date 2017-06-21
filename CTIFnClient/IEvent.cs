@@ -13,6 +13,11 @@ namespace EVENTOBJ
          string getEventType();
          void setEventMsg(string evtMsg);
          string getEventMsg();
+         void setDialogID(string dialogID);
+         string getDialogID();
+
+         void setAgentState(string agentState);
+         string getAgentState();
     }
 
     class EVENT

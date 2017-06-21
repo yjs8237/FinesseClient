@@ -11,6 +11,9 @@ namespace EVENTOBJ
         private int evtCode;
         private string evtType;
         private string evtMsg;
+        private string dialogID;
+        private string agentState;
+
 
         public void setEventCode(int evtCode)
         {
@@ -41,6 +44,25 @@ namespace EVENTOBJ
             return this.evtMsg;
         }
 
+        public void setDialogID(string dialogID)
+        {
+            this.dialogID = dialogID;
+        }
+
+        public string getDialogID()
+        {
+            return this.dialogID;
+        }
+
+        public void setAgentState(string agentState)
+        {
+            this.agentState = agentState;
+        }
+
+        public string getAgentState()
+        {
+            return this.agentState;
+        }
       
     }
 }

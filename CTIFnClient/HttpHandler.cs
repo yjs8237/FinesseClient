@@ -15,7 +15,7 @@ namespace HTTP
     {
         
         private HttpWebRequest request;
-        private WebResponse response;
+        private HttpWebResponse response;
         private StreamWriter writer;
         private StreamReader reader;
 
@@ -52,21 +52,27 @@ namespace HTTP
 
                 logwrite.write("requestRESTAPI", "============================= REQUEST REST API =================================");
                 logwrite.write("requestRESTAPI", "  URL \t : " + URL);
+                logwrite.write("requestRESTAPI", "  METHOD \t : " + methodType);
                 logwrite.write("requestRESTAPI", "  DATA \t : " + requestData);
                 logwrite.write("requestRESTAPI", "  basicEncode \t : " + basicEncode);
-                logwrite.write("requestRESTAPI", "=================================================================================");
-
 
                 writer = new StreamWriter(request.GetRequestStream());
                 writer.Write(requestData);
                 writer.Close();
 
+                response = (HttpWebResponse) request.GetResponse();
+                int code = Convert.ToInt32(response.StatusCode);
+               
 
-                response = request.GetResponse();
                 Stream webStream = response.GetResponseStream();
                 reader = new StreamReader(webStream);
 
                 string responseStr = reader.ReadToEnd();
+
+                logwrite.write("requestRESTAPI", "============================= RESPONSE REST API =================================");
+                logwrite.write("requestRESTAPI", "  code \t : " + code);
+                logwrite.write("requestRESTAPI", "  DATA \t : " + responseStr);
+                logwrite.write("requestRESTAPI", "=================================================================================");
 
                 reader.Close();
 
@@ -74,7 +80,7 @@ namespace HTTP
             }
             catch (Exception e)
             {
-
+                logwrite.write("requestRESTAPI", e.ToString());
             }
 
             return ERRORCODE.SUCCESS;
@@ -82,17 +88,37 @@ namespace HTTP
 
         public int loginRequest(string serverIP , Agent agent)
         {
-            return requestRESTAPI(urlHandler.getLoginURL(serverIP, agent), agent , "PUT", xmlHandler.getLogin(agent.getExtension()));
+            return requestRESTAPI(urlHandler.getUserURL(serverIP, agent), agent , "PUT", xmlHandler.getLogin(agent.getExtension()));
         }
 
         public int logoutRequest(string serverIP, Agent agent)
         {
-            return requestRESTAPI(urlHandler.getLogoutURL(serverIP, agent), agent ,"PUT",xmlHandler.getLogout());
+            return requestRESTAPI(urlHandler.getUserURL(serverIP, agent), agent, "PUT", xmlHandler.getLogout());
         }
 
         public int makeCallRequest(string serverIP, Agent agent , string dialNumber)
         {
-            return requestRESTAPI(urlHandler.getMakeCallURL(serverIP, agent), agent ,"POST", xmlHandler.getMakeCall(agent.getExtension(), dialNumber));
+            return requestRESTAPI(urlHandler.getDialogURL(serverIP, agent), agent ,"POST", xmlHandler.getMakeCall(agent.getExtension(), dialNumber));
+        }
+
+        public int answerRequest(string serverIP, Agent agent, string dialogID)
+        {
+            return requestRESTAPI(urlHandler.getAnswerURL(serverIP, agent, dialogID), agent, "PUT", xmlHandler.getAnswer(agent.getExtension()));
+        }
+
+        public int releaseRequest(string serverIP, Agent agent, string dialogID)
+        {
+            return requestRESTAPI(urlHandler.getAnswerURL(serverIP, agent, dialogID), agent, "PUT", xmlHandler.getRelease(agent.getExtension()));
+        }
+
+        public int agentStateChangeRequest(string serverIP, Agent agent, string state)
+        {
+            return requestRESTAPI(urlHandler.getUserURL(serverIP, agent), agent, "PUT", xmlHandler.getAgentState(state));
+        }
+
+        public int agentStateChangeRequest(string serverIP, Agent agent, string state, string reasonCode)
+        {
+            return requestRESTAPI(urlHandler.getUserURL(serverIP, agent), agent, "PUT", xmlHandler.getAgentState(state, reasonCode));
         }
 
     }

@@ -20,7 +20,6 @@ namespace TCPSOCKET
         protected TcpClient sock = null;
         //protected Socket sock = null;
 
-
         protected NetworkStream writeStream;
         protected StreamReader reader;
         protected StreamWriter writer;
@@ -91,10 +90,14 @@ namespace TCPSOCKET
                 if (success)
                 {
                     writeStream = sock.GetStream();
+
+                    //writeStream.ReadTimeout = 3000;
+
                     writer = new StreamWriter(writeStream);
 
                     Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                     reader = new StreamReader(writeStream, encode);
+                    
                 }
                 else
                 {
@@ -122,7 +125,7 @@ namespace TCPSOCKET
             }
             catch (Exception e)
             {
-                logwrite.write("connect", e.StackTrace);
+                logwrite.write("connect", e.ToString());
 
                 if (sock != null)
                 {

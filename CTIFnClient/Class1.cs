@@ -27,6 +27,8 @@ namespace CTIFnClient
         private bool isAEMSConnected = false;
         private bool isISPSConnected = false;
 
+        private string dialogID;
+
         public Finesse()
         {
             logwrite = LogWrite.getInstance();
@@ -167,11 +169,35 @@ namespace CTIFnClient
         }
 
 
+        public int fnAnswer()
+        {
+            logwrite.write("fnAnswer", "call fnAnswer() \n");
+            return FinesseClient.answer(dialogID);
+        }
+
+        public int fnRelease()
+        {
+            logwrite.write("fnRelease", "call fnRelease() \n");
+            return FinesseClient.release(dialogID);
+        }
+
+        public int fnAgentState(string state)
+        {
+            logwrite.write("fnAgentState", "call fnAgentState("+state+") \n");
+            return FinesseClient.agentState(state);
+        }
+
+        public int fnAgentState(string state, string reasonCode)
+        {
+            logwrite.write("fnAgentState", "call fnAgentState(" + state + " , " +reasonCode+ ") \n");
+            return FinesseClient.agentState(state, reasonCode);
+        }
+
         public void raiseEvent(IEvent evt)
         {
             if (evt == null)
             {
-                logwrite.write("raiseEvent", "evt NULL");
+                logwrite.write("raiseEvent", ":::::::::::::::::::::::: evt NULL ::::::::::::::::::::::::");
                 return;
             }
 
@@ -179,23 +205,33 @@ namespace CTIFnClient
             int evtCode = evtObj.getEventCode();
             string evtMessage = evtObj.getEventMsg();
 
+            evtMessage = evtMessage.Replace("\n", "");
+
             switch (evtCode)
             {
                 case EVENT.OnConnection:
 
-                    logwrite.write("raiseEvent", "::::::::::::::: EVENT ::::::::: GetEventOnConnection :::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnConnection(evtMessage);
                     break;
                 
                 case EVENT.OnAgentStateChange:
-                    logwrite.write("raiseEvent", "::::::::::::::: EVENT ::::::::: GetEventOnAgentStateChange :::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnAgentStateChange ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", "STATE : " + evt.getAgentState());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnAgentStateChange(evtMessage);
                     break;
 
+                case EVENT.OnCallBegin:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnCallBegin ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    dialogID = evt.getDialogID();
+                    GetEventOnCallBegin(evtMessage);
+                    break;
                 default :
 
                     break;

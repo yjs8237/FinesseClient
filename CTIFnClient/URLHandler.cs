@@ -9,19 +9,19 @@ namespace HTTP
     class URLHandler
     {
 
-        public string getLoginURL(string serverIP , Agent agent)
+        public string getUserURL(string serverIP , Agent agent)
         {
             return "http://" + serverIP + "/finesse/api/User/" + agent.getAgentID();
         }
-
-        public string getLogoutURL(string serverIP, Agent agent)
-        {
-            return "http://" + serverIP + "/finesse/api/User/" + agent.getAgentID();
-        }
-
-        public string getMakeCallURL(string serverIP, Agent agent)
+        public string getDialogURL(string serverIP, Agent agent)
         {
             return "http://" + serverIP + "/finesse/api/User/" + agent.getAgentID() + "/Dialogs";
         }
+
+        public string getAnswerURL(string serverIP, Agent agent, string dialogID)
+        {
+            return "http://" + serverIP + "/finesse/api/Dialog/" + dialogID;
+        }
+      
     }
 }

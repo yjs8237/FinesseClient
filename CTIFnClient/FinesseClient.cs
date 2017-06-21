@@ -166,69 +166,118 @@ namespace TCPSOCKET
             return ERRORCODE.SUCCESS;
         }
 
+        public int answer(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            httpHandler.answerRequest((string)finesseCurrent["IP"], agent, dialogID);
+            return ERRORCODE.SUCCESS;
+        }
+
+        public int release(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            httpHandler.releaseRequest((string)finesseCurrent["IP"], agent, dialogID);
+            return ERRORCODE.SUCCESS;
+        }
+
+        public int agentState(string state)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state);
+            return ERRORCODE.SUCCESS;
+        }
+
+        public int agentState(string state, string reasonCode)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state , reasonCode);
+            return ERRORCODE.SUCCESS;
+        }
+
+
 
         private int startPreProcess()
         {
-            UTIL util = new UTIL();
-            string strID = "insungUCDev";
-            Random random = new Random();
-            int ranNum = random.Next(1, 10);
 
-            string strMsg = @"<?xml version='1.0' ?><stream:stream to='"+(string)finesseCurrent["IP"]+"' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
-            send(strMsg);
-            recv();
-            recv();
+            try
+            {
 
-            strMsg = @"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN' xmlns:ga='http://www.google.com/talk/protocol/auth' ga:client-uses-full-bind-result='true'>" + util.AuthBase64_IDAndPw(agent.getAgentID(), agent.getAgentPwd()) + "</auth>";
-            send(strMsg);
-            recv();
+                UTIL util = new UTIL();
+                string strID = "insungUCDev";
+                Random random = new Random();
+                int ranNum = random.Next(1, 10);
 
-            strMsg = @"<stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
-            send(strMsg);
-            recv();
+                string strMsg = @"<?xml version='1.0' ?><stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+                send(strMsg);
+                recv();
+                recv();
 
-            strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>isi</resource></bind></iq>";
-            send(strMsg);
-            recv();
-            ranNum++;
+                strMsg = @"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN' xmlns:ga='http://www.google.com/talk/protocol/auth' ga:client-uses-full-bind-result='true'>" + util.AuthBase64_IDAndPw(agent.getAgentID(), agent.getAgentPwd()) + "</auth>";
+                send(strMsg);
+                recv();
 
-            strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>";
-            send(strMsg);
-            recv();
-            ranNum++;
+                strMsg = @"<stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+                send(strMsg);
+                recv();
 
-            strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
-            send(strMsg);
-            recv();
-            ranNum++;
+                strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>isi</resource></bind></iq>";
+                send(strMsg);
+                recv();
+                ranNum++;
 
+                strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>";
+                send(strMsg);
+                recv();
+                ranNum++;
 
-            strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
-            send(strMsg);
-            recv();
-            ranNum++;
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
+                send(strMsg);
+                recv();
+                ranNum++;
 
 
-            strMsg = @"<iq type='get' id='"+strID + util.lpad(Convert.ToString(ranNum), "a", 3)+"'><vCard xmlns='vcard-temp'/></iq>";
-            strMsg += @"<iq type='get' id='"+strID + util.lpad(Convert.ToString(ranNum), "a", 3)+"'><query xmlns='jabber:iq:roster'/></iq>";
-            strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items' node='http://jabber.org/protocol/commands'/></iq>";
-            strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy.eu.jabber.org'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
-            send(strMsg);
-            recv();
-            recv();
-            ranNum++;
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
+                send(strMsg);
+                recv();
+                ranNum++;
 
-            strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy." + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
-            send(strMsg);
-            recv();
-            ranNum++;
 
-            strMsg = @"<presence><priority>1</priority><c xmlns='http://jabber.org/protocol/caps' node='http://pidgin.im/' hash='sha-1' ver='I22W7CegORwdbnu0ZiQwGpxr0Go='/><x xmlns='vcard-temp:x:update'><photo/></x></presence>";
-            strMsg += @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
-            send(strMsg);
-            recv();
-            ranNum++;
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><vCard xmlns='vcard-temp'/></iq>";
+                strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><query xmlns='jabber:iq:roster'/></iq>";
+                strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items' node='http://jabber.org/protocol/commands'/></iq>";
+                strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy.eu.jabber.org'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
+                send(strMsg);
+                recv();
+                recv();
+                ranNum++;
 
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy." + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
+                send(strMsg);
+                recv();
+                ranNum++;
+
+                strMsg = @"<presence><priority>1</priority><c xmlns='http://jabber.org/protocol/caps' node='http://pidgin.im/' hash='sha-1' ver='I22W7CegORwdbnu0ZiQwGpxr0Go='/><x xmlns='vcard-temp:x:update'><photo/></x></presence>";
+                strMsg += @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
+                send(strMsg);
+                recv();
+                ranNum++;
+            }
+            catch (Exception e)
+            {
+                return ERRORCODE.FAIL;
+            }
 
             return ERRORCODE.SUCCESS;
         }
@@ -262,6 +311,7 @@ namespace TCPSOCKET
             //int bytes = writeStream.Read(buffer, 0, buffer.Length);
 
             int read;
+
 
             read = writeStream.Read(buffer, 0, buffer.Length);
             if (read > 0)

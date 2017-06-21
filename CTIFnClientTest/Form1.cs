@@ -51,20 +51,40 @@ namespace CTIFnClientTest
             string agentID = textBox9.Text;    // agentID
             string agentPwd = textBox10.Text;   // agentPwd
             string extension = textBox11.Text;   // extension
-
            
             logwrite.write("", "RETURN DATA : " +  useDll.fnLogin(agentID, agentPwd, extension, "5000"));
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            logwrite.write("", "RETURN DATA : " + useDll.fnLogout());
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnLogout());
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             string dialNumber = textBox14.Text;    // dialNumber
-            logwrite.write("", "RETURN DATA : " + useDll.fnMakeCall(dialNumber));
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnMakeCall(dialNumber));
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAnswer());
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("READY"));
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            string reasoncode = textBox15.Text;
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("NOT_READY", reasoncode));
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnRelease());
         }
 
     }

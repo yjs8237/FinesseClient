@@ -16,6 +16,8 @@ namespace XML
         private XmlNodeList nodeList;
         private LogWrite logwrite;
 
+        private IEvent evt;
+
         public XMLParser(LogWrite logwrite)
         {
             list = new ArrayList();
@@ -25,8 +27,7 @@ namespace XML
 
         public IEvent parseXML(string xml)
         {
-            IEvent evt = null;
-
+            
             try
             {
                 if (xml == null)
@@ -36,23 +37,25 @@ namespace XML
                 // xml 로드
                 xmlDoucment.LoadXml(xml);
 
-                evt = new Evt();
-                evt.setEventMsg(xml);
+                nodeList = xmlDoucment.GetElementsByTagName("Dialog");
+                if (nodeList.Count > 0)
+                {
+                    return parseDialogXML(xml);
+                }
+                
 
                 // 에러 
                 nodeList = xmlDoucment.GetElementsByTagName("ApiErrors");
                 if (nodeList.Count > 0)
                 {
-                    evt.setEventCode(EVENT.OnError);
-                    return evt;
+                    return parseErrorXML(xml);
                 }
 
                 // Agent State Change
-                nodeList = xmlDoucment.GetElementsByTagName("Update");
+                nodeList = xmlDoucment.GetElementsByTagName("state");
                 if (nodeList.Count > 0)
                 {
-                    evt.setEventCode(EVENT.OnAgentStateChange);
-                    return evt;
+                    return parseStateChangeXML(xml);
                 }
             }
             catch (Exception e)
@@ -64,6 +67,42 @@ namespace XML
             return evt;
         }
 
+        private IEvent parseStateChangeXML(string xml)
+        {
+            evt = new Evt();
+            evt.setEventMsg(xml);
+            evt.setEventCode(EVENT.OnAgentStateChange);
+            nodeList = xmlDoucment.GetElementsByTagName("state");
+            XmlNode node = nodeList.Item(0);
+            evt.setAgentState(node.InnerText.ToString());
+            return evt;
+        }
+        private IEvent parseErrorXML(string xml)
+        {
+            evt = new Evt();
+            evt.setEventMsg(xml);
+            evt.setEventCode(EVENT.OnError);
+
+            return evt;
+        }
+       
+        private IEvent parseDialogXML(string xml)
+        {
+             evt = new Evt();
+            evt.setEventMsg(xml);
+            evt.setEventCode(EVENT.OnCallBegin);
+
+            nodeList = xmlDoucment.GetElementsByTagName("id");
+
+            foreach (XmlNode node in nodeList)
+            {
+                if (node.Name.Equals("id"))
+                {
+                    evt.setDialogID(node.InnerText.ToString());
+                }
+            }
+            return evt;
+        }
 
 
     }
