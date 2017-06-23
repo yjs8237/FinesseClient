@@ -5,7 +5,7 @@ using System.Text;
 
 namespace VO
 {
-    class Agent
+    public class Agent
     {
         private String agentID;
         private String agentPwd;

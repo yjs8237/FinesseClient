@@ -8,7 +8,7 @@ using ThreadGroup;
 using CONST;
 using VO;
 using EVENTOBJ;
-
+using System.Collections;
 
 namespace CTIFnClient
 {
@@ -123,9 +123,9 @@ namespace CTIFnClient
 
             if (isFinesseConnected && isAEMSConnected && isISPSConnected)
             {
-                IEvent evt = new Evt();
-                evt.setEventCode(EVENT.OnConnection);
-                evt.setEventMsg("CONNECTED SUCCESS");
+                Event evt = new Event();
+                evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
+                evt.setEvtMsg("CONNECTED SUCCESS");
                 raiseEvent(evt);
             }
 
@@ -193,7 +193,7 @@ namespace CTIFnClient
             return FinesseClient.agentState(state, reasonCode);
         }
 
-        public void raiseEvent(IEvent evt)
+        public void raiseEvent(Event evt)
         {
             if (evt == null)
             {
@@ -201,43 +201,60 @@ namespace CTIFnClient
                 return;
             }
 
-            Evt evtObj = (Evt)evt;
-            int evtCode = evtObj.getEventCode();
-            string evtMessage = evtObj.getEventMsg();
+
+            Event evtObj = evt;
+           
+
+            int evtCode = evtObj.getEvtCode();
+            string evtMessage = evtObj.getEvtMsg();
 
             evtMessage = evtMessage.Replace("\n", "");
 
             switch (evtCode)
             {
-                case EVENT.OnConnection:
-
+                case EVENT_TYPE.ON_CONNECTION:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnConnection(evtMessage);
                     break;
-                
-                case EVENT.OnAgentStateChange:
+
+                case EVENT_TYPE.ON_AGENTSTATE_CHANGE:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnAgentStateChange ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "STATE : " + evt.getAgentState());
+                    logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnAgentStateChange(evtMessage);
                     break;
 
-                case EVENT.OnCallBegin:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnCallBegin ::::::::::::::::::::::::");
+                case EVENT_TYPE.ON_CALL:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnCallEvent ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType() + " , STATE : " + evt.getCallState());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     dialogID = evt.getDialogID();
-                    GetEventOnCallBegin(evtMessage);
+
+                    checkTable(evt.getCallVariable());
+
+                    GetEventOnAgentStateChange(evtMessage);
                     break;
+
                 default :
 
                     break;
             }
 
         }
+
+        private void checkTable(Hashtable table) {
+
+            foreach (DictionaryEntry item in table)
+            {
+                logwrite.write("checkTable", "key : " + item.Key + " , " + item.Value);
+            }
+
+        }
+
 
         public abstract void GetEventOnAgentStateChange(String evt);
         public abstract void GetEventOnError(String evt);

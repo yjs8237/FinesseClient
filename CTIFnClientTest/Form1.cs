@@ -87,5 +87,10 @@ namespace CTIFnClientTest
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnRelease());
         }
 
+        private void button10_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("NOT_READY"));
+        }
+
     }
 }

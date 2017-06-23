@@ -132,7 +132,7 @@ namespace TCPSOCKET
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
-            finesseRecv = new FinesseReceiver(sock, finesseObj);
+            finesseRecv = new FinesseReceiver(sock, finesseObj , agent);
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();

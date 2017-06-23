@@ -69,6 +69,7 @@
             this.textBox15 = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.button9 = new System.Windows.Forms.Button();
+            this.button10 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -100,7 +101,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 21);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "192.168.230.134";
+            this.textBox1.Text = "192.168.230.180";
             // 
             // textBox2
             // 
@@ -108,7 +109,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(100, 21);
             this.textBox2.TabIndex = 4;
-            this.textBox2.Text = "192.168.230.134";
+            this.textBox2.Text = "192.168.230.180";
             // 
             // label1
             // 
@@ -250,7 +251,7 @@
             this.textBox13.Name = "textBox13";
             this.textBox13.Size = new System.Drawing.Size(100, 21);
             this.textBox13.TabIndex = 21;
-            this.textBox13.Text = "isifin.isi.icm";
+            this.textBox13.Text = "finesse.shlife.ipcc";
             // 
             // label12
             // 
@@ -410,12 +411,13 @@
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(90, 23);
             this.button8.TabIndex = 28;
-            this.button8.Text = "NOT_READY";
+            this.button8.Text = "Reason NR";
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.button10);
             this.groupBox3.Controls.Add(this.textBox15);
             this.groupBox3.Controls.Add(this.button8);
             this.groupBox3.Controls.Add(this.button7);
@@ -428,7 +430,7 @@
             // 
             // textBox15
             // 
-            this.textBox15.Location = new System.Drawing.Point(109, 60);
+            this.textBox15.Location = new System.Drawing.Point(119, 60);
             this.textBox15.Name = "textBox15";
             this.textBox15.Size = new System.Drawing.Size(100, 21);
             this.textBox15.TabIndex = 32;
@@ -456,6 +458,16 @@
             this.button9.Text = "Release";
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(119, 20);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(100, 23);
+            this.button10.TabIndex = 33;
+            this.button10.Text = "NOT_READY";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
             // Form1
             // 
@@ -542,6 +554,7 @@
         private System.Windows.Forms.TextBox textBox15;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Button button10;
     }
 }
 
