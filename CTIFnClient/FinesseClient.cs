@@ -12,6 +12,8 @@ using VO;
 using CONST;
 using HTTP;
 using XML;
+using EVENTOBJ;
+
 
 namespace TCPSOCKET
 {
@@ -21,7 +23,7 @@ namespace TCPSOCKET
         private ArrayList ipArrList;
         private Finesse finesseObj;
         private ISocketReceiver finesseRecv;
-        private ISocketSender finesseSend;
+        //private ISocketSender finesseSend;
         private Agent agent;
         private HttpHandler httpHandler;
         private Hashtable finesseCurrent;  // 현재 접속되어 있는 Finesse 서버 정보를 관리 하기 위함
@@ -68,11 +70,17 @@ namespace TCPSOCKET
                 {
                     logwrite.write("startClient", "Finesse Connection SUCCESS!! [" + serverIP + "][" + serverInfo.getPort() + "]");
                     bisConnected = true;
+                    finesseObj.setFinesseConnected(true);   // 접속 여부 flag 재접속 할때 Flag 참조한다
 
                     finesseCurrent.Add("IP", serverIP);
                     finesseCurrent.Add("PORT", serverInfo.getPort());
 
                     break;
+                }
+                else
+                {
+                    finesseObj.setFinesseConnected(false); // 접속 여부 flag 재접속 할때 Flag 참조한다
+                    bisConnected = false;
                 }
 
                 if (randomServer >= ipArrList.Count - 1)
@@ -132,7 +140,7 @@ namespace TCPSOCKET
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
-            finesseRecv = new FinesseReceiver(sock, finesseObj , agent);
+            finesseRecv = new FinesseReceiver(sock, finesseObj , agent, this);
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();
@@ -142,7 +150,58 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            httpHandler.loginRequest((string)finesseCurrent["IP"], agent);
+
+            Event evt = null;
+            string agentState = "";
+            string agentReasonCode = "";
+            // 로그인 하기전에 상담원 상태 체크를 먼저한다.
+            string agentStateXml = httpHandler.checkAgentState((string)finesseCurrent["IP"], agent);
+            if (agentStateXml != null)
+            {
+                XMLParser xmlParser = new XMLParser(logwrite , agent);
+
+                agentStateXml = agentStateXml.Replace("\n", "");
+
+                agentState = xmlParser.getData(agentStateXml, "state");
+                agentReasonCode = xmlParser.getData(agentStateXml, "code");
+
+                logwrite.write("login", "CURRENT AGENT STATE : " + agentState + " , REASON CODE : " + agentReasonCode);
+
+                /*
+                int stateStartIndex = agentState.IndexOf("<state>");
+                int stateEndIndex = agentState.IndexOf("</state>");
+                if (stateStartIndex > 0 && stateEndIndex > 0)
+                {
+                    tempStr = agentState.Substring(0, stateEndIndex);
+                    int stateLen = tempStr.Length - stateStartIndex - "<state>".Length;
+                    int tempInt = stateStartIndex + 7;
+                    tempStr = tempStr.Substring(tempInt, stateLen);
+                    logwrite.write("login", "CURRENT AGENT STATE : " + tempStr);
+                   
+                }
+                 * */
+            }
+
+
+            int returnCode = httpHandler.loginRequest((string)finesseCurrent["IP"], agent);
+            if (returnCode == ERRORCODE.SUCCESS)
+            {
+                if (!agentState.Equals(AGENTSTATE.LOGOUT))
+                {
+                    evt = new Event();
+                    evt.setEvtMsg(agentStateXml);
+                    evt.setAgentState(agentState);
+                    evt.setReasonCode(agentReasonCode);
+                    evt.setEvtCode(EVENT_TYPE.ON_AGENTSTATE_CHANGE);
+                    finesseObj.raiseEvent(evt);
+                }
+                return returnCode;
+            }
+            else
+            {
+                return returnCode;
+            }
+
             
             /*
             // 소켓이 연결되면 서버로 패킷을 보내는 스레드 시작
@@ -153,7 +212,15 @@ namespace TCPSOCKET
 
             logwrite.write("login", "Finesse Thread Start!!");
             */
-            return ERRORCODE.SUCCESS;
+        }
+
+        public int ccTransfer(string dialNumber , string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.ccTransferRequest((string)finesseCurrent["IP"], agent, dialNumber, dialogID);
         }
 
         public int makeCall(string dialNumber)
@@ -162,8 +229,8 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            httpHandler.makeCallRequest((string)finesseCurrent["IP"], agent, dialNumber);
-            return ERRORCODE.SUCCESS;
+
+            return httpHandler.makeCallRequest((string)finesseCurrent["IP"], agent, dialNumber);
         }
 
         public int answer(string dialogID)
@@ -172,9 +239,31 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            httpHandler.answerRequest((string)finesseCurrent["IP"], agent, dialogID);
-            return ERRORCODE.SUCCESS;
+
+            return httpHandler.answerRequest((string)finesseCurrent["IP"], agent, dialogID);
         }
+
+        public int hold(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.holdRequest((string)finesseCurrent["IP"], agent, dialogID);
+        }
+
+        public int retrieve(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.retrieveRequest((string)finesseCurrent["IP"], agent, dialogID);
+        }
+
+
 
         public int release(string dialogID)
         {
@@ -182,18 +271,37 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            httpHandler.releaseRequest((string)finesseCurrent["IP"], agent, dialogID);
-            return ERRORCODE.SUCCESS;
+
+            return httpHandler.releaseRequest((string)finesseCurrent["IP"], agent, dialogID);
         }
 
+
+        public string getReasonCodeList()
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.reasonCodeRequest((string)finesseCurrent["IP"], agent);
+        }
+
+        public int setCallData(string varName, string varValue, string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.setCalldataRequest((string)finesseCurrent["IP"], agent, varName, varValue, dialogID);
+        }
         public int agentState(string state)
         {
             if (httpHandler == null)
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state);
-            return ERRORCODE.SUCCESS;
+
+            return httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state);
         }
 
         public int agentState(string state, string reasonCode)
@@ -202,10 +310,9 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state , reasonCode);
-            return ERRORCODE.SUCCESS;
-        }
 
+            return httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state, reasonCode);
+        }
 
 
         private int startPreProcess()
@@ -276,6 +383,7 @@ namespace TCPSOCKET
             }
             catch (Exception e)
             {
+                logwrite.write("startPreProcess", e.ToString());
                 return ERRORCODE.FAIL;
             }
 

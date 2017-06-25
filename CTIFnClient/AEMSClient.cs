@@ -24,8 +24,17 @@ namespace TCPSOCKET
             this.finesseObj = finesseObj;
         }
 
+        public int reConnect()
+        {
+            if (sock != null && sock.Connected)
+            {
+                logwrite.write("reConnect", "AEMS Already Connected !!");
+                return ERRORCODE.FAIL;
+            }
+            return aemsConnect();
+        }
 
-        public  int startClient()
+        public  int aemsConnect()
         {
 
             // 이미 소켓이 연결되어 있는지 체크
@@ -50,15 +59,18 @@ namespace TCPSOCKET
                 logwrite.write("startClient", "AEMS Try Connection [" + serverIP + "][" + serverInfo.getPort() + "]");
                 if (connect(serverIP, serverInfo.getPort()) == ERRORCODE.SUCCESS)
                 {
-                    bisConnected = true;
                     logwrite.write("startClient", "AEMS Connection SUCCESS!! [" + serverIP + "][" + serverInfo.getPort() + "]");
+
+
+                    bisConnected = true;
+                    finesseObj.setAEMSConnected(true); // 접속 여부 flag 재접속 할때 Flag 참조한다
 
                     writeStream = sock.GetStream();
                     Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                     reader = new StreamReader(writeStream, encode);
 
                     // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작
-                    ISocketReceiver aemsRecv = new AEMSReceiver(sock , finesseObj);
+                    ISocketReceiver aemsRecv = new AEMSReceiver(sock , finesseObj , this);
                     ThreadStart ts = new ThreadStart(aemsRecv.runThread);
                     Thread thread = new Thread(ts);
                     thread.Start();
@@ -66,6 +78,11 @@ namespace TCPSOCKET
                     logwrite.write("startClient", "AEMS Thread Start!!");
 
                     break;
+                }
+                else
+                {
+                    finesseObj.setAEMSConnected(false); // 접속 여부 flag 재접속 할때 Flag 참조한다
+                    bisConnected = false;
                 }
 
             }
@@ -83,5 +100,6 @@ namespace TCPSOCKET
         {
             throw new NotImplementedException();
         }
+
     }
 }

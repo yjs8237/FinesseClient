@@ -22,6 +22,16 @@ namespace HTTP
         {
             return "http://" + serverIP + "/finesse/api/Dialog/" + dialogID;
         }
+
+        public string getCallDialogURL(string serverIP, Agent agent, string dialogID)
+        {
+            return "http://" + serverIP + "/finesse/api/Dialog/" + dialogID;
+        }
+
+        public string getReasonCodeURL(string serverIP, Agent agent)
+        {
+            return "http://" + serverIP + "/finesse/api/User/"+agent.getAgentID()+"/ReasonCodes?category=NOT_READY";
+        }
       
     }
 }

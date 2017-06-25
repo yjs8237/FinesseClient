@@ -8,7 +8,7 @@ namespace EVENTOBJ
 {
     public class Event 
     {
-        private int evtCode;
+        private string evtCode;
         private string evtType;
         private string evtMsg;
 
@@ -75,12 +75,12 @@ namespace EVENTOBJ
         }
 
 
-        public void setEvtCode(int evtCode)
+        public void setEvtCode(string evtCode)
         {
             this.evtCode = evtCode;
         }
 
-        public int getEvtCode()
+        public string getEvtCode()
         {
             return this.evtCode;
         }

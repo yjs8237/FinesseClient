@@ -75,5 +75,20 @@ namespace CTIFnClientTest
         {
             Console.WriteLine(evt);
         }
+
+        public override void GetEventOnCallAlerting(String evt)
+        {
+            Console.WriteLine(evt);
+        }
+
+        public override void GetEventOnCallWrapup(String evt)
+        {
+            Console.WriteLine(evt);
+        }
+
+        public override void GetEventOnCallActive(String evt)
+        {
+            Console.WriteLine(evt);
+        }
     }
 }

@@ -22,7 +22,17 @@ namespace TCPSOCKET
         {
             this.finesseObj = finesseObj;
         }
-         public  int startClient()
+
+         public int reConnect()
+         {
+             if (sock != null && sock.Connected)
+             {
+                 logwrite.write("reConnect", "ISPS Already Connected !!");
+                 return ERRORCODE.FAIL;
+             }
+             return ispsConnect();
+         }
+         public  int ispsConnect()
          {
 
              // 이미 소켓이 연결되어 있는지 체크
@@ -46,15 +56,17 @@ namespace TCPSOCKET
                  logwrite.write("startClient", "ISPS Try Connection [" + serverIP + "][" + serverInfo.getPort() + "]");
                  if (connect(serverIP, serverInfo.getPort()) == ERRORCODE.SUCCESS)
                  {
-                     bisConnected = true;
                      logwrite.write("startClient", "ISPS Connection SUCCESS!! [" + serverIP + "][" + serverInfo.getPort() + "]");
+
+                     bisConnected = true;
+                     finesseObj.setISPSConnected(true); // 접속 여부 flag 재접속 할때 Flag 참조한다
 
                      writeStream = sock.GetStream();
                      Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                      reader = new StreamReader(writeStream, encode);
 
                      // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작
-                     ISocketReceiver ispsRecv = new ISPSReceiver(sock, finesseObj);
+                     ISocketReceiver ispsRecv = new ISPSReceiver(sock, finesseObj, this);
                      ThreadStart ts = new ThreadStart(ispsRecv.runThread);
                      Thread thread = new Thread(ts);
                      thread.Start();
@@ -63,6 +75,12 @@ namespace TCPSOCKET
 
                      break;
                  }
+                 else
+                 {
+                     finesseObj.setISPSConnected(false);  // 접속 여부 flag 재접속 할때 Flag 참조한다
+                     bisConnected = false;
+                 }
+
              }
              return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
          }

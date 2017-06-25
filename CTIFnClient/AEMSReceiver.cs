@@ -6,7 +6,8 @@ using System.Threading;
 using System.IO;
 using System.Net.Sockets;
 using CTIFnClient;
-
+using TCPSOCKET;
+using CONST;
 
 namespace ThreadGroup
 {
@@ -17,6 +18,7 @@ namespace ThreadGroup
         private TcpClient sock = null;
         private Finesse finesseObj;
         private NetworkStream writeStream;
+        private AEMSClient aemsClient;
 
         public AEMSReceiver(StreamReader reader, Finesse finesseObj)
         {
@@ -25,7 +27,7 @@ namespace ThreadGroup
             this.finesseObj = finesseObj;
         }
 
-        public AEMSReceiver(TcpClient sock, Finesse finesseObj)
+        public AEMSReceiver(TcpClient sock, Finesse finesseObj , AEMSClient aemsClient)
         {
             this.sock = sock;
             this.finesseObj = finesseObj;
@@ -33,6 +35,7 @@ namespace ThreadGroup
             this.writeStream = sock.GetStream();
             Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
             this.reader = new StreamReader(writeStream, encode);
+            this.aemsClient = aemsClient;
         }
 
         public void runThread()
@@ -48,6 +51,7 @@ namespace ThreadGroup
                     logwrite.write("AEMSReceiver runThread", readLine);
                 }
                  * */
+
 
                 int BUFFERSIZE = sock.ReceiveBufferSize;
                 byte[] buffer = new byte[BUFFERSIZE];
@@ -71,8 +75,29 @@ namespace ThreadGroup
                     writeStream.Close();
                     writeStream = null;
                 }
-                logwrite.write("AEMSReceiver runThread", e.StackTrace);
+                logwrite.write("AEMSReceiver runThread", e.ToString());
+
             }
+            finally
+            {
+                aemsClient.sessionClose();
+
+                if (!aemsClient.getDisconnectReq())
+                {
+                    logwrite.write("AEMSReceiver runThread", "########## AEMS Session Closed !! ##########");
+                    if (aemsClient.reConnect() != ERRORCODE.SUCCESS)
+                    {
+                        // 서버 세션이 끊어지고, 재접속이 안될시 서버 프로세스가 올라올때까지 감지하는 스레드 시작한다.
+
+                        ISocketSender aemsSender = new AEMSSender(logwrite, aemsClient);
+                        ThreadStart ts = new ThreadStart(aemsSender.runThread);
+                        Thread thread = new Thread(ts);
+                        thread.Start();
+                    }
+                }
+            }
+
+
         }
     }
 }

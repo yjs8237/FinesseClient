@@ -15,30 +15,12 @@ namespace XML
         private ArrayList list;
         private XmlDocument xmlDoucment;
         private XmlNodeList nodeList;
-        private XmlNodeList nodeList_1;
         private LogWrite logwrite;
 
         private Event evt;
 
         private Agent agent;
 
-
-        /* 이벤트 구분을 위한.. */
-        private bool isUpdateTag;
-        private bool isDataTag;
-        private bool isUserTag;
-        private bool isStateTag;
-
-        private bool isDialogTag;
-        private bool isCallTypeTag;
-        private bool isDialogIDTag;
-        private bool isCallStateTag;
-
-        private string agentstate;
-        private string reasonCode;
-        private string callType;
-        private string dialogID;
-        private string callState;
 
         public XMLParser(LogWrite logwrite , Agent agent)
         {
@@ -47,48 +29,6 @@ namespace XML
             this.logwrite = logwrite;
             this.agent = agent;
         }
-
-
-        public void findAllNodes(XmlNode node)
-        {
-            
-            foreach (XmlNode n in node.ChildNodes)
-            {
-                if (n.Name.Equals("Update"))
-                {
-                    isUpdateTag = true;
-                }
-                if (n.Name.Equals("data"))
-                {
-                    isDataTag = true;
-                }
-                if (n.Name.Equals("user"))
-                {
-                    isUserTag = true;
-                }
-                if (n.Name.Equals("state"))
-                {
-                    agentstate = n.InnerText;
-                    callState = n.InnerText;    // User 이벤트가 올때는 agentState 변수만 참조하고, Dialog 이벤트가 올때는 callState 변수만 참조한다.
-                    isStateTag = true;
-                }
-                
-                if (n.Name.Equals("state") && n.ParentNode.Name.Equals("Participant"))
-                {
-                    isCallStateTag = true;
-                }
-                
-                if (n.Name.Equals("code")){ reasonCode = n.InnerText; }
-                if (n.Name.Equals("Dialog")) { isDialogTag = true; }
-                if (n.Name.Equals("callType")) { isCallTypeTag = true; callType = n.InnerText; }
-                if (n.Name.Equals("id")) { isDialogIDTag = true; dialogID = n.InnerText; }
-
-
-                findAllNodes(n);
-            }
-
-        }
-
 
         public Event parseXML(string xml)
         {
@@ -105,13 +45,13 @@ namespace XML
                 // xml 로드
                 xmlDoucment.LoadXml(xml);
 
-                evt = new Event();
+                
 
                 nodeList = xmlDoucment.GetElementsByTagName("user");
                 if (nodeList.Count > 0)
                 {
                     // AgentState 이벤트
-                    
+                    evt = new Event();
                     evt.setEvtMsg(xml);
                     evt.setEvtCode(EVENT_TYPE.ON_AGENTSTATE_CHANGE);
                     
@@ -141,12 +81,18 @@ namespace XML
                 }
 
                 nodeList = xmlDoucment.GetElementsByTagName("Dialog");
-                nodeList_1 = xmlDoucment.GetElementsByTagName("dialog");
-                if (nodeList.Count > 0 || nodeList_1.Count > 0)
+
+                if (nodeList.Count <= 0)
+                {
+                    nodeList = xmlDoucment.GetElementsByTagName("dialog");
+                }
+                
+                if (nodeList.Count > 0)
                 {
                     // Call 이벤트
+                    evt = new Event();
                     evt.setEvtMsg(xml);
-                    evt.setEvtCode(EVENT_TYPE.ON_CALL);
+                    //evt.setEvtCode(EVENT_TYPE.ON_CALL);
 
                     XmlNode nodeone = nodeList.Item(0);
                     foreach (XmlNode node1 in nodeone.ChildNodes)
@@ -184,6 +130,7 @@ namespace XML
                                 {
                                     // 상담원 내선과 이벤트 내선이 같을 경우 이벤트 데이터에 포함시킨다.
                                     evt.setCallState((string)table["state"]);
+                                    evt.setEvtCode((string)table["state"]);
                                     logwrite.write("### EVENT CHECK ###", "setCallState : " + (string)table["state"]);
                                 }
                             }
@@ -201,6 +148,40 @@ namespace XML
 
             return evt;
         }
+
+        public string getData(string xml, string tagName)
+        {
+            try
+            {
+                if (xml == null)
+                {
+                    return null;
+                }
+                    
+                logwrite.write("### getData CHECK ###", xml);
+
+                // xml 로드
+                xmlDoucment.LoadXml(xml);
+
+                nodeList = xmlDoucment.GetElementsByTagName(tagName);
+
+                if (nodeList.Count <= 0)
+                {
+                    return null;
+                }
+
+                XmlNode node = nodeList.Item(0);
+
+                return node.InnerText.ToString();
+
+            }
+            catch (Exception e)
+            {
+                logwrite.write("getData", e.ToString());
+                return null;
+            }
+        }
+
 
         private ArrayList getCallState(XmlNode node)
         {

@@ -18,9 +18,14 @@ namespace CTIFnClient
         private FileStream fs;
         private StreamWriter sw;
 
+        private object lockObject = new object();
+
         private LogWrite() {
 
-            fileName = @"C:\isiFnClient\" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".log";
+            filepath = filepath + DateTime.Now.ToString("yyyyMMdd") ;
+
+            fileName = filepath + @"\client_" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".log";
+
 
             if (!Directory.Exists(filepath))
             {
@@ -52,18 +57,19 @@ namespace CTIFnClient
             return instance;
         }
 
-        public void write(String methodName, String msg)
+        public  void write(String methodName, String msg)
         {
+            lock (lockObject)
+            {
+                String nowTime = DateTime.Now.ToString("yyyyMMdd-HH:mm:ss:fff");
 
-            String nowTime = DateTime.Now.ToString("yyyyMMdd-HH:mm:ss:fff");
+                StringBuilder sb = new StringBuilder();
+                sb.Append("[").Append(nowTime).Append("][").Append(methodName).Append("]");
+                sb.Append(msg);
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append("[").Append(nowTime).Append("][").Append(methodName).Append("]");
-            sb.Append(msg);
-
-            sw.WriteLine(sb.ToString());
-            sw.Flush();
-
+                sw.WriteLine(sb.ToString());
+                sw.Flush();
+            }
             
         }
 

@@ -35,14 +35,16 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AEMSClient.cs" />
     <Compile Include="AEMSReceiver.cs" />
+    <Compile Include="AEMSSender.cs" />
     <Compile Include="Agent.cs" />
+    <Compile Include="AGENTSTATE.cs" />
+    <Compile Include="CALL.cs" />
     <Compile Include="CallEvent.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="Class2.cs" />

@@ -7,9 +7,12 @@ namespace EVENTOBJ
 {
     class EVENT_TYPE
     {
-        public const int ON_CONNECTION = 1;
-        public const int ON_AGENTSTATE_CHANGE = 100;
-
-        public const int ON_CALL = 101;
+        public const string ALERTING = "ALERTING";
+        public const  string DROPPED = "DROPPED";
+        public const  string ON_AGENTSTATE_CHANGE = "ON_AGENTSTATE_CHANGE";
+        public const  string ON_CONNECTION = "ON_CONNECTION";
+        public const string ACTIVE = "ACTIVE";
+        public const string WRAP_UP = "WRAP_UP";
+        
     }
 }

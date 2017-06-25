@@ -92,5 +92,33 @@ namespace CTIFnClientTest
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("NOT_READY"));
         }
 
+        private void button11_Click(object sender, EventArgs e)
+        {
+            string dialNumber = textBox14.Text;    // dialNumber
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnCCTransfer(dialNumber));
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            string varname = textBox16.Text;    // 변수명
+            string varvalue = textBox17.Text;    // 데이터
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnHold());
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnRetrieve());
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetReasonCodeList());
+        }
+
     }
 }
