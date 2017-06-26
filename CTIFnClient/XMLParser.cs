@@ -30,6 +30,12 @@ namespace XML
             this.agent = agent;
         }
 
+        public XMLParser(LogWrite logwrite)
+        {
+            this.logwrite = logwrite;
+            xmlDoucment = new XmlDocument();
+        }
+
         public Event parseXML(string xml)
         {
             
@@ -147,6 +153,38 @@ namespace XML
             }
 
             return evt;
+        }
+
+        public string getAttributeData(string xml, string tagName , string attributeName)
+        {
+            try
+            {
+                if (xml == null)
+                {
+                    return null;
+                }
+                logwrite.write("### getAttributeData CHECK ###", xml);
+
+                // xml 로드
+                xmlDoucment.LoadXml(xml);
+
+                nodeList = xmlDoucment.GetElementsByTagName(tagName);
+
+                if (nodeList.Count <= 0)
+                {
+                    return null;
+                }
+
+                XmlNode node = nodeList.Item(0);
+
+                return node.Attributes[attributeName].Value;
+
+            }
+            catch (Exception e)
+            {
+                logwrite.write("getAttributeData", e.ToString());
+                return null;
+            }
         }
 
         public string getData(string xml, string tagName)

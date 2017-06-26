@@ -12,6 +12,7 @@ using EVENTOBJ;
 using VO;
 using System.Collections;
 using TCPSOCKET;
+using CONST;
 
 namespace ThreadGroup
 {
@@ -236,11 +237,21 @@ namespace ThreadGroup
             finally
             {
                 finesseClient.sessionClose();
+
+                finesseClient.setXMPPAuth(false);   // Finesse 세션이 끊어지면 다른 서버로 재접속 할떄 XMPP 인증이 필요하기 때문에 Flag 세팅
+
                 // 사용자가 Disconnect 를 요청하지 않고 세션이 끊어진 경우 재접속 시도
                 if (!finesseClient.getDisconnectReq())
                 {
                     logwrite.write("FinesseReceiver runThread", "########## Finesse Session Closed !! ##########");
-                    finesseClient.reConnect();
+                    if (finesseClient.reConnect() != ERRORCODE.SUCCESS)
+                    {
+                        // 서버 세션이 끊어지고, 재접속이 안될시 서버 프로세스가 올라올때까지 감지하는 스레드 시작한다.
+                        ISocketSender finesseSender = new FinesseSender(logwrite, finesseClient);
+                        ThreadStart ts = new ThreadStart(finesseSender.runThread);
+                        Thread thread = new Thread(ts);
+                        thread.Start();
+                    }
                 }
             }
 

@@ -2,49 +2,97 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace VO
 {
-    public class Agent
+    public sealed class Agent
     {
-        private String agentID;
-        private String agentPwd;
-        private String extension;
+        private static volatile Agent instance;
+        private static object syncRoot = new Object();
 
-        public Agent(String agentID, String agentPwd, String extension , String peripheral)
+        private static object syncHashTable = new Object();
+
+        private Hashtable agentInfoTable;
+
+
+        private Agent()
         {
-            this.agentID = agentID;
-            this.agentPwd = agentPwd;
-            this.extension = extension;
+            agentInfoTable = new Hashtable();
+        }
+
+        public static Agent getInstance()
+        {
+            if (instance == null)
+            {
+                lock (syncRoot)
+                {
+                    if (instance == null)
+                    {
+                        instance = new Agent();
+                    }
+                }
+            }
+            return instance;
         }
 
         public void setAgentID(String agentID)
         {
-            this.agentID = agentID;
+            lock (syncHashTable)
+            {
+                if (agentInfoTable.ContainsKey("ID"))
+                {
+                    agentInfoTable.Remove("ID");
+                }
+                this.agentInfoTable.Add("ID", agentID);
+            }
         }
         public String getAgentID()
         {
-            return this.agentID;
+            lock (syncHashTable)
+            {
+                return (string) this.agentInfoTable["ID"];
+            }
         }
 
         public void setAgentPwd(String agentPwd)
         {
-            this.agentPwd = agentPwd;
+            lock (syncHashTable)
+            {
+                if (agentInfoTable.ContainsKey("PWD"))
+                {
+                    agentInfoTable.Remove("PWD");
+                }
+                this.agentInfoTable.Add("PWD", agentPwd);
+            }
         }
 
         public String getAgentPwd()
         {
-            return this.agentPwd;
+            lock (syncHashTable)
+            {
+                return (string)this.agentInfoTable["PWD"];
+            }
         }
 
         public void setExtension(String extension)
         {
-            this.extension = extension;
+            lock (syncHashTable)
+            {
+                if (agentInfoTable.ContainsKey("EXTENSION"))
+                {
+                    agentInfoTable.Remove("EXTENSION");
+                }
+                this.agentInfoTable.Add("EXTENSION", extension);
+            }
         }
 
         public String getExtension()
         {
-            return this.extension;
+            lock (syncHashTable)
+            {
+                return (string)this.agentInfoTable["EXTENSION"];
+            }
         }
 
 

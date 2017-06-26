@@ -50,6 +50,7 @@
     <Compile Include="Class2.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="EVENT_TYPE.cs" />
+    <Compile Include="FinesseDomain.cs" />
     <Compile Include="FinesseReceiver.cs" />
     <Compile Include="ClientSocket.cs" />
     <Compile Include="Const.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="ISocketSender.cs" />
     <Compile Include="ISPSClient.cs" />
     <Compile Include="ISPSReceiver.cs" />
+    <Compile Include="ISPSSender.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerInfo.cs" />
     <Compile Include="URLHandler.cs" />

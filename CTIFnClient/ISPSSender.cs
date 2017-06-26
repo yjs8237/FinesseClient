@@ -9,20 +9,19 @@ using CTIFnClient;
 using TCPSOCKET;
 using System.Collections;
 using CONST;
-
 namespace ThreadGroup
 {
-    class AEMSSender : ISocketSender
+    class ISPSSender : ISocketSender
     {
-
+        
         private LogWrite logwrite;
         private TcpClient sock = null;
-        private AEMSClient aemsClient;
+        private ISPSClient ispsClient;
 
-        public AEMSSender(LogWrite logwrite, AEMSClient aemsClient)
+        public ISPSSender(LogWrite logwrite, ISPSClient ispsClient)
         {
             this.logwrite = logwrite;
-            this.aemsClient = aemsClient;
+            this.ispsClient = ispsClient;
         }
 
 
@@ -30,7 +29,7 @@ namespace ThreadGroup
         {
             ArrayList ipList = new ArrayList();
 
-            ServerInfo serverInfo = aemsClient.getServerInfo();
+            ServerInfo serverInfo = ispsClient.getServerInfo();
 
             ipList = serverInfo.getIPList();
             int port = serverInfo.getPort();
@@ -52,12 +51,12 @@ namespace ThreadGroup
                         if (sock != null && sock.Connected)
                         {
                             connectSuccess = true;
-                            logwrite.write("AEMS Sender", "Connection SUCCESS IP [" + ip + "] PORT [" + port + "]");
+                            logwrite.write("ISPS Sender", "Connection SUCCESS IP [" + ip + "] PORT [" + port + "]");
                             break;
                         }
                         else
                         {
-                            logwrite.write("AEMS Sender", "Connection Fail IP [" + ip + "] PORT [" + port + "]");
+                            logwrite.write("ISPS Sender", "Connection Fail IP [" + ip + "] PORT [" + port + "]");
                         }
 
                 }
@@ -69,8 +68,9 @@ namespace ThreadGroup
                 sock.Close();
             }
 
-            aemsClient.reConnect();
+            ispsClient.reConnect();
            
         }
+
     }
 }

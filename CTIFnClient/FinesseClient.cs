@@ -37,6 +37,11 @@ namespace TCPSOCKET
             this.isAlreadyAuth = false;
         }
 
+        public void setXMPPAuth(bool isAlreadyAuth)
+        {
+            this.isAlreadyAuth = isAlreadyAuth;
+        }
+
         public int reConnect()
         {
             if (sock != null && sock.Connected)
@@ -44,7 +49,16 @@ namespace TCPSOCKET
                 logwrite.write("reConnect", "Finesse Already Connected !!");
                 return ERRORCODE.FAIL;
             }
-            return finesseConnect();
+            if (finesseConnect() == ERRORCODE.SUCCESS)
+            {
+                Agent agent = Agent.getInstance();
+                return login(agent);
+            }
+            else
+            {
+                return ERRORCODE.FAIL;
+            }
+
         }
 
         public int finesseConnect()
@@ -136,6 +150,10 @@ namespace TCPSOCKET
                 {
                     return ERRORCODE.LOGIN_FAIL;
                 }
+            }
+            else
+            {
+                logwrite.write("login", "## Finesse Authentication is Already Success ##");
             }
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
@@ -321,6 +339,10 @@ namespace TCPSOCKET
             try
             {
 
+                int tempindex = 0;
+
+                FinesseDomain domain = FinesseDomain.getInstance();
+
                 UTIL util = new UTIL();
                 string strID = "insungUCDev";
                 Random random = new Random();
@@ -328,57 +350,57 @@ namespace TCPSOCKET
 
                 string strMsg = @"<?xml version='1.0' ?><stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
                 send(strMsg);
-                recv();
-                recv();
+                recv(tempindex++);
+                recv(tempindex++);
 
                 strMsg = @"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN' xmlns:ga='http://www.google.com/talk/protocol/auth' ga:client-uses-full-bind-result='true'>" + util.AuthBase64_IDAndPw(agent.getAgentID(), agent.getAgentPwd()) + "</auth>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
 
                 strMsg = @"<stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
 
                 strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>isi</resource></bind></iq>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
                 ranNum++;
 
                 strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
                 ranNum++;
 
-                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
                 ranNum++;
 
 
-                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
                 ranNum++;
 
 
                 strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><vCard xmlns='vcard-temp'/></iq>";
                 strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><query xmlns='jabber:iq:roster'/></iq>";
-                strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items' node='http://jabber.org/protocol/commands'/></iq>";
+                strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items' node='http://jabber.org/protocol/commands'/></iq>";
                 strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy.eu.jabber.org'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
                 send(strMsg);
-                recv();
-                recv();
+                recv(tempindex++);
+                recv(tempindex++);
                 ranNum++;
 
-                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy." + serverInfo.getDomain() + "'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
+                strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy." + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
                 ranNum++;
 
                 strMsg = @"<presence><priority>1</priority><c xmlns='http://jabber.org/protocol/caps' node='http://pidgin.im/' hash='sha-1' ver='I22W7CegORwdbnu0ZiQwGpxr0Go='/><x xmlns='vcard-temp:x:update'><photo/></x></presence>";
                 strMsg += @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
                 send(strMsg);
-                recv();
+                recv(tempindex++);
                 ranNum++;
             }
             catch (Exception e)
@@ -411,7 +433,7 @@ namespace TCPSOCKET
             }
         }
 
-        private void recv()
+        private void recv(int tempIndex)
         {
 
             //int BUFFERSIZE = sock.ReceiveBufferSize;
@@ -420,12 +442,53 @@ namespace TCPSOCKET
 
             int read;
 
-
             read = writeStream.Read(buffer, 0, buffer.Length);
             if (read > 0)
             {
                 string message = Encoding.UTF8.GetString(buffer, 0, read);
                 logwrite.write("recv", message);
+
+                /*
+                 *  Finesse 서버의 도메인을 가져오기 위한 로직
+                 * */
+                if (message.Contains("stream:stream") && tempIndex == 0)
+                {
+                    int startIndex = message.IndexOf("<stream:stream");
+                    int messageLen = message.Length;
+                    string tempStr = message.Substring(startIndex, messageLen-startIndex);
+
+                    startIndex = tempStr.IndexOf("from=");
+                    tempStr = tempStr.Substring(startIndex, tempStr.Length - startIndex);
+
+                    startIndex = 0;
+                    int endIndex = 0;
+                    int tempInt = 0;
+                    for (int i = 0; i < tempStr.Length; i++)
+                    {
+                        string str = tempStr.Substring(i, 1);
+                        if (str.Equals("\""))
+                        {
+                            tempInt++;
+                            if (tempInt == 1)
+                            {
+                                startIndex = i+1;
+                            }
+                            else if (tempInt == 2)
+                            {
+                                endIndex = i;
+                                break;
+                            }
+                            
+                        }
+                    }
+
+                    tempStr = tempStr.Substring(startIndex, endIndex - startIndex);
+                    logwrite.write("recv", " ** Finesse Domain ** : [" + tempStr + "]");
+
+                    FinesseDomain domain = FinesseDomain.getInstance();
+                    domain.setFinesseDomain(tempStr);
+
+                }
             }
             else 
             {

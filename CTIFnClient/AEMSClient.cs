@@ -91,15 +91,7 @@ namespace TCPSOCKET
             
         }
 
-        public  int login(Agent agent)
-        {
-            throw new NotImplementedException();
-        }
-
-        public  int logout()
-        {
-            throw new NotImplementedException();
-        }
+       
 
     }
 }

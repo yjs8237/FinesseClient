@@ -64,7 +64,7 @@ namespace CTIFnClient
              *  finesse 세션 연결
              * */
 
-            /*
+            
             if (isFinesseConnected)
             {
                 logwrite.write("fnConnect", "Finesse is Already Connected!!");
@@ -84,7 +84,7 @@ namespace CTIFnClient
                     isFinesseConnected = true;
                 }
             }
-            */
+            
             if (isAEMSConnected)
             {
                 logwrite.write("fnConnect", "AEMS is Already Connected!!");
@@ -167,7 +167,12 @@ namespace CTIFnClient
             logwrite.write("fnConnect", "\n call fnLogin() ID [" + agentID + "] Password [" + agentPwd + "] extension [" + extension + "] \n");
 
             reasonCodeTable = new Hashtable(); // 이석사유코드 정보를 최초 로그인시 메모리에 관리한다.
-            Agent agent = new Agent(agentID , agentPwd, extension , peripheralID);
+            //Agent agent = new Agent(agentID , agentPwd, extension , peripheralID);
+            Agent agent = Agent.getInstance();
+            agent.setAgentID(agentID);
+            agent.setAgentPwd(agentPwd);
+            agent.setExtension(extension);
+
 
             if (FinesseClient.login(agent) == ERRORCODE.SUCCESS)
             {

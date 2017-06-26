@@ -85,14 +85,5 @@ namespace TCPSOCKET
              return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
          }
 
-         public  int login(Agent agent)
-         {
-             throw new NotImplementedException();
-         }
-
-         public  int logout()
-         {
-             throw new NotImplementedException();
-         }
     }
 }

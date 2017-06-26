@@ -64,10 +64,7 @@ namespace CTIFnClient
             return this.port;
         }
 
-        public string getDomain()
-        {
-            return this.serverDomain;
-        }
+      
 
 
     }
