@@ -132,6 +132,9 @@ namespace CTIFnClient
                 Event evt = new Event();
                 evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
                 evt.setEvtMsg("CONNECTED SUCCESS");
+                evt.setCurFinesseIP(FinesseClient.getCurrentServerIP());
+                evt.setCurAemsIP(AEMSClient.getCurrentServerIP());
+                evt.setCurIspsIP(ISPSClient.getCurrentServerIP());
                 raiseEvent(evt);
             }
 
@@ -156,6 +159,12 @@ namespace CTIFnClient
             isFinesseConnected = false;
             isAEMSConnected = false;
             isISPSConnected = false;
+
+            Event evt = new Event();
+            evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
+            evt.setEvtMsg("DISCONNECTED SUCCESS");
+            raiseEvent(evt);
+
 
             return ERRORCODE.SUCCESS;
 
@@ -339,7 +348,13 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnConnection(evtMessage);
+                    GetEventOnConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(),   evtMessage);
+                    break;
+                case EVENT_TYPE.ON_DISCONNECTION:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnDisConnection(evtMessage);
                     break;
 
                 case EVENT_TYPE.ON_AGENTSTATE_CHANGE:
@@ -347,7 +362,7 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnAgentStateChange(evtMessage);
+                    GetEventOnAgentStateChange(evt.getAgentState() , evt.getReasonCode() , evtMessage);
                     break;
 
                 case EVENT_TYPE.ALERTING:
@@ -401,19 +416,11 @@ namespace CTIFnClient
         public abstract void GetEventOnCallWrapup(String evt);
         public abstract void GetEventOnCallActive(String evt);
         public abstract void GetEventOnCallAlerting(String evt);
-        public abstract void GetEventOnAgentStateChange(String evt);
+        public abstract void GetEventOnAgentStateChange(string state , string reasonCode  , String evt);
         public abstract void GetEventOnError(String evt);
-        public abstract void GetEventOnConnection(String evt);
-        public abstract void GetEventOnConnectionClosed(String evt);
-        public abstract void GetEventOnCallBegin(String evt);
-        public abstract void GetEventOnCallDelivered(String evt);
-        public abstract void GetEventOnCallEstablished(String evt);
-        public abstract void GetEventOnCallHeld(String evt);
-        public abstract void GetEventOnCallRetrieved(String evt);
-        public abstract void GetEventOnCallConnectionCleared(String evt);
-        public abstract void GetEventOnLoginFail(String evt);
-        public abstract void GetEventOnPasswordChecked(String evt);
-        public abstract void GetEventOnConnectionFail(String evt);
+        public abstract void GetEventOnConnection(string finesseIP , string aemsIP , string ispsIP , String evt);
+        public abstract void GetEventOnDisConnection(String evt);
+        
         
     }
 

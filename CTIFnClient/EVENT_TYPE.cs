@@ -11,6 +11,7 @@ namespace EVENTOBJ
         public const  string DROPPED = "DROPPED";
         public const  string ON_AGENTSTATE_CHANGE = "ON_AGENTSTATE_CHANGE";
         public const  string ON_CONNECTION = "ON_CONNECTION";
+        public const string ON_DISCONNECTION = "ON_DISCONNECTION";
         public const string ACTIVE = "ACTIVE";
         public const string WRAP_UP = "WRAP_UP";
         

@@ -22,6 +22,36 @@ namespace EVENTOBJ
         private Hashtable callVarTable;
 
 
+        private string currentFinesseIP;
+        private string currentAemsIP;
+        private string currentIspsIP;
+
+
+        public void setCurFinesseIP(string ip)
+        {
+            this.currentFinesseIP = ip;
+        }
+        public string getCurFinesseIP()
+        {
+            return this.currentFinesseIP;
+        }
+        public void setCurAemsIP(string ip)
+        {
+            this.currentAemsIP = ip;
+        }
+        public string getCurAemsIP()
+        {
+            return this.currentAemsIP;
+        }
+        public void setCurIspsIP(string ip)
+        {
+            this.currentIspsIP = ip;
+        }
+        public string getCurIspsIP()
+        {
+            return this.currentIspsIP;
+        }
+
         public void setCallVariable(Hashtable table)
         {
             this.callVarTable = table;

@@ -11,58 +11,19 @@ namespace CTIFnClientTest
     class UseDll : Finesse
     {
 
-        public override void GetEventOnConnection(String evt)
+        private Form1 form;
+        public UseDll(Form1 form)
         {
-            Console.WriteLine(evt);
+            this.form = form;
         }
 
-        public override void GetEventOnConnectionClosed(String evt)
+        public override void GetEventOnConnection(string finesseip , string aemsip , string ispsip , String evt)
         {
-            Console.WriteLine(evt);
-        }
+            string[] arr = { BTNMASK.LOGIN, BTNMASK.DISCONNECT };
+            form.setButtonMask(arr);
 
-        public override void GetEventOnCallBegin(String evt)
-        {
-            Console.WriteLine(evt);
-        }
+            form.setServerInfo(finesseip, aemsip, ispsip);
 
-        public override void GetEventOnCallDelivered(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnCallEstablished(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnCallHeld(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnCallRetrieved(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnCallConnectionCleared(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnLoginFail(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnPasswordChecked(String evt)
-        {
-            Console.WriteLine(evt);
-        }
-
-        public override void GetEventOnConnectionFail(String evt)
-        {
             Console.WriteLine(evt);
         }
 
@@ -71,23 +32,55 @@ namespace CTIFnClientTest
             Console.WriteLine(evt);
         }
 
-        public override void GetEventOnAgentStateChange(String evt)
+        public override void GetEventOnAgentStateChange(string state , string reasonCode , String evt)
         {
+            if (state.Equals(BTNMASK.NOT_READY))
+            {
+                string[] arr = { BTNMASK.LOGOUT, BTNMASK.READY , BTNMASK.REASON , BTNMASK.MAKECALL  };
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.READY))
+            {
+                string[] arr = { BTNMASK.REASON };
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.LOGOUT))
+            {
+                string[] arr = { BTNMASK.DISCONNECT , BTNMASK.LOGIN };
+                form.setButtonMask(arr);
+            }
+
             Console.WriteLine(evt);
         }
 
         public override void GetEventOnCallAlerting(String evt)
         {
+            string[] arr = { BTNMASK.ANSWER};
+            form.setButtonMask(arr);
             Console.WriteLine(evt);
         }
 
         public override void GetEventOnCallWrapup(String evt)
         {
+            string[] arr = { BTNMASK.READY , BTNMASK.REASON };
+            form.setButtonMask(arr);
             Console.WriteLine(evt);
         }
 
         public override void GetEventOnCallActive(String evt)
         {
+            string[] arr = { BTNMASK.RELEASE };
+            form.setButtonMask(arr);
+            Console.WriteLine(evt);
+        }
+
+        public override void GetEventOnDisConnection(String evt)
+        {
+            string[] arr = { BTNMASK.CONNECTION };
+            form.setButtonMask(arr);
+
+            form.setServerInfo("0.0.0.0", "0.0.0.0", "0.0.0.0");
+
             Console.WriteLine(evt);
         }
     }

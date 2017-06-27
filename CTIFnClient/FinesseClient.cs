@@ -26,14 +26,13 @@ namespace TCPSOCKET
         //private ISocketSender finesseSend;
         private Agent agent;
         private HttpHandler httpHandler;
-        private Hashtable finesseCurrent;  // 현재 접속되어 있는 Finesse 서버 정보를 관리 하기 위함
+        //private Hashtable finesseCurrent;  // 현재 접속되어 있는 Finesse 서버 정보를 관리 하기 위함
 
         private bool isAlreadyAuth;     // 이벤트를 받기위해 XMPP 인증 절차 여부, XMPP 세션이 끊어지지 않으면, XMPP 인증은 한번만 받아야 한다.
 
         public FinesseClient(LogWrite logwrite , Finesse finesseObj) : base(logwrite)
         {
             this.finesseObj = finesseObj;
-            this.finesseCurrent = new Hashtable();
             this.isAlreadyAuth = false;
         }
 
@@ -41,6 +40,7 @@ namespace TCPSOCKET
         {
             this.isAlreadyAuth = isAlreadyAuth;
         }
+
 
         public int reConnect()
         {
@@ -86,9 +86,6 @@ namespace TCPSOCKET
                     bisConnected = true;
                     finesseObj.setFinesseConnected(true);   // 접속 여부 flag 재접속 할때 Flag 참조한다
 
-                    finesseCurrent.Add("IP", serverIP);
-                    finesseCurrent.Add("PORT", serverInfo.getPort());
-
                     break;
                 }
                 else
@@ -132,7 +129,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.logoutRequest((string)finesseCurrent["IP"], agent); 
+            return httpHandler.logoutRequest((string)currentServer["IP"], agent); 
         }
 
         public  int login(Agent agent)
@@ -173,7 +170,7 @@ namespace TCPSOCKET
             string agentState = "";
             string agentReasonCode = "";
             // 로그인 하기전에 상담원 상태 체크를 먼저한다.
-            string agentStateXml = httpHandler.checkAgentState((string)finesseCurrent["IP"], agent);
+            string agentStateXml = httpHandler.checkAgentState((string)currentServer["IP"], agent);
             if (agentStateXml != null)
             {
                 XMLParser xmlParser = new XMLParser(logwrite , agent);
@@ -201,7 +198,7 @@ namespace TCPSOCKET
             }
 
 
-            int returnCode = httpHandler.loginRequest((string)finesseCurrent["IP"], agent);
+            int returnCode = httpHandler.loginRequest((string)currentServer["IP"], agent);
             if (returnCode == ERRORCODE.SUCCESS)
             {
                 if (!agentState.Equals(AGENTSTATE.LOGOUT))
@@ -238,7 +235,7 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            return httpHandler.ccTransferRequest((string)finesseCurrent["IP"], agent, dialNumber, dialogID);
+            return httpHandler.ccTransferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
         }
 
         public int makeCall(string dialNumber)
@@ -248,7 +245,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.makeCallRequest((string)finesseCurrent["IP"], agent, dialNumber);
+            return httpHandler.makeCallRequest((string)currentServer["IP"], agent, dialNumber);
         }
 
         public int answer(string dialogID)
@@ -258,7 +255,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.answerRequest((string)finesseCurrent["IP"], agent, dialogID);
+            return httpHandler.answerRequest((string)currentServer["IP"], agent, dialogID);
         }
 
         public int hold(string dialogID)
@@ -268,7 +265,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.holdRequest((string)finesseCurrent["IP"], agent, dialogID);
+            return httpHandler.holdRequest((string)currentServer["IP"], agent, dialogID);
         }
 
         public int retrieve(string dialogID)
@@ -278,7 +275,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.retrieveRequest((string)finesseCurrent["IP"], agent, dialogID);
+            return httpHandler.retrieveRequest((string)currentServer["IP"], agent, dialogID);
         }
 
 
@@ -290,7 +287,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.releaseRequest((string)finesseCurrent["IP"], agent, dialogID);
+            return httpHandler.releaseRequest((string)currentServer["IP"], agent, dialogID);
         }
 
 
@@ -300,7 +297,7 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-            return httpHandler.reasonCodeRequest((string)finesseCurrent["IP"], agent);
+            return httpHandler.reasonCodeRequest((string)currentServer["IP"], agent);
         }
 
         public int setCallData(string varName, string varValue, string dialogID)
@@ -310,7 +307,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.setCalldataRequest((string)finesseCurrent["IP"], agent, varName, varValue, dialogID);
+            return httpHandler.setCalldataRequest((string)currentServer["IP"], agent, varName, varValue, dialogID);
         }
         public int agentState(string state)
         {
@@ -319,7 +316,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state);
+            return httpHandler.agentStateChangeRequest((string)currentServer["IP"], agent, state);
         }
 
         public int agentState(string state, string reasonCode)
@@ -329,7 +326,7 @@ namespace TCPSOCKET
                 httpHandler = new HttpHandler(logwrite);
             }
 
-            return httpHandler.agentStateChangeRequest((string)finesseCurrent["IP"], agent, state, reasonCode);
+            return httpHandler.agentStateChangeRequest((string)currentServer["IP"], agent, state, reasonCode);
         }
 
 
@@ -348,7 +345,7 @@ namespace TCPSOCKET
                 Random random = new Random();
                 int ranNum = random.Next(1, 10);
 
-                string strMsg = @"<?xml version='1.0' ?><stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+                string strMsg = @"<?xml version='1.0' ?><stream:stream to='" + (string)currentServer["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
                 send(strMsg);
                 recv(tempindex++);
                 recv(tempindex++);
@@ -357,7 +354,7 @@ namespace TCPSOCKET
                 send(strMsg);
                 recv(tempindex++);
 
-                strMsg = @"<stream:stream to='" + (string)finesseCurrent["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
+                strMsg = @"<stream:stream to='" + (string)currentServer["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
                 send(strMsg);
                 recv(tempindex++);
 

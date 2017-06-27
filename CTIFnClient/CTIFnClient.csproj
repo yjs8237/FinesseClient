@@ -44,6 +44,7 @@
     <Compile Include="AEMSSender.cs" />
     <Compile Include="Agent.cs" />
     <Compile Include="AGENTSTATE.cs" />
+    <Compile Include="ButtonMask.cs" />
     <Compile Include="CALL.cs" />
     <Compile Include="CallEvent.cs" />
     <Compile Include="Class1.cs" />

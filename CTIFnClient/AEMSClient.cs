@@ -17,7 +17,7 @@ namespace TCPSOCKET
 
         private ArrayList ipArrList;
         private Finesse finesseObj;
-
+        
         public AEMSClient(LogWrite logwrite ,  Finesse finesseObj)
             : base(logwrite)
         {

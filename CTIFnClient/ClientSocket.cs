@@ -30,10 +30,23 @@ namespace TCPSOCKET
         private bool isDisconnectReq;
 
         private bool isSocketConnected;
+
+        protected Hashtable currentServer;
+
         protected ClientSocket(LogWrite logwrite)
         {
             this.logwrite = logwrite;
             this.isDisconnectReq = false;
+            this.currentServer = new Hashtable();
+        }
+
+        public string getCurrentServerIP()
+        {
+            return (string)currentServer["IP"];
+        }
+        public int getCurrentServerPort()
+        {
+            return (int)currentServer["PORT"];
         }
 
         public void setDisconnectReq(bool isDisconnectReq)
@@ -72,7 +85,19 @@ namespace TCPSOCKET
 
                     Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                     reader = new StreamReader(writeStream, encode);
-                    
+
+                    if (currentServer.ContainsKey("IP"))
+                    {
+                        currentServer.Remove("IP");
+                    }
+                    if (currentServer.ContainsKey("PORT"))
+                    {
+                        currentServer.Remove("PORT");
+                    }
+
+                    currentServer.Add("IP", ip);
+                    currentServer.Add("PORT", port);
+
                 }
                 else
                 {
@@ -120,6 +145,8 @@ namespace TCPSOCKET
 
                 return ERRORCODE.SOCKET_CONNECTION_FAIL;
             }
+
+
 
             return ERRORCODE.SUCCESS;
         }

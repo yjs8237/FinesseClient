@@ -52,8 +52,6 @@ namespace CTIFnClient
            
         }
 
-
-
         public ArrayList getIPList()
         {
             return this.ipArrList;
@@ -63,8 +61,6 @@ namespace CTIFnClient
         {
             return this.port;
         }
-
-      
 
 
     }

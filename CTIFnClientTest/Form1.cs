@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using CTIFnClient;
-
+using System.Collections;
 
 namespace CTIFnClientTest
 {
@@ -16,12 +16,81 @@ namespace CTIFnClientTest
     {
         private UseDll useDll;
         private LogWrite logwrite;
+
+        private Hashtable buttonTable;
+
         public Form1()
         {
             InitializeComponent();
-            useDll = new UseDll();
+            useDll = new UseDll(this);
             logwrite = LogWrite.getInstance();
+            buttonTable = new Hashtable();
+            initialButtonMask();
+            CheckForIllegalCrossThreadCalls = false;
         }
+
+        private void initialButtonMask()
+        {
+            buttonTable.Add(BTNMASK.CONNECTION, button1);
+            buttonTable.Add(BTNMASK.DISCONNECT, button2);
+            buttonTable.Add(BTNMASK.LOGIN, button3);
+            buttonTable.Add(BTNMASK.LOGOUT, button4);
+            buttonTable.Add(BTNMASK.READY, button7);
+            buttonTable.Add(BTNMASK.NOT_READY, button10);
+            buttonTable.Add(BTNMASK.REASON, button8);
+            buttonTable.Add(BTNMASK.MAKECALL, button5);
+            buttonTable.Add(BTNMASK.TRANSFER, button11);
+            buttonTable.Add(BTNMASK.ANSWER, button6);
+            buttonTable.Add(BTNMASK.RELEASE, button9);
+            buttonTable.Add(BTNMASK.HOLD, button13);
+            buttonTable.Add(BTNMASK.RETRIEVE, button14);
+
+            setInitialButton();
+
+        }
+
+        public void setInitialButton()
+        {
+            foreach (DictionaryEntry item in buttonTable)
+            {
+                Button button = (Button)item.Value;
+                if (item.Key.Equals(BTNMASK.CONNECTION))
+                {
+                    button.Enabled = true;
+                }
+                else
+                {
+                    button.Enabled = false ;
+                }
+
+            }
+        }
+
+        public void setButtonMask(string[] buttonMask)
+        {
+            foreach (DictionaryEntry item in buttonTable)
+            {
+                string buttonKey = (string)item.Key;
+                Button button = (Button)item.Value;
+                if (buttonMask.Contains(buttonKey))
+                {
+                    button.Enabled = true;
+                }
+                else
+                {
+                    logwrite.write("", "buttonKey : " + buttonKey);
+                    button.Enabled = false;
+                }
+            }
+        }
+
+        public void setServerInfo(string finesseip, string aemsip, string ispsip)
+        {
+            label14.Text = finesseip;
+            label15.Text = aemsip;
+            label17.Text = ispsip;
+        }
+
 
         private void button1_Click(object sender, EventArgs e)
         {
