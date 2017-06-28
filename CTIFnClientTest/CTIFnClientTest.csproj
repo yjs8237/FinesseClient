@@ -64,7 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BTNMASK.cs" />
-    <Compile Include="Class1.cs" />
+    <Compile Include="UseDll.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

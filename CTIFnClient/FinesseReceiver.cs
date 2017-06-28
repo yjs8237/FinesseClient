@@ -156,67 +156,6 @@ namespace ThreadGroup
                 }
 
 
-                /*
-                while ((bytelen = writeStream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    string message = Encoding.UTF8.GetString(buffer, 0, bytelen);
-                    message = message.Replace("&lt;", "<");
-                    message = message.Replace("&gt;", ">");
-
-                    message = message.Replace("\n", "");
-
-                    logwrite.write("FinesseReceiver runThread", message.Replace("\n" , ""));
-
-                    sb.Append(message); 
-
-                    // XML 이 끊겨서 두번의 패킷으로 들어오는 현상 방지
-                    if (!message.EndsWith("</message>"))
-                    {
-                        continue;   
-                    }
-
-                    string rootString = "";
-
-                    int index = 0;
-
-                    message = sb.ToString();
-                    /*
-                     * XML Root 가 한번에 두개씩 리턴되는 경우가 있어 XML 파싱이 제대로 되지 않는 현상을 방지하기 위해
-                     * 
-                     * 
-                    logwrite.write("FinesseReceiver runThread", "## 1 ## [" + message);
-
-                    while (true)
-                    {
-                        index = message.IndexOf("</message>");  // Root XML
-                        int messageLen = "</message>".Length;
-
-                        if (index < 0) { sb = new StringBuilder(); break; }
-
-                        rootString = message.Substring(0, index + "</message>".Length);
-
-                        logwrite.write("FinesseReceiver runThread", "## 2 ## [" + rootString);
-
-                        // 서버로부터 받은 이벤트 XML 을 파싱한다.
-                        evt = xmlParser.parseXML(rootString);
-                        finesseObj.raiseEvent(evt);
-
-
-                        if (rootString.Length == message.Length)
-                        {
-                            sb = new StringBuilder();
-                            break;
-                        }
-                        else
-                        {
-                            message = message.Substring(rootString.Length, message.Length - rootString.Length);
-                        }
-
-                    }
-                    
-                }
-                */
-
             }
             catch (Exception e)
             {
@@ -237,14 +176,27 @@ namespace ThreadGroup
             finally
             {
                 finesseClient.sessionClose();
-
                 finesseClient.setXMPPAuth(false);   // Finesse 세션이 끊어지면 다른 서버로 재접속 할떄 XMPP 인증이 필요하기 때문에 Flag 세팅
+
 
                 // 사용자가 Disconnect 를 요청하지 않고 세션이 끊어진 경우 재접속 시도
                 if (!finesseClient.getDisconnectReq())
                 {
                     logwrite.write("FinesseReceiver runThread", "########## Finesse Session Closed !! ##########");
-                    if (finesseClient.reConnect() != ERRORCODE.SUCCESS)
+
+                    Event evt = new Event();
+                    evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
+                    evt.setEvtMsg("Finesse Session Disconnected");
+                    evt.setCurFinesseIP(finesseClient.getCurrentServerIP());
+                    finesseObj.raiseEvent(evt);
+
+
+                    if (finesseClient.connectXMPPAuth() == ERRORCODE.SUCCESS)
+                    {
+                        // XMPP 인증 성공하면 이전 상담원 상태를 가져온다.
+                        finesseClient.checkAgentState();
+                    }
+                    else
                     {
                         // 서버 세션이 끊어지고, 재접속이 안될시 서버 프로세스가 올라올때까지 감지하는 스레드 시작한다.
                         ISocketSender finesseSender = new FinesseSender(logwrite, finesseClient);

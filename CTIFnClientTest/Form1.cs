@@ -78,7 +78,6 @@ namespace CTIFnClientTest
                 }
                 else
                 {
-                    logwrite.write("", "buttonKey : " + buttonKey);
                     button.Enabled = false;
                 }
             }
@@ -86,9 +85,18 @@ namespace CTIFnClientTest
 
         public void setServerInfo(string finesseip, string aemsip, string ispsip)
         {
-            label14.Text = finesseip;
-            label15.Text = aemsip;
-            label17.Text = ispsip;
+            if (finesseip != null && finesseip.Length > 0)
+            {
+                label14.Text = finesseip;
+            }
+            if (aemsip != null && aemsip.Length > 0)
+            {
+                label15.Text = aemsip;
+            }
+            if (ispsip != null && ispsip.Length > 0)
+            {
+                label17.Text = ispsip;
+            }
         }
 
 

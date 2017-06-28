@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using CTIFnClient;
 using TCPSOCKET;
 using CONST;
+using EVENTOBJ;
+
 
 namespace ThreadGroup
 {
@@ -85,6 +87,13 @@ namespace ThreadGroup
                 if (!aemsClient.getDisconnectReq())
                 {
                     logwrite.write("AEMSReceiver runThread", "########## AEMS Session Closed !! ##########");
+
+                    Event evt = new Event();
+                    evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
+                    evt.setEvtMsg("AEMS Session Disconnected");
+                    evt.setCurAemsIP(aemsClient.getCurrentServerIP());
+                    finesseObj.raiseEvent(evt);
+
                     if (aemsClient.reConnect() != ERRORCODE.SUCCESS)
                     {
                         // 서버 세션이 끊어지고, 재접속이 안될시 서버 프로세스가 올라올때까지 감지하는 스레드 시작한다.

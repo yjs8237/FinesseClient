@@ -74,12 +74,29 @@ namespace CTIFnClientTest
             Console.WriteLine(evt);
         }
 
-        public override void GetEventOnDisConnection(String evt)
+        public override void GetEventOnDisConnection(string finesseIP , string aemsIP , string ispsIP , String evt)
         {
             string[] arr = { BTNMASK.CONNECTION };
             form.setButtonMask(arr);
 
-            form.setServerInfo("0.0.0.0", "0.0.0.0", "0.0.0.0");
+            Console.WriteLine("1. finesseIP : " + finesseIP + " , aemsIP : " + aemsIP + " , ispsIP : " + ispsIP);
+
+            if (finesseIP != null && finesseIP.Length > 0)
+            {
+                finesseIP = "0.0.0.0";
+            }
+            if (aemsIP != null && aemsIP.Length > 0)
+            {
+                aemsIP = "0.0.0.0";
+            }
+            if (ispsIP != null && ispsIP.Length > 0)
+            {
+                ispsIP = "0.0.0.0";
+            }
+
+            Console.WriteLine("2. finesseIP : " + finesseIP + " , aemsIP : " + aemsIP + " , ispsIP : " + ispsIP);
+
+            form.setServerInfo(finesseIP, aemsIP, ispsIP);
 
             Console.WriteLine(evt);
         }

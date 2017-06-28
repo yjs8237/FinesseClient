@@ -10,6 +10,7 @@ using ThreadGroup;
 using CTIFnClient;
 using CONST;
 using VO;
+using EVENTOBJ;
 
 namespace TCPSOCKET
 {
@@ -71,6 +72,10 @@ namespace TCPSOCKET
                      Thread thread = new Thread(ts);
                      thread.Start();
 
+
+                     callConnectionEvent();
+
+
                      logwrite.write("startClient", "ISPS Thread Start!!");
 
                      break;
@@ -83,6 +88,15 @@ namespace TCPSOCKET
 
              }
              return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
+         }
+
+         public void callConnectionEvent()
+         {
+             Event evt = new Event();
+             evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
+             evt.setCurIspsIP((string)currentServer["IP"]);
+             evt.setEvtMsg("ISPS Connection Success!!");
+             finesseObj.raiseEvent(evt);
          }
 
     }

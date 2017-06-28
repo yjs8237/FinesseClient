@@ -51,8 +51,7 @@ namespace TCPSOCKET
             }
             if (finesseConnect() == ERRORCODE.SUCCESS)
             {
-                Agent agent = Agent.getInstance();
-                return login(agent);
+                return connectXMPPAuth();
             }
             else
             {
@@ -83,8 +82,11 @@ namespace TCPSOCKET
                 if (connect(serverIP, serverInfo.getPort()) == ERRORCODE.SUCCESS)
                 {
                     logwrite.write("startClient", "Finesse Connection SUCCESS!! [" + serverIP + "][" + serverInfo.getPort() + "]");
+
                     bisConnected = true;
                     finesseObj.setFinesseConnected(true);   // 접속 여부 flag 재접속 할때 Flag 참조한다
+
+                    callConnectionEvent();  // Connection 성공 이벤트 전달
 
                     break;
                 }
@@ -132,9 +134,9 @@ namespace TCPSOCKET
             return httpHandler.logoutRequest((string)currentServer["IP"], agent); 
         }
 
-        public  int login(Agent agent)
+        public int connectXMPPAuth()
         {
-            this.agent = agent;
+            this.agent = Agent.getInstance();
 
             // 소켓이 연결되고 사전 인증절차가 끝나면 스레드를 시작한다.
             // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작 (Call Event Handle)
@@ -155,25 +157,31 @@ namespace TCPSOCKET
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
-            finesseRecv = new FinesseReceiver(sock, finesseObj , agent, this);
+
+            // Finesse XMPP 이벤트 받는 스레드 시작
+            finesseRecv = new FinesseReceiver(sock, finesseObj, agent, this);
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();
 
-            
+            return ERRORCODE.SUCCESS;
+        }
+
+        public int checkAgentState()
+        {
+            // 로그인하기전 서버에 상담원 상태를 먼저 체크한다.
+
             if (httpHandler == null)
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-
-            Event evt = null;
             string agentState = "";
             string agentReasonCode = "";
             // 로그인 하기전에 상담원 상태 체크를 먼저한다.
             string agentStateXml = httpHandler.checkAgentState((string)currentServer["IP"], agent);
             if (agentStateXml != null)
             {
-                XMLParser xmlParser = new XMLParser(logwrite , agent);
+                XMLParser xmlParser = new XMLParser(logwrite, agent);
 
                 agentStateXml = agentStateXml.Replace("\n", "");
 
@@ -182,51 +190,48 @@ namespace TCPSOCKET
 
                 logwrite.write("login", "CURRENT AGENT STATE : " + agentState + " , REASON CODE : " + agentReasonCode);
 
-                /*
-                int stateStartIndex = agentState.IndexOf("<state>");
-                int stateEndIndex = agentState.IndexOf("</state>");
-                if (stateStartIndex > 0 && stateEndIndex > 0)
-                {
-                    tempStr = agentState.Substring(0, stateEndIndex);
-                    int stateLen = tempStr.Length - stateStartIndex - "<state>".Length;
-                    int tempInt = stateStartIndex + 7;
-                    tempStr = tempStr.Substring(tempInt, stateLen);
-                    logwrite.write("login", "CURRENT AGENT STATE : " + tempStr);
-                   
-                }
-                 * */
-            }
-
-
-            int returnCode = httpHandler.loginRequest((string)currentServer["IP"], agent);
-            if (returnCode == ERRORCODE.SUCCESS)
-            {
+                // 서버에 이미 남아 있는 상담원 상태가 로그아웃이 아닐경우에 이벤트를 발생한다.
                 if (!agentState.Equals(AGENTSTATE.LOGOUT))
                 {
-                    evt = new Event();
+                    Event evt = new Event();
                     evt.setEvtMsg(agentStateXml);
                     evt.setAgentState(agentState);
                     evt.setReasonCode(agentReasonCode);
                     evt.setEvtCode(EVENT_TYPE.ON_AGENTSTATE_CHANGE);
                     finesseObj.raiseEvent(evt);
                 }
-                return returnCode;
+
+                return ERRORCODE.SUCCESS;
             }
             else
             {
-                return returnCode;
+                return ERRORCODE.FAIL;
+            }
+        }
+
+        public  int login()
+        {
+           
+            // XMPP 인증 시도
+            if (connectXMPPAuth() != ERRORCODE.SUCCESS)
+            {
+                return ERRORCODE.FAIL;
             }
 
-            
-            /*
-            // 소켓이 연결되면 서버로 패킷을 보내는 스레드 시작
-            finesseSend = new FinesseSender(writer, finesseObj);
-            ThreadStart sendts = new ThreadStart(finesseSend.runThread);
-            Thread sendThread = new Thread(sendts);
-            sendThread.Start();
+            checkAgentState();  // 이전 상담원 상태체크
 
-            logwrite.write("login", "Finesse Thread Start!!");
-            */
+            return httpHandler.loginRequest((string)currentServer["IP"], agent);
+           
+        }
+
+
+        public void callConnectionEvent()
+        {
+            Event evt = new Event();
+            evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
+            evt.setCurFinesseIP((string)currentServer["IP"]);
+            evt.setEvtMsg("Finesse Connection Success!!");
+            finesseObj.raiseEvent(evt);
         }
 
         public int ccTransfer(string dialNumber , string dialogID)

@@ -22,7 +22,6 @@ namespace CTIFnClient
 
         private LogWrite logwrite;
 
-
         private bool isFinesseConnected = false;
         private bool isAEMSConnected = false;
         private bool isISPSConnected = false;
@@ -58,7 +57,6 @@ namespace CTIFnClient
             ServerInfo finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport, finesseDomain);
             ServerInfo aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port );
             ServerInfo ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port );
-
 
             /*
              *  finesse 세션 연결
@@ -129,6 +127,7 @@ namespace CTIFnClient
 
             if (isFinesseConnected && isAEMSConnected && isISPSConnected)
             {
+                /*
                 Event evt = new Event();
                 evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
                 evt.setEvtMsg("CONNECTED SUCCESS");
@@ -136,6 +135,7 @@ namespace CTIFnClient
                 evt.setCurAemsIP(AEMSClient.getCurrentServerIP());
                 evt.setCurIspsIP(ISPSClient.getCurrentServerIP());
                 raiseEvent(evt);
+                 * */
             }
 
             return ERRORCODE.SUCCESS;
@@ -144,27 +144,35 @@ namespace CTIFnClient
         public int fnDisconnect()
         {
             logwrite.write("fnConnect", "\n call fnDisconnect() \n");
+
+            Event evt = new Event();
+            evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
+
             if (FinesseClient != null)
             {
                 FinesseClient.disconnect();
+                evt.setEvtMsg("Finesse Session Disconnected");
+                evt.setCurFinesseIP(FinesseClient.getCurrentServerIP());
+                raiseEvent(evt);
             }
             if (AEMSClient != null)
             {
                 AEMSClient.disconnect();
+                evt.setEvtMsg("AEMS Session Disconnected");
+                evt.setCurAemsIP(AEMSClient.getCurrentServerIP());
+                raiseEvent(evt);
             }
             if (ISPSClient != null)
             {
                 ISPSClient.disconnect();
+                evt.setEvtMsg("ISPS Session Disconnected");
+                evt.setCurIspsIP(ISPSClient.getCurrentServerIP());
+                raiseEvent(evt);
             }
+
             isFinesseConnected = false;
             isAEMSConnected = false;
             isISPSConnected = false;
-
-            Event evt = new Event();
-            evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
-            evt.setEvtMsg("DISCONNECTED SUCCESS");
-            raiseEvent(evt);
-
 
             return ERRORCODE.SUCCESS;
 
@@ -183,8 +191,9 @@ namespace CTIFnClient
             agent.setExtension(extension);
 
 
-            if (FinesseClient.login(agent) == ERRORCODE.SUCCESS)
+            if (FinesseClient.login() == ERRORCODE.SUCCESS)
             {
+                // 로그인이 성공하면 Finesse 에 등록된 이석사유코드 리스트를 가져와 메모리에 올린다.
                 string reasonCodeXML = fnGetReasonCodeList();
                 setReasonCodeList(reasonCodeXML);
                 return ERRORCODE.SUCCESS;
@@ -354,7 +363,7 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnDisConnection(evtMessage);
+                    GetEventOnDisConnection(evt.getCurFinesseIP() , evt.getCurAemsIP() , evt.getCurIspsIP() , evtMessage);
                     break;
 
                 case EVENT_TYPE.ON_AGENTSTATE_CHANGE:
@@ -381,7 +390,6 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType() + " , STATE : " + evt.getCallState());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-
                     checkTable(evt.getCallVariable());
                     GetEventOnCallActive(evtMessage);
                     break;
@@ -391,7 +399,6 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType() + " , STATE : " + evt.getCallState());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-
                     checkTable(evt.getCallVariable());
                     GetEventOnCallWrapup(evtMessage);
                     break;
@@ -419,7 +426,7 @@ namespace CTIFnClient
         public abstract void GetEventOnAgentStateChange(string state , string reasonCode  , String evt);
         public abstract void GetEventOnError(String evt);
         public abstract void GetEventOnConnection(string finesseIP , string aemsIP , string ispsIP , String evt);
-        public abstract void GetEventOnDisConnection(String evt);
+        public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         
         
     }

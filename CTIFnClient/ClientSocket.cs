@@ -171,6 +171,7 @@ namespace TCPSOCKET
                 sock.Close();
                 sock = null;
             }
+
             return ERRORCODE.SUCCESS;
         }
 

@@ -2,3 +2,4 @@ C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\bin\Debug\CTIFnClient.dll
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\bin\Debug\CTIFnClient.pdb
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Debug\CTIFnClient.dll
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Debug\CTIFnClient.pdb
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Debug\CTIFnClient.csprojResolveAssemblyReference.cache

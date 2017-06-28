@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using CTIFnClient;
 using TCPSOCKET;
 using CONST;
-
+using EVENTOBJ;
 
 namespace ThreadGroup
 {
@@ -70,10 +70,21 @@ namespace ThreadGroup
             finally
             {
                 ispsClient.sessionClose();
+
+              
+
                 // 사용자가 Disconnect 를 요청하지 않고 세션이 끊어진 경우 재접속 시도
                 if (!ispsClient.getDisconnectReq())
                 {
                     logwrite.write("ISPSReceiver runThread", "########## ISPS Session Closed !! ##########");
+
+                    Event evt = new Event();
+                    evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
+                    evt.setEvtMsg("ISPS Session Disconnected");
+                    evt.setCurIspsIP(ispsClient.getCurrentServerIP());
+                    finesseObj.raiseEvent(evt);
+
+
                     if (ispsClient.reConnect() != ERRORCODE.SUCCESS)
                     {
                         // 서버 세션이 끊어지고, 재접속이 안될시 서버 프로세스가 올라올때까지 감지하는 스레드 시작한다.

@@ -10,6 +10,9 @@ using System.IO;
 using ThreadGroup;
 using CONST;
 using VO;
+using EVENTOBJ;
+
+
 namespace TCPSOCKET
 {
     class AEMSClient : ClientSocket
@@ -75,6 +78,9 @@ namespace TCPSOCKET
                     Thread thread = new Thread(ts);
                     thread.Start();
 
+                    callConnectionEvent();
+
+
                     logwrite.write("startClient", "AEMS Thread Start!!");
 
                     break;
@@ -91,7 +97,15 @@ namespace TCPSOCKET
             
         }
 
-       
+
+        public void callConnectionEvent()
+        {
+            Event evt = new Event();
+            evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
+            evt.setCurAemsIP((string)currentServer["IP"]);
+            evt.setEvtMsg("AEMS Connection Success!!");
+            finesseObj.raiseEvent(evt);
+        }
 
     }
 }
