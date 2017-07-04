@@ -69,6 +69,10 @@
             this.button10 = new System.Windows.Forms.Button();
             this.textBox15 = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.button19 = new System.Windows.Forms.Button();
+            this.button18 = new System.Windows.Forms.Button();
+            this.button17 = new System.Windows.Forms.Button();
+            this.button16 = new System.Windows.Forms.Button();
             this.button14 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
@@ -80,12 +84,19 @@
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.button15 = new System.Windows.Forms.Button();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.textBox18 = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.textBox19 = new System.Windows.Forms.TextBox();
+            this.button20 = new System.Windows.Forms.Button();
+            this.button21 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -93,6 +104,7 @@
             this.groupBox5.SuspendLayout();
             this.groupBox6.SuspendLayout();
             this.groupBox7.SuspendLayout();
+            this.groupBox8.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -467,6 +479,10 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.button19);
+            this.groupBox4.Controls.Add(this.button18);
+            this.groupBox4.Controls.Add(this.button17);
+            this.groupBox4.Controls.Add(this.button16);
             this.groupBox4.Controls.Add(this.button14);
             this.groupBox4.Controls.Add(this.button13);
             this.groupBox4.Controls.Add(this.button11);
@@ -476,14 +492,54 @@
             this.groupBox4.Controls.Add(this.textBox14);
             this.groupBox4.Location = new System.Drawing.Point(275, 306);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(445, 100);
+            this.groupBox4.Size = new System.Drawing.Size(445, 147);
             this.groupBox4.TabIndex = 32;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Call";
             // 
+            // button19
+            // 
+            this.button19.Location = new System.Drawing.Point(208, 97);
+            this.button19.Name = "button19";
+            this.button19.Size = new System.Drawing.Size(90, 23);
+            this.button19.TabIndex = 38;
+            this.button19.Text = "Reconnect";
+            this.button19.UseVisualStyleBackColor = true;
+            this.button19.Click += new System.EventHandler(this.button19_Click);
+            // 
+            // button18
+            // 
+            this.button18.Location = new System.Drawing.Point(304, 60);
+            this.button18.Name = "button18";
+            this.button18.Size = new System.Drawing.Size(90, 23);
+            this.button18.TabIndex = 37;
+            this.button18.Text = "Conference";
+            this.button18.UseVisualStyleBackColor = true;
+            this.button18.Click += new System.EventHandler(this.button18_Click);
+            // 
+            // button17
+            // 
+            this.button17.Location = new System.Drawing.Point(208, 60);
+            this.button17.Name = "button17";
+            this.button17.Size = new System.Drawing.Size(90, 23);
+            this.button17.TabIndex = 36;
+            this.button17.Text = "CCConference";
+            this.button17.UseVisualStyleBackColor = true;
+            this.button17.Click += new System.EventHandler(this.button17_Click);
+            // 
+            // button16
+            // 
+            this.button16.Location = new System.Drawing.Point(304, 16);
+            this.button16.Name = "button16";
+            this.button16.Size = new System.Drawing.Size(90, 23);
+            this.button16.TabIndex = 35;
+            this.button16.Text = "Transfer";
+            this.button16.UseVisualStyleBackColor = true;
+            this.button16.Click += new System.EventHandler(this.button16_Click);
+            // 
             // button14
             // 
-            this.button14.Location = new System.Drawing.Point(304, 58);
+            this.button14.Location = new System.Drawing.Point(102, 97);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(90, 23);
             this.button14.TabIndex = 34;
@@ -493,7 +549,7 @@
             // 
             // button13
             // 
-            this.button13.Location = new System.Drawing.Point(208, 58);
+            this.button13.Location = new System.Drawing.Point(6, 97);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(90, 23);
             this.button13.TabIndex = 33;
@@ -594,24 +650,24 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Server Connection Information";
             // 
-            // label13
+            // label17
             // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(15, 26);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(62, 12);
-            this.label13.TabIndex = 0;
-            this.label13.Text = "Finesse : ";
+            this.label17.AutoSize = true;
+            this.label17.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label17.Location = new System.Drawing.Point(513, 26);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(48, 12);
+            this.label17.TabIndex = 5;
+            this.label17.Text = "0.0.0.0";
             // 
-            // label14
+            // label18
             // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label14.Location = new System.Drawing.Point(83, 26);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(48, 12);
-            this.label14.TabIndex = 1;
-            this.label14.Text = "0.0.0.0";
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(463, 26);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(44, 12);
+            this.label18.TabIndex = 4;
+            this.label18.Text = "ISPS : ";
             // 
             // label15
             // 
@@ -632,30 +688,98 @@
             this.label16.TabIndex = 2;
             this.label16.Text = "AEMS : ";
             // 
-            // label17
+            // label14
             // 
-            this.label17.AutoSize = true;
-            this.label17.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label17.Location = new System.Drawing.Point(513, 26);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(48, 12);
-            this.label17.TabIndex = 5;
-            this.label17.Text = "0.0.0.0";
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label14.Location = new System.Drawing.Point(83, 26);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(48, 12);
+            this.label14.TabIndex = 1;
+            this.label14.Text = "0.0.0.0";
             // 
-            // label18
+            // label13
             // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(463, 26);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(44, 12);
-            this.label18.TabIndex = 4;
-            this.label18.Text = "ISPS : ";
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(15, 26);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(62, 12);
+            this.label13.TabIndex = 0;
+            this.label13.Text = "Finesse : ";
+            // 
+            // groupBox8
+            // 
+            this.groupBox8.Controls.Add(this.button21);
+            this.groupBox8.Controls.Add(this.button20);
+            this.groupBox8.Controls.Add(this.textBox19);
+            this.groupBox8.Controls.Add(this.label20);
+            this.groupBox8.Controls.Add(this.textBox18);
+            this.groupBox8.Controls.Add(this.label19);
+            this.groupBox8.Location = new System.Drawing.Point(275, 471);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(445, 100);
+            this.groupBox8.TabIndex = 36;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "폰패드";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(7, 18);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(65, 12);
+            this.label19.TabIndex = 6;
+            this.label19.Text = "폰패드번호";
+            // 
+            // textBox18
+            // 
+            this.textBox18.Location = new System.Drawing.Point(87, 14);
+            this.textBox18.Name = "textBox18";
+            this.textBox18.Size = new System.Drawing.Size(100, 21);
+            this.textBox18.TabIndex = 39;
+            this.textBox18.Text = "50500";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(7, 47);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(53, 12);
+            this.label20.TabIndex = 40;
+            this.label20.Text = "계좌번호";
+            // 
+            // textBox19
+            // 
+            this.textBox19.Location = new System.Drawing.Point(87, 44);
+            this.textBox19.Name = "textBox19";
+            this.textBox19.Size = new System.Drawing.Size(100, 21);
+            this.textBox19.TabIndex = 41;
+            // 
+            // button20
+            // 
+            this.button20.Location = new System.Drawing.Point(208, 14);
+            this.button20.Name = "button20";
+            this.button20.Size = new System.Drawing.Size(90, 23);
+            this.button20.TabIndex = 39;
+            this.button20.Text = "비번수취";
+            this.button20.UseVisualStyleBackColor = true;
+            this.button20.Click += new System.EventHandler(this.button20_Click);
+            // 
+            // button21
+            // 
+            this.button21.Location = new System.Drawing.Point(208, 42);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(90, 23);
+            this.button21.TabIndex = 42;
+            this.button21.Text = "주민번호수취";
+            this.button21.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(759, 642);
+            this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox6);
             this.Controls.Add(this.groupBox5);
@@ -696,6 +820,8 @@
             this.groupBox6.ResumeLayout(false);
             this.groupBox7.ResumeLayout(false);
             this.groupBox7.PerformLayout();
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox8.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -761,6 +887,17 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Button button16;
+        private System.Windows.Forms.Button button18;
+        private System.Windows.Forms.Button button17;
+        private System.Windows.Forms.Button button19;
+        private System.Windows.Forms.GroupBox groupBox8;
+        private System.Windows.Forms.Button button21;
+        private System.Windows.Forms.Button button20;
+        private System.Windows.Forms.TextBox textBox19;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox textBox18;
+        private System.Windows.Forms.Label label19;
     }
 }
 

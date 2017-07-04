@@ -15,6 +15,9 @@ namespace CONST
         public readonly static string RETRIEVE = "RETRIEVE";    
         public readonly static string DROP = "DROP";    
         public readonly static string UPDATE_CALL_DATA = "UPDATE_CALL_DATA";
-        public readonly static string CONSULT_CALL = "CONSULT_CALL";        
+        public readonly static string CONSULT_CALL = "CONSULT_CALL";
+        public readonly static string TRANSFER_SST = "TRANSFER_SST";
+        public readonly static string TRANSFER = "TRANSFER";
+        public readonly static string CONFERENCE = "CONFERENCE";
     }
 }

@@ -12,6 +12,8 @@ namespace CTIFnClientTest
         public readonly static string LOGOUT = "LOGOUT";
         public readonly static string READY = "READY";
         public readonly static string NOT_READY = "NOT_READY";
+        public readonly static string WORK_READY = "WORK_READY";
+        public readonly static string WORK = "WORK";
         public readonly static string REASON = "REASON";
         public readonly static string MAKECALL = "MAKECALL";
         public readonly static string TRANSFER = "TRANSFER";

@@ -27,6 +27,11 @@ namespace ThreadGroup
         }
 
 
+        public void pingCheck()
+        {
+
+        }
+
         public void runThread()
         {
             ArrayList ipList = new ArrayList();

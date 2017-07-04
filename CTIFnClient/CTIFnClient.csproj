@@ -43,13 +43,16 @@
     <Compile Include="AEMSReceiver.cs" />
     <Compile Include="AEMSSender.cs" />
     <Compile Include="Agent.cs" />
+    <Compile Include="AgentEvent.cs" />
     <Compile Include="AGENTSTATE.cs" />
     <Compile Include="ButtonMask.cs" />
     <Compile Include="CALL.cs" />
     <Compile Include="CallEvent.cs" />
+    <Compile Include="ErrorEvent.cs" />
+    <Compile Include="Event.cs" />
     <Compile Include="Finesse.cs" />
     <Compile Include="LogWrite.cs" />
-    <Compile Include="Event.cs" />
+    <Compile Include="IEvent.cs" />
     <Compile Include="EVENT_TYPE.cs" />
     <Compile Include="FinesseDomain.cs" />
     <Compile Include="FinesseReceiver.cs" />

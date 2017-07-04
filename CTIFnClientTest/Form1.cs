@@ -51,6 +51,7 @@ namespace CTIFnClientTest
 
         public void setInitialButton()
         {
+            /*
             foreach (DictionaryEntry item in buttonTable)
             {
                 Button button = (Button)item.Value;
@@ -64,10 +65,12 @@ namespace CTIFnClientTest
                 }
 
             }
+             * */
         }
 
         public void setButtonMask(string[] buttonMask)
         {
+            /*
             foreach (DictionaryEntry item in buttonTable)
             {
                 string buttonKey = (string)item.Key;
@@ -81,6 +84,7 @@ namespace CTIFnClientTest
                     button.Enabled = false;
                 }
             }
+             * */
         }
 
         public void setServerInfo(string finesseip, string aemsip, string ispsip)
@@ -195,6 +199,35 @@ namespace CTIFnClientTest
         private void button15_Click(object sender, EventArgs e)
         {
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetReasonCodeList());
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnTransfer());
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            string dialNumber = textBox14.Text;    // dialNumber
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnCCConference(dialNumber));
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnConference());
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnReconnect());
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+            string account = textBox19.Text; // 계좌번호
+            string dialNum = textBox18.Text;    // 폰패드 번호
+
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnPhonePad(dialNum, account));
         }
 
     }

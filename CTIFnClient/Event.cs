@@ -2,29 +2,75 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace EVENTOBJ
 {
-    public interface IEvent
+    public class Event 
     {
+        private string evtCode;
+        private string evtType;
+        private string evtMsg;
 
-        void setEvtCode(int evtCode);
-        int getEvtCode();
-        void setEvtType(string evtType);
-        string getEvtType();
-        void setEvtMsg(string evtMsg);
-        string getEvtMsg();
-        void setAgentState(string agentState);
-        string getAgentState();
-        void setReasonCode(string reasonCode);
-        string getReasonCode();
-        void setDialogID(string dialogID);
-        string getDialogID();
-        void setCallType(string callType);
-        string getCallType();
-        void setCallState(string callState);
-        string getCallState();
+        private string currentFinesseIP;
+        private string currentAemsIP;
+        private string currentIspsIP;
+       
+
+        public void setCurFinesseIP(string ip)
+        {
+            this.currentFinesseIP = ip;
+        }
+        public string getCurFinesseIP()
+        {
+            return this.currentFinesseIP;
+        }
+        public void setCurAemsIP(string ip)
+        {
+            this.currentAemsIP = ip;
+        }
+        public string getCurAemsIP()
+        {
+            return this.currentAemsIP;
+        }
+        public void setCurIspsIP(string ip)
+        {
+            this.currentIspsIP = ip;
+        }
+        public string getCurIspsIP()
+        {
+            return this.currentIspsIP;
+        }
 
 
+        public void setEvtCode(string evtCode)
+        {
+            this.evtCode = evtCode;
+        }
+
+        public string getEvtCode()
+        {
+            return this.evtCode;
+        }
+
+        public void setEvtType(string evtType)
+        {
+            this.evtType = evtType;
+        }
+
+        public string getEvtType()
+        {
+            return evtType;
+        }
+
+        public void setEvtMsg(string evtMsg)
+        {
+            this.evtMsg = evtMsg;
+        }
+
+        public string getEvtMsg()
+        {
+            return this.evtMsg;
+        }
     }
 }

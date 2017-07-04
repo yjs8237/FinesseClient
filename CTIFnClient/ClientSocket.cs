@@ -152,6 +152,69 @@ namespace TCPSOCKET
         }
 
 
+        public int send(string sendMsg)
+        {
+            if (sendMsg == null)
+            {
+                return ERRORCODE.FAIL;
+            }
+
+            try
+            {
+                if (writer == null)
+                {
+                    return ERRORCODE.FAIL;
+                }
+
+                writer.WriteLine(sendMsg);
+                writer.Flush();
+            }
+            catch (Exception e)
+            {
+                if (writer != null)
+                {
+                    writer.Close();
+                }
+                return ERRORCODE.FAIL;
+            }
+            finally
+            {
+            }
+            return ERRORCODE.SUCCESS;
+        }
+
+        public string recv()
+        {
+
+            sock.ReceiveTimeout = 3000;
+
+            string recvMsg = null;
+            try
+            {
+                int BUFFERSIZE = sock.ReceiveBufferSize;
+                byte[] buffer = new byte[BUFFERSIZE];
+                int bytelen = 0;
+
+                StringBuilder sb = new StringBuilder();
+
+                bytelen = writeStream.Read(buffer, 0, buffer.Length);
+                recvMsg = Encoding.UTF8.GetString(buffer, 0, bytelen);
+               
+            }
+            catch (Exception e)
+            {
+                if (reader != null)
+                {
+                    reader.Close();
+                }
+                return null;
+            }
+            finally
+            {
+            }
+            return recvMsg;
+        }
+
         public int disconnect()
         {
             if (sock != null)

@@ -23,10 +23,8 @@ namespace TCPSOCKET
         private ArrayList ipArrList;
         private Finesse finesseObj;
         private ISocketReceiver finesseRecv;
-        //private ISocketSender finesseSend;
         private Agent agent;
         private HttpHandler httpHandler;
-        //private Hashtable finesseCurrent;  // 현재 접속되어 있는 Finesse 서버 정보를 관리 하기 위함
 
         private bool isAlreadyAuth;     // 이벤트를 받기위해 XMPP 인증 절차 여부, XMPP 세션이 끊어지지 않으면, XMPP 인증은 한번만 받아야 한다.
 
@@ -57,9 +55,21 @@ namespace TCPSOCKET
             {
                 return ERRORCODE.FAIL;
             }
-
         }
 
+        public int startClient()
+        {
+
+            // 이미 소켓이 연결되어 있는지 체크
+            if (isConnected())
+            {
+                logwrite.write("startClient", "Finesse Already Connected !!");
+                return ERRORCODE.SUCCESS;
+            }
+
+            return finesseConnect();
+
+        }
         public int finesseConnect()
         {
 
@@ -110,19 +120,9 @@ namespace TCPSOCKET
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
         }
 
-        public  int startClient()
-        {
+     
 
-            // 이미 소켓이 연결되어 있는지 체크
-            if (isConnected())
-            {
-                logwrite.write("startClient", "Finesse Already Connected !!");
-                return ERRORCODE.SUCCESS;
-            }
 
-            return finesseConnect();
-            
-        }
 
         public  int logout()
         {
@@ -132,6 +132,21 @@ namespace TCPSOCKET
             }
 
             return httpHandler.logoutRequest((string)currentServer["IP"], agent); 
+        }
+
+        public int login()
+        {
+
+            // XMPP 인증 시도
+            if (connectXMPPAuth() != ERRORCODE.SUCCESS)
+            {
+                return ERRORCODE.FAIL;
+            }
+
+            checkAgentState();  // 이전 상담원 상태체크
+
+            return httpHandler.loginRequest((string)currentServer["IP"], agent);
+
         }
 
         public int connectXMPPAuth()
@@ -156,7 +171,6 @@ namespace TCPSOCKET
             }
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
-
 
             // Finesse XMPP 이벤트 받는 스레드 시작
             finesseRecv = new FinesseReceiver(sock, finesseObj, agent, this);
@@ -193,7 +207,7 @@ namespace TCPSOCKET
                 // 서버에 이미 남아 있는 상담원 상태가 로그아웃이 아닐경우에 이벤트를 발생한다.
                 if (!agentState.Equals(AGENTSTATE.LOGOUT))
                 {
-                    Event evt = new Event();
+                    AgentEvent evt = new AgentEvent();
                     evt.setEvtMsg(agentStateXml);
                     evt.setAgentState(agentState);
                     evt.setReasonCode(agentReasonCode);
@@ -209,130 +223,6 @@ namespace TCPSOCKET
             }
         }
 
-        public  int login()
-        {
-           
-            // XMPP 인증 시도
-            if (connectXMPPAuth() != ERRORCODE.SUCCESS)
-            {
-                return ERRORCODE.FAIL;
-            }
-
-            checkAgentState();  // 이전 상담원 상태체크
-
-            return httpHandler.loginRequest((string)currentServer["IP"], agent);
-           
-        }
-
-
-        public void callConnectionEvent()
-        {
-            Event evt = new Event();
-            evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
-            evt.setCurFinesseIP((string)currentServer["IP"]);
-            evt.setEvtMsg("Finesse Connection Success!!");
-            finesseObj.raiseEvent(evt);
-        }
-
-        public int ccTransfer(string dialNumber , string dialogID)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-            return httpHandler.ccTransferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
-        }
-
-        public int makeCall(string dialNumber)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.makeCallRequest((string)currentServer["IP"], agent, dialNumber);
-        }
-
-        public int answer(string dialogID)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.answerRequest((string)currentServer["IP"], agent, dialogID);
-        }
-
-        public int hold(string dialogID)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.holdRequest((string)currentServer["IP"], agent, dialogID);
-        }
-
-        public int retrieve(string dialogID)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.retrieveRequest((string)currentServer["IP"], agent, dialogID);
-        }
-
-
-
-        public int release(string dialogID)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.releaseRequest((string)currentServer["IP"], agent, dialogID);
-        }
-
-
-        public string getReasonCodeList()
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-            return httpHandler.reasonCodeRequest((string)currentServer["IP"], agent);
-        }
-
-        public int setCallData(string varName, string varValue, string dialogID)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.setCalldataRequest((string)currentServer["IP"], agent, varName, varValue, dialogID);
-        }
-        public int agentState(string state)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.agentStateChangeRequest((string)currentServer["IP"], agent, state);
-        }
-
-        public int agentState(string state, string reasonCode)
-        {
-            if (httpHandler == null)
-            {
-                httpHandler = new HttpHandler(logwrite);
-            }
-
-            return httpHandler.agentStateChangeRequest((string)currentServer["IP"], agent, state, reasonCode);
-        }
 
 
         private int startPreProcess()
@@ -417,7 +307,6 @@ namespace TCPSOCKET
 
         private void send(String msg)
         {
-
             if (sock == null || !sock.Connected)
             {
                 if (reConnect() == ERRORCODE.SUCCESS)
@@ -457,7 +346,7 @@ namespace TCPSOCKET
                 {
                     int startIndex = message.IndexOf("<stream:stream");
                     int messageLen = message.Length;
-                    string tempStr = message.Substring(startIndex, messageLen-startIndex);
+                    string tempStr = message.Substring(startIndex, messageLen - startIndex);
 
                     startIndex = tempStr.IndexOf("from=");
                     tempStr = tempStr.Substring(startIndex, tempStr.Length - startIndex);
@@ -473,14 +362,14 @@ namespace TCPSOCKET
                             tempInt++;
                             if (tempInt == 1)
                             {
-                                startIndex = i+1;
+                                startIndex = i + 1;
                             }
                             else if (tempInt == 2)
                             {
                                 endIndex = i;
                                 break;
                             }
-                            
+
                         }
                     }
 
@@ -492,23 +381,159 @@ namespace TCPSOCKET
 
                 }
             }
-            else 
-            {
-                logwrite.write("recv", "return bytes size -> " + read);    
-            }
-            
-            /*
-            if (bytes > 0)
-            {
-              
-            }
             else
             {
-                logwrite.write("recv", "return bytes size -> " + bytes);    
+                logwrite.write("recv", "return bytes size -> " + read);
             }
-             * */
-            
+
         }
+
+
+        public void callConnectionEvent()
+        {
+            Event evt = new Event();
+            evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
+            evt.setCurFinesseIP((string)currentServer["IP"]);
+            evt.setEvtMsg("Finesse Connection Success!!");
+            finesseObj.raiseEvent(evt);
+        }
+
+        public int ccTransfer(string dialNumber , string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.ccTransferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
+        }
+
+        public int transfer(string dialNumber , string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.transferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
+        }
+
+
+
+        public int ccConference(string dialNumber, string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.ccConferenceRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
+        }
+
+        public int conference(string dialNumber, string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.conferenceRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
+        }
+
+        public int makeCall(string dialNumber)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.makeCallRequest((string)currentServer["IP"], agent, dialNumber);
+        }
+
+
+
+        public int answer(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.answerRequest((string)currentServer["IP"], agent, dialogID);
+        }
+
+        public int hold(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.holdRequest((string)currentServer["IP"], agent, dialogID);
+        }
+
+
+        public int retrieve(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.retrieveRequest((string)currentServer["IP"], agent, dialogID);
+        }
+
+        public int reconnect(string dialogID, string dialogID_second)
+        {
+            release(dialogID_second);
+            return retrieve(dialogID);
+        }
+
+        public int release(string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.releaseRequest((string)currentServer["IP"], agent, dialogID);
+        }
+
+
+        public string getReasonCodeList()
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+            return httpHandler.reasonCodeRequest((string)currentServer["IP"], agent);
+        }
+
+        public int setCallData(string varName, string varValue, string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.setCalldataRequest((string)currentServer["IP"], agent, varName, varValue, dialogID);
+        }
+        public int agentState(string state)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.agentStateChangeRequest((string)currentServer["IP"], agent, state);
+        }
+
+        public int agentState(string state, string reasonCode)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.agentStateChangeRequest((string)currentServer["IP"], agent, state, reasonCode);
+        }
+
       
     }
 }

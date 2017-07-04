@@ -64,7 +64,6 @@ namespace TCPSOCKET
                 {
                     logwrite.write("startClient", "AEMS Connection SUCCESS!! [" + serverIP + "][" + serverInfo.getPort() + "]");
 
-
                     bisConnected = true;
                     finesseObj.setAEMSConnected(true); // 접속 여부 flag 재접속 할때 Flag 참조한다
 
@@ -72,14 +71,14 @@ namespace TCPSOCKET
                     Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                     reader = new StreamReader(writeStream, encode);
 
+                    /*
                     // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작
                     ISocketReceiver aemsRecv = new AEMSReceiver(sock , finesseObj , this);
                     ThreadStart ts = new ThreadStart(aemsRecv.runThread);
                     Thread thread = new Thread(ts);
                     thread.Start();
-
+                    */
                     callConnectionEvent();
-
 
                     logwrite.write("startClient", "AEMS Thread Start!!");
 
@@ -96,6 +95,8 @@ namespace TCPSOCKET
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
             
         }
+        
+        
 
 
         public void callConnectionEvent()

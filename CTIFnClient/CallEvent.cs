@@ -4,52 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 
+
 namespace EVENTOBJ
 {
-    public class Event 
+    class CallEvent : Event
     {
-        private string evtCode;
-        private string evtType;
-        private string evtMsg;
+        private string fromAddress;
+        private string toAddress;
 
         private string dialogID;
         private string callType;
-        private string agentState;
-        private string reasonCode;
-
-        private string callState;
 
         private Hashtable callVarTable;
 
+        private string callState;
 
-        private string currentFinesseIP;
-        private string currentAemsIP;
-        private string currentIspsIP;
+        public void setFromAddress(string fromAddress)
+        {
+            this.fromAddress = fromAddress;
+        }
+        public string getFromAddress()
+        {
+            return this.fromAddress;
+        }
 
-
-        public void setCurFinesseIP(string ip)
+        public void setToAddress(string toAddress)
         {
-            this.currentFinesseIP = ip;
+            this.toAddress = toAddress;
         }
-        public string getCurFinesseIP()
+        public string getToAddress()
         {
-            return this.currentFinesseIP;
-        }
-        public void setCurAemsIP(string ip)
-        {
-            this.currentAemsIP = ip;
-        }
-        public string getCurAemsIP()
-        {
-            return this.currentAemsIP;
-        }
-        public void setCurIspsIP(string ip)
-        {
-            this.currentIspsIP = ip;
-        }
-        public string getCurIspsIP()
-        {
-            return this.currentIspsIP;
+            return this.toAddress;
         }
 
         public void setCallVariable(Hashtable table)
@@ -70,23 +55,6 @@ namespace EVENTOBJ
             return this.callState;
         }
 
-        public void setAgentState(string agentState)
-        {
-            this.agentState = agentState;
-        }
-        public string getAgentState()
-        {
-            return this.agentState;
-        }
-        public void setReasonCode(string reasonCode)
-        {
-            this.reasonCode = reasonCode;
-        }
-        public string getReasonCode()
-        {
-            return this.reasonCode;
-        }
-
         public void setDialogID(string dialogID)
         {
             this.dialogID = dialogID;
@@ -105,34 +73,5 @@ namespace EVENTOBJ
         }
 
 
-        public void setEvtCode(string evtCode)
-        {
-            this.evtCode = evtCode;
-        }
-
-        public string getEvtCode()
-        {
-            return this.evtCode;
-        }
-
-        public void setEvtType(string evtType)
-        {
-            this.evtType = evtType;
-        }
-
-        public string getEvtType()
-        {
-            return evtType;
-        }
-
-        public void setEvtMsg(string evtMsg)
-        {
-            this.evtMsg = evtMsg;
-        }
-
-        public string getEvtMsg()
-        {
-            return this.evtMsg;
-        }
     }
 }

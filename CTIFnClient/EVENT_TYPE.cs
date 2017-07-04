@@ -14,6 +14,10 @@ namespace EVENTOBJ
         public const string ON_DISCONNECTION = "ON_DISCONNECTION";
         public const string ACTIVE = "ACTIVE";
         public const string WRAP_UP = "WRAP_UP";
+        public const string INITIATING = "INITIATING";
+        public const string INITIATED = "INITIATED";
+        public const string ERROR = "ERROR";
+        public const string HELD = "HELD";
         
     }
 }

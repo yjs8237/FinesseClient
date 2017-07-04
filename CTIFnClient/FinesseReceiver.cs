@@ -59,7 +59,6 @@ namespace ThreadGroup
 
                 logwrite.write("FinesseReceiver runThread", " Finesse Recv Thread Start !!");
 
-
                 Event evt = null;
 
                 if (writeStream == null)
@@ -74,6 +73,88 @@ namespace ThreadGroup
                 StringBuilder sb = new StringBuilder();
 
 
+                
+                while ((bytelen = writeStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+
+                    string message = Encoding.UTF8.GetString(buffer, 0, bytelen);
+                    message = message.Replace("&lt;", "<");
+                    message = message.Replace("&gt;", ">");
+                    message = message.Replace("\n", "");
+                    message = message.Trim();
+
+                    //Console.WriteLine(message);
+                    logwrite.write("FinesseReceiver runThread", message.Replace("\n", ""));
+
+                    int endIndex = 0;
+                    int subLength = 0;
+
+                    while (message.Length > 0)
+                    {
+                        //Console.WriteLine("message Len : " + message.Length);
+                        if (message.StartsWith("<message"))
+                        {
+                            endIndex = message.IndexOf("</message>");
+                            if (endIndex > -1)
+                            {
+                                subLength = endIndex + "</message>".Length;
+                                string resultStr = message.Substring(0, subLength);
+
+                                evt = xmlParser.parseXML(resultStr);
+                                finesseObj.raiseEvent(evt);
+                                //Console.WriteLine("\n\n1. result -> " + resultStr);
+                                message = message.Substring(subLength, message.Length - subLength);
+                            }
+                            else
+                            {
+                                sb.Append(message);
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            endIndex = message.IndexOf("</message>");
+                            if (endIndex > -1)
+                            {
+                                subLength = endIndex + "</message>".Length;
+                                string resultStr = message.Substring(0, subLength);
+
+                                if (sb.ToString().Length > 0)
+                                {
+                                    sb.Append(resultStr);
+                                    resultStr = sb.ToString().Replace("&gt;", ">");
+                                    evt = xmlParser.parseXML(resultStr);
+                                    finesseObj.raiseEvent(evt);
+                                    //Console.WriteLine("\n\n2. result -> " + sb.ToString());
+                                    sb = new StringBuilder();
+                                }
+                                message = message.Substring(subLength, message.Length - subLength);
+                            }
+                            else
+                            {
+                                if (sb.ToString().Length > 0)
+                                {
+                                    sb.Append(message);
+                                    break;
+                                }
+                                else
+                                {
+                                    sb = new StringBuilder();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    //Console.WriteLine("loop 탈출");
+                   // Console.WriteLine(" END !!  stringbuilder -> " + sb.ToString());
+
+                }
+                
+
+            
+
+
+                /*
                 while ((bytelen = writeStream.Read(buffer, 0, buffer.Length)) > 0)
                 {
 
@@ -154,7 +235,7 @@ namespace ThreadGroup
                     }
 
                 }
-
+                */
 
             }
             catch (Exception e)

@@ -27,18 +27,26 @@ namespace CTIFnClient
         private bool isISPSConnected = false;
 
         private string dialogID;
+        private string dialogID_second;
+        private string activeDialogID;
+
+        private string dialNumber;
 
         private Hashtable reasonCodeTable;
 
+        private ServerInfo finesseInfo;
+         private ServerInfo aemsInfo;
+         private ServerInfo ispsInfo;
         public Finesse()
         {
             logwrite = LogWrite.getInstance();
+            dialogID = "";  dialogID_second="";  activeDialogID = "";
         }
      
 
         public int fnConnect(String fn_A_IP , String fn_B_IP ,String finesseDomain, String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
         {
-            logwrite.write("fnConnect", "\n call fnConnect() \n");
+            logwrite.write("fnConnect", "\t ** call fnConnect() **");
             
             StringBuilder sb = new StringBuilder();
             logwrite.write("fnConnect", "Finesse A \t [" + fn_A_IP + "]");
@@ -54,9 +62,9 @@ namespace CTIFnClient
             int finesseport = SERVERINFO.Finesse_PORT;
 
             // 각 서버정보 객체화
-            ServerInfo finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport, finesseDomain);
-            ServerInfo aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port );
-            ServerInfo ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port );
+            finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport, finesseDomain);
+            aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port );
+            ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port );
 
             /*
              *  finesse 세션 연결
@@ -82,7 +90,14 @@ namespace CTIFnClient
                     isFinesseConnected = true;
                 }
             }
-            
+
+            AEMSClient = new AEMSClient(logwrite, this);
+            AEMSClient.setServerInfo(aemsInfo);
+
+            ISPSClient = new ISPSClient(logwrite, this);
+            ISPSClient.setServerInfo(ispsInfo);
+
+            /*
             if (isAEMSConnected)
             {
                 logwrite.write("fnConnect", "AEMS is Already Connected!!");
@@ -103,8 +118,6 @@ namespace CTIFnClient
                 }
             }
 
-            
-
             if (isISPSConnected)
             {
                 logwrite.write("fnConnect", "ISPS is Already Connected!!");
@@ -124,26 +137,14 @@ namespace CTIFnClient
                     isISPSConnected = true;
                 }
             }
-
-            if (isFinesseConnected && isAEMSConnected && isISPSConnected)
-            {
-                /*
-                Event evt = new Event();
-                evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
-                evt.setEvtMsg("CONNECTED SUCCESS");
-                evt.setCurFinesseIP(FinesseClient.getCurrentServerIP());
-                evt.setCurAemsIP(AEMSClient.getCurrentServerIP());
-                evt.setCurIspsIP(ISPSClient.getCurrentServerIP());
-                raiseEvent(evt);
-                 * */
-            }
+             * */
 
             return ERRORCODE.SUCCESS;
         }
 
         public int fnDisconnect()
         {
-            logwrite.write("fnConnect", "\n call fnDisconnect() \n");
+            logwrite.write("fnConnect", "\t ** call fnDisconnect() ** ");
 
             Event evt = new Event();
             evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
@@ -178,10 +179,9 @@ namespace CTIFnClient
 
         }
 
-
         public int fnLogin(String agentID , String agentPwd , String extension , String peripheralID)
         {
-            logwrite.write("fnConnect", "\n call fnLogin() ID [" + agentID + "] Password [" + agentPwd + "] extension [" + extension + "] \n");
+            logwrite.write("fnConnect", "\t ** call fnLogin() ID [" + agentID + "] Password [" + agentPwd + "] extension [" + extension + "] ** ");
 
             reasonCodeTable = new Hashtable(); // 이석사유코드 정보를 최초 로그인시 메모리에 관리한다.
             //Agent agent = new Agent(agentID , agentPwd, extension , peripheralID);
@@ -206,70 +206,129 @@ namespace CTIFnClient
 
         public int fnLogout()
         {
-            logwrite.write("fnConnect", "\n call fnLogout() \n");
+            logwrite.write("fnConnect", "\t ** call fnLogout() ** ");
             return FinesseClient.logout();
         }
 
         public string fnGetReasonCodeList()
         {
-            logwrite.write("fnGetReasonCodeList", "\n call fnGetReasonCodeList() \n");
+            logwrite.write("fnGetReasonCodeList", "\t ** call fnGetReasonCodeList() **");
             return FinesseClient.getReasonCodeList();
         }
 
         public int fnMakeCall(string dialNumber)
         {
-            logwrite.write("fnConnect", "\n call fnMakeCall() \n");
+            logwrite.write("fnMakeCall", "\t ** call fnMakeCall() **");
+            this.dialNumber = dialNumber;
             return FinesseClient.makeCall(dialNumber);
         }
 
         public int fnHold()
         {
-            logwrite.write("fnHold", "\n call fnHold() \n");
-            return FinesseClient.hold(dialogID);
+            logwrite.write("fnHold", "\t ** call fnHold() **");
+            return FinesseClient.hold(activeDialogID);
         }
 
         public int fnRetrieve()
         {
-            logwrite.write("fnRetrieve", "\n call fnRetrieve() \n");
-            return FinesseClient.retrieve(dialogID);
+            logwrite.write("fnRetrieve", "\t ** call fnRetrieve() **");
+            return FinesseClient.retrieve(activeDialogID);
+        }
+
+        public int fnReconnect()
+        {
+            logwrite.write("fnReconnect", "\t ** call fnReconnect() **");
+            return FinesseClient.reconnect(dialogID, dialogID_second);
         }
 
         public int fnAnswer()
         {
-            logwrite.write("fnAnswer", "\n call fnAnswer() \n");
-            return FinesseClient.answer(dialogID);
+            logwrite.write("fnAnswer", "\t ** call fnAnswer() **");
+            return FinesseClient.answer(activeDialogID);
         }
 
         public int fnRelease()
         {
-            logwrite.write("fnRelease", "\n call fnRelease() \n");
-            return FinesseClient.release(dialogID);
+            logwrite.write("fnRelease", "\t ** call fnRelease() **");
+            return FinesseClient.release(activeDialogID);
         }
 
         public int fnSetCallData(string varName, string varValue)
         {
-            logwrite.write("fnSetCallData", "\n call fnSetCallData() \n");
-            return FinesseClient.setCallData(varName, varValue, dialogID);
+            logwrite.write("fnSetCallData", "\t ** call fnSetCallData() **");
+            return FinesseClient.setCallData(varName, varValue, activeDialogID);
         }
 
         public int fnCCTransfer(string dialNumber)
         {
-            logwrite.write("fnCCTransfer", "\n call fnCCTransfer() \n");
-            return FinesseClient.ccTransfer(dialNumber, dialogID);
+            logwrite.write("fnCCTransfer", "\t ** call fnCCTransfer() **");
+            this.dialNumber = dialNumber;
+            return FinesseClient.ccTransfer(dialNumber, activeDialogID);
+        }
+
+        public int fnTransfer()
+        {
+            logwrite.write("fnTransfer", "\t ** call fnTransfer() **");
+            return FinesseClient.transfer(dialNumber, activeDialogID);
+        }
+        public int fnCCConference(string dialNumber)
+        {
+            logwrite.write("fnCCConference", "\t ** call fnCCConference() **");
+            this.dialNumber = dialNumber;
+            // Conference 는 첫번째 콜 DialogID 로 요청해야한다.
+            return FinesseClient.ccConference(dialNumber, dialogID);
+        }
+
+        public int fnConference()
+        {
+            logwrite.write("fnConference", "\t ** call fnConference() **");
+            return FinesseClient.conference(dialNumber, activeDialogID);
         }
 
 
         public int fnAgentState(string state)
         {
-            logwrite.write("fnAgentState", "\n call fnAgentState(" + state + ") \n");
+            logwrite.write("fnAgentState", "\t ** call fnAgentState(" + state + ") **");
             return FinesseClient.agentState(state);
         }
 
         public int fnAgentState(string state, string reasonCode)
         {
-            logwrite.write("fnAgentState", "\n call fnAgentState(" + state + " , " + reasonCode + ") \n");
+            logwrite.write("fnAgentState", "\t ** call fnAgentState(" + state + " , " + reasonCode + ") **");
+
+            if (reasonCodeTable == null || reasonCodeTable.Count == 0)
+            {
+                // 로그인이 성공하면 Finesse 에 등록된 이석사유코드 리스트를 가져와 메모리에 올린다.
+                string reasonCodeXML = fnGetReasonCodeList();
+                setReasonCodeList(reasonCodeXML);
+            }
             string reasonCodeID = (string) reasonCodeTable[reasonCode];
             return FinesseClient.agentState(state, reasonCodeID);
+        }
+
+        public int fnPhonePad(string phonePadNum, string account)
+        {
+
+            logwrite.write("fnPhonePad", "\t ** call fnPhonePad(" + phonePadNum + " , " + account + ") **");
+            
+            if (AEMSClient.aemsConnect() != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("fnPhonePad", "AEMS Cannot Connect");
+                isAEMSConnected = false;
+                return ERRORCODE.FAIL;
+            }
+            logwrite.write("fnPhonePad", "AEMS SEND MESSAGE [" + account + "]");
+            if (AEMSClient.send(account) != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("fnPhonePad", "AEMS SEND FAIL!!");
+                return ERRORCODE.FAIL;
+            }
+
+            string retStr = AEMSClient.recv();
+            logwrite.write("fnPhonePad", "AEMS RECV MESSAGE [" + retStr + "]");
+
+            return ERRORCODE.SUCCESS;
+
         }
 
         private void setReasonCodeList(string xml)
@@ -344,82 +403,178 @@ namespace CTIFnClient
                 return;
             }
 
-            Event evtObj = evt;
+            AgentEvent agentEvent = null;
+            CallEvent callEvent = null;
+            ErrorEvent errorEvent = null;
 
-            string evtCode = evtObj.getEvtCode();
-            string evtMessage = evtObj.getEvtMsg();
+            if (evt is AgentEvent)
+            {
+                agentEvent = (AgentEvent)evt;
+            }
+            else if (evt is CallEvent)
+            {
+                callEvent = (CallEvent)evt;
+            }
+            else if (evt is ErrorEvent)
+            {
+                errorEvent = (ErrorEvent) evt;
+            }
 
+
+            string evtCode = evt.getEvtCode();
+            string evtMessage = evt.getEvtMsg();
+          
             evtMessage = evtMessage.Replace("\n", "");
 
             switch (evtCode)
             {
                 case EVENT_TYPE.ON_CONNECTION:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(),   evtMessage);
                     break;
                 case EVENT_TYPE.ON_DISCONNECTION:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnDisConnection(evt.getCurFinesseIP() , evt.getCurAemsIP() , evt.getCurIspsIP() , evtMessage);
                     break;
 
                 case EVENT_TYPE.ON_AGENTSTATE_CHANGE:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnAgentStateChange ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnAgentStateChange ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnAgentStateChange(evt.getAgentState() , evt.getReasonCode() , evtMessage);
+                    logwrite.write("raiseEvent", "STATE : " + agentEvent.getAgentState() + " , REASONCODE : " + agentEvent.getReasonCode());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnAgentStateChange(agentEvent.getAgentState(), agentEvent.getReasonCode(), evtMessage);
                     break;
 
                 case EVENT_TYPE.ALERTING:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnCallAlerting ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallAlerting ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType() + " , STATE : " + evt.getCallState());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    dialogID = evt.getDialogID();
-
-                    checkTable(evt.getCallVariable());
-
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    setActiveDialogID(callEvent);
                     GetEventOnCallAlerting(evtMessage);
                     break;
+
                 case EVENT_TYPE.ACTIVE:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnCallActive ::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallActive ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType() + " , STATE : " + evt.getCallState());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    checkTable(evt.getCallVariable());
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    setActiveDialogID(callEvent);
                     GetEventOnCallActive(evtMessage);
                     break;
 
-                case EVENT_TYPE.WRAP_UP:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::: GetEventOnCallWrapup ::::::::::::::::::::::::");
+                case EVENT_TYPE.HELD:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallHeld ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType() + " , STATE : " + evt.getCallState());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    checkTable(evt.getCallVariable());
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnCallHeld(evtMessage);
+                    break;
+
+                case EVENT_TYPE.INITIATED:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallInitiated ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    setActiveDialogID(callEvent);
+                    GetEventOnCallInitiated(evtMessage);
+                    break;
+
+                case EVENT_TYPE.INITIATING:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallInitiating ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnCallInitiating(evtMessage);
+                    break;
+
+                case EVENT_TYPE.WRAP_UP:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallWrapup ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    checkTable(callEvent.getCallVariable());
                     GetEventOnCallWrapup(evtMessage);
                     break;
 
-                default :
-
+                case EVENT_TYPE.DROPPED:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallDropped ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    checkTable(callEvent.getCallVariable());
+                    removeDialogID(callEvent);
+                    GetEventOnCallDropped(evtMessage);
                     break;
+
+                case EVENT_TYPE.ERROR:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnError ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "ERROR TYPE : " + errorEvent.getErrorType() + " , ERROR MESSAGE : " + errorEvent.getErrorMessage());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnCallWrapup(evtMessage);
+                    break;
+                default :
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: UNKWON EVENT ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                break;
             }
 
+        }
+
+        private void removeDialogID(CallEvent evt)
+        {
+
+
+
+            if (dialogID_second.Equals(evt.getDialogID()))
+            {
+                dialogID_second = "";
+                activeDialogID = dialogID;
+            }
+            if (dialogID.Equals(evt.getDialogID()))
+            {
+                dialogID = "";
+                activeDialogID = "";
+            }
+
+            logwrite.write("removeDialogID", "Active DialogID : " + activeDialogID + " , first ID : " + dialogID + " , seconde ID : " + dialogID_second);
+
+        }
+
+        private void setActiveDialogID(CallEvent evt)
+        {
+            if (evt.getCallType().Equals("CONSULT"))
+            {
+                dialogID_second = evt.getDialogID();
+                activeDialogID = dialogID_second;
+            }
+            else
+            {
+                dialogID = evt.getDialogID();
+                activeDialogID = dialogID;
+            }
+            logwrite.write("removeDialogID", "Active DialogID : " + activeDialogID + " , first ID : " + dialogID + " , seconde ID : " + dialogID_second);
         }
 
         private void checkTable(Hashtable table) {
 
             foreach (DictionaryEntry item in table)
             {
-                logwrite.write("checkTable", "key : " + item.Key + " , " + item.Value);
+                //logwrite.write("checkTable", "key : " + item.Key + " , " + item.Value);
 
             }
 
         }
 
+
+        public abstract void GetEventOnCallDropped(String evt);
+        public abstract void GetEventOnCallHeld(String evt);
         public abstract void GetEventOnCallWrapup(String evt);
         public abstract void GetEventOnCallActive(String evt);
         public abstract void GetEventOnCallAlerting(String evt);
@@ -427,7 +582,8 @@ namespace CTIFnClient
         public abstract void GetEventOnError(String evt);
         public abstract void GetEventOnConnection(string finesseIP , string aemsIP , string ispsIP , String evt);
         public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
-        
+        public abstract void GetEventOnCallInitiated(String evt);
+        public abstract void GetEventOnCallInitiating(String evt);
         
     }
 

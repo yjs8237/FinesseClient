@@ -59,16 +59,33 @@ namespace CTIFnClient
 
         public  void write(String methodName, String msg)
         {
-            lock (lockObject)
+            try
             {
-                String nowTime = DateTime.Now.ToString("yyyyMMdd-HH:mm:ss:fff");
+                lock (lockObject)
+                {
 
-                StringBuilder sb = new StringBuilder();
-                sb.Append("[").Append(nowTime).Append("][").Append(methodName).Append("]");
-                sb.Append(msg);
+                    String nowTime = DateTime.Now.ToString("yyyyMMdd-HH:mm:ss:fff");
 
-                sw.WriteLine(sb.ToString());
-                sw.Flush();
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("[").Append(nowTime).Append("][").Append(methodName).Append("]");
+                    sb.Append(msg);
+
+                    if (msg.Contains("Event") || msg.Contains("EVENT"))
+                    {
+                        //sw.WriteLine("");
+                    }
+                    if (methodName.Equals("FinesseReceiver runThread"))
+                    {
+                        sw.WriteLine("");
+                        sw.WriteLine("");
+                    }
+                    sw.WriteLine(sb.ToString());
+                    sw.Flush();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
             
         }

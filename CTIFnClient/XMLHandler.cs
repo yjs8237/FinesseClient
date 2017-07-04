@@ -24,6 +24,8 @@ namespace XML
             return "<Dialog><requestedAction>"+CALL.MAKE_CALL+"</requestedAction><fromAddress>" + extension + "</fromAddress><toAddress>" + dialNumber + "</toAddress></Dialog>";
         }
 
+      
+
         public string getAnswer(string extension)
         {
             return "<Dialog><targetMediaAddress>"+extension+"</targetMediaAddress><requestedAction>"+CALL.ANSWER+"</requestedAction></Dialog>";
@@ -62,6 +64,19 @@ namespace XML
         public string getCCTransfer(string extension, string dialNumber)
         {
             return "<Dialog><requestedAction>"+CALL.CONSULT_CALL+"</requestedAction><toAddress>"+dialNumber+"</toAddress><targetMediaAddress>"+extension+"</targetMediaAddress></Dialog>";
+        }
+        public string getTransfer(string extension, string dialNumber)
+        {
+            return "<Dialog><requestedAction>" + CALL.TRANSFER + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
+        }
+        public string getConference(string extension, string dialNumber)
+        {
+            return "<Dialog><requestedAction>" + CALL.CONFERENCE + "</requestedAction><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
+        }
+        public string getCCConference(string extension, string dialNumber)
+        {
+            //return "<Dialog><requestedAction>" + CALL.CONFERENCE + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
+            return "<Dialog><requestedAction>" + CALL.CONSULT_CALL + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
         }
 
         public string getAgentState(string state, string reasonCode)
