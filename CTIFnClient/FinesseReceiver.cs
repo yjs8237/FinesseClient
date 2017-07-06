@@ -122,7 +122,7 @@ namespace ThreadGroup
                                 if (sb.ToString().Length > 0)
                                 {
                                     sb.Append(resultStr);
-                                    resultStr = sb.ToString().Replace("&gt;", ">");
+                                    resultStr = sb.ToString().Replace("&gt;", ">").Replace("&lt;", "<");
                                     evt = xmlParser.parseXML(resultStr);
                                     finesseObj.raiseEvent(evt);
                                     //Console.WriteLine("\n\n2. result -> " + sb.ToString());
@@ -145,13 +145,9 @@ namespace ThreadGroup
                             }
                         }
                     }
-                    //Console.WriteLine("loop 탈출");
-                   // Console.WriteLine(" END !!  stringbuilder -> " + sb.ToString());
 
                 }
                 
-
-            
 
 
                 /*
@@ -263,6 +259,7 @@ namespace ThreadGroup
                 // 사용자가 Disconnect 를 요청하지 않고 세션이 끊어진 경우 재접속 시도
                 if (!finesseClient.getDisconnectReq())
                 {
+
                     logwrite.write("FinesseReceiver runThread", "########## Finesse Session Closed !! ##########");
 
                     Event evt = new Event();
@@ -270,7 +267,6 @@ namespace ThreadGroup
                     evt.setEvtMsg("Finesse Session Disconnected");
                     evt.setCurFinesseIP(finesseClient.getCurrentServerIP());
                     finesseObj.raiseEvent(evt);
-
 
                     if (finesseClient.connectXMPPAuth() == ERRORCODE.SUCCESS)
                     {

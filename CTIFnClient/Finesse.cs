@@ -10,6 +10,7 @@ using VO;
 using EVENTOBJ;
 using System.Collections;
 using System.Xml;
+using JSON;
 
 namespace CTIFnClient
 {
@@ -31,6 +32,7 @@ namespace CTIFnClient
         private string activeDialogID;
 
         private string dialNumber;
+        private string phonePadNum;
 
         private Hashtable reasonCodeTable;
 
@@ -276,13 +278,13 @@ namespace CTIFnClient
             logwrite.write("fnCCConference", "\t ** call fnCCConference() **");
             this.dialNumber = dialNumber;
             // Conference 는 첫번째 콜 DialogID 로 요청해야한다.
-            return FinesseClient.ccConference(dialNumber, dialogID);
+            return FinesseClient.ccConference(dialNumber, activeDialogID);
         }
 
         public int fnConference()
         {
             logwrite.write("fnConference", "\t ** call fnConference() **");
-            return FinesseClient.conference(dialNumber, activeDialogID);
+            return FinesseClient.conference(dialNumber, dialogID);
         }
 
 
@@ -310,7 +312,9 @@ namespace CTIFnClient
         {
 
             logwrite.write("fnPhonePad", "\t ** call fnPhonePad(" + phonePadNum + " , " + account + ") **");
-            
+
+            this.phonePadNum = phonePadNum;
+
             if (AEMSClient.aemsConnect() != ERRORCODE.SUCCESS)
             {
                 logwrite.write("fnPhonePad", "AEMS Cannot Connect");
@@ -318,7 +322,14 @@ namespace CTIFnClient
                 return ERRORCODE.FAIL;
             }
             logwrite.write("fnPhonePad", "AEMS SEND MESSAGE [" + account + "]");
-            if (AEMSClient.send(account) != ERRORCODE.SUCCESS)
+
+            Agent agent = Agent.getInstance();
+            JsonHandler jsonhandler = new JsonHandler(agent.getExtension());
+            jsonhandler.setAccount(account);
+            string jsonData = jsonhandler.getJsonData();
+
+
+            if (AEMSClient.send(jsonData) != ERRORCODE.SUCCESS)
             {
                 logwrite.write("fnPhonePad", "AEMS SEND FAIL!!");
                 return ERRORCODE.FAIL;
@@ -326,6 +337,19 @@ namespace CTIFnClient
 
             string retStr = AEMSClient.recv();
             logwrite.write("fnPhonePad", "AEMS RECV MESSAGE [" + retStr + "]");
+
+            if (retStr == null)
+            {
+                logwrite.write("fnPhonePad", "AEMS RECV MESSAGE IS NULL !!");
+                return ERRORCODE.FAIL;
+            }
+
+            PhonePad phonePadVO =  jsonhandler.recvJson(retStr);
+
+            if (phonePadVO.getRet().Equals("0"))
+            {
+                fnCCConference(phonePadNum);
+            }
 
             return ERRORCODE.SUCCESS;
 
@@ -428,6 +452,7 @@ namespace CTIFnClient
 
             switch (evtCode)
             {
+
                 case EVENT_TYPE.ON_CONNECTION:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
@@ -452,7 +477,11 @@ namespace CTIFnClient
                 case EVENT_TYPE.ALERTING:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallAlerting ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     setActiveDialogID(callEvent);
                     GetEventOnCallAlerting(evtMessage);
@@ -461,16 +490,31 @@ namespace CTIFnClient
                 case EVENT_TYPE.ACTIVE:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallActive ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     setActiveDialogID(callEvent);
                     GetEventOnCallActive(evtMessage);
+
+                    if (callEvent.getToAddress().Equals(phonePadNum))
+                    {
+                        logwrite.write("raiseEvent", "PhonePad Conference Start");
+                        fnConference();
+                    }
+
                     break;
 
                 case EVENT_TYPE.HELD:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallHeld ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState());
+                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnCallHeld(evtMessage);
                     break;
@@ -478,7 +522,11 @@ namespace CTIFnClient
                 case EVENT_TYPE.INITIATED:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallInitiated ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     setActiveDialogID(callEvent);
                     GetEventOnCallInitiated(evtMessage);
@@ -487,7 +535,11 @@ namespace CTIFnClient
                 case EVENT_TYPE.INITIATING:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallInitiating ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnCallInitiating(evtMessage);
                     break;
@@ -495,18 +547,26 @@ namespace CTIFnClient
                 case EVENT_TYPE.WRAP_UP:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallWrapup ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    checkTable(callEvent.getCallVariable());
+                    //checkTable(callEvent.getCallVariable());
                     GetEventOnCallWrapup(evtMessage);
                     break;
 
                 case EVENT_TYPE.DROPPED:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallDropped ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType() + " , STATE : " + callEvent.getCallState() + " , ID : " + callEvent.getDialogID());
+                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
+                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
+                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
+                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
+                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    checkTable(callEvent.getCallVariable());
+                   // checkTable(callEvent.getCallVariable());
                     removeDialogID(callEvent);
                     GetEventOnCallDropped(evtMessage);
                     break;
@@ -529,8 +589,6 @@ namespace CTIFnClient
 
         private void removeDialogID(CallEvent evt)
         {
-
-
 
             if (dialogID_second.Equals(evt.getDialogID()))
             {
@@ -566,8 +624,7 @@ namespace CTIFnClient
 
             foreach (DictionaryEntry item in table)
             {
-                //logwrite.write("checkTable", "key : " + item.Key + " , " + item.Value);
-
+                logwrite.write("checkTable", "key : " + item.Key + " , " + item.Value);
             }
 
         }
