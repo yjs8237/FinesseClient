@@ -351,6 +351,7 @@ namespace CTIFnClient
                 fnCCConference(phonePadNum);
             }
 
+
             return ERRORCODE.SUCCESS;
 
         }
@@ -419,6 +420,8 @@ namespace CTIFnClient
             return this.isISPSConnected;
         }
 
+
+
         public void raiseEvent(Event evt)
         {
             if (evt == null)
@@ -434,20 +437,29 @@ namespace CTIFnClient
             if (evt is AgentEvent)
             {
                 agentEvent = (AgentEvent)evt;
+                raiseAgentEvent(agentEvent);
             }
             else if (evt is CallEvent)
             {
                 callEvent = (CallEvent)evt;
+                raiseCallEvent(callEvent);
             }
             else if (evt is ErrorEvent)
             {
                 errorEvent = (ErrorEvent) evt;
+                raiseErrorEvent(errorEvent);
             }
 
 
+           
+
+        }
+
+        private void raiseAgentEvent(AgentEvent evt)
+        {
             string evtCode = evt.getEvtCode();
             string evtMessage = evt.getEvtMsg();
-          
+
             evtMessage = evtMessage.Replace("\n", "");
 
             switch (evtCode)
@@ -457,134 +469,191 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(),   evtMessage);
+                    GetEventOnConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(), evtMessage);
                     break;
+
                 case EVENT_TYPE.ON_DISCONNECTION:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnDisConnection(evt.getCurFinesseIP() , evt.getCurAemsIP() , evt.getCurIspsIP() , evtMessage);
+                    GetEventOnDisConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(), evtMessage);
                     break;
 
                 case EVENT_TYPE.ON_AGENTSTATE_CHANGE:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnAgentStateChange ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "STATE : " + agentEvent.getAgentState() + " , REASONCODE : " + agentEvent.getReasonCode());
+                    logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnAgentStateChange(agentEvent.getAgentState(), agentEvent.getReasonCode(), evtMessage);
+                    GetEventOnAgentStateChange(evt.getAgentState(), evt.getReasonCode(), evtMessage);
+                    break;
+
+                default:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: UNKWON EVENT ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    break;
+            }
+        }
+        private void raiseCallEvent(CallEvent evt)
+        {
+            string evtCode = evt.getEvtCode();
+            string evtMessage = evt.getEvtMsg();
+
+            string number01 = "";
+            string state01 = "";
+            string number02 = "";
+            string state02 = "";
+            string number03 = "";
+            string state03 = "";
+
+            evtMessage = evtMessage.Replace("\n", "");
+
+            int index = 0;
+            foreach (DictionaryEntry item in evt.getCallStateTable())
+            {
+                if (index == 0)
+                {
+                    number01 = (string)item.Key;
+                    state01 = (string)item.Value;
+                }
+                else if (index == 1)
+                {
+                    number02 = (string)item.Key;
+                    state02 = (string)item.Value;
+                }
+                else if (index == 2)
+                {
+                    number03 = (string)item.Key;
+                    state03 = (string)item.Value;
+                }
+                index++;
+            }
+
+            
+
+
+            switch (evtCode)
+            {
+
+                case EVENT_TYPE.ON_CONNECTION:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(), evtMessage);
+                    break;
+
+                case EVENT_TYPE.ON_DISCONNECTION:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnDisConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(), evtMessage);
                     break;
 
                 case EVENT_TYPE.ALERTING:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallAlerting ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    setActiveDialogID(callEvent);
-                    GetEventOnCallAlerting(evtMessage);
+                    writeCallEventLog("GetEventOnCallAlerting", evt, number01, state01, number02, state02, number03, state03);
+                    setActiveDialogID(evt);
+                    GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
                     break;
 
-                case EVENT_TYPE.ACTIVE:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallActive ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    setActiveDialogID(callEvent);
-                    GetEventOnCallActive(evtMessage);
-
-                    if (callEvent.getToAddress().Equals(phonePadNum))
+                case EVENT_TYPE.ESTABLISHED:
+                    writeCallEventLog("GetEventOnCallEstablished", evt, number01, state01, number02, state02, number03, state03);
+                    setActiveDialogID(evt);
+                    GetEventOnCallEstablished(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    if (evt.getToAddress().Equals(phonePadNum))
                     {
+                        // 폰패드 컨퍼런스 
                         logwrite.write("raiseEvent", "PhonePad Conference Start");
                         fnConference();
                     }
-
                     break;
 
+
                 case EVENT_TYPE.HELD:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallHeld ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    writeCallEventLog("GetEventOnCallHeld", evt, number01, state01, number02, state02, number03, state03);
                     GetEventOnCallHeld(evtMessage);
                     break;
 
                 case EVENT_TYPE.INITIATED:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallInitiated ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    setActiveDialogID(callEvent);
+                    writeCallEventLog("GetEventOnCallInitiated", evt, number01, state01, number02, state02, number03, state03);
+                    setActiveDialogID(evt);
                     GetEventOnCallInitiated(evtMessage);
                     break;
 
                 case EVENT_TYPE.INITIATING:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallInitiating ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    writeCallEventLog("GetEventOnCallInitiating", evt, number01, state01, number02, state02, number03, state03);
                     GetEventOnCallInitiating(evtMessage);
                     break;
 
                 case EVENT_TYPE.WRAP_UP:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallWrapup ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    writeCallEventLog("GetEventOnCallWrapUp", evt, number01, state01, number02, state02, number03, state03);
                     //checkTable(callEvent.getCallVariable());
                     GetEventOnCallWrapup(evtMessage);
                     break;
 
                 case EVENT_TYPE.DROPPED:
-                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnCallDropped ::::::::::::::::::::::::::::::::::::");
-                    logwrite.write("raiseEvent", evtMessage);
-                       logwrite.write("raiseEvent", "CALLTYPE : " + callEvent.getCallType());
-                    logwrite.write("raiseEvent", "STATE : " + callEvent.getCallState());
-                    logwrite.write("raiseEvent", "ID : " + callEvent.getDialogID());
-                    logwrite.write("raiseEvent", "FromAddress : " + callEvent.getFromAddress());
-                    logwrite.write("raiseEvent", "ToAddress : " + callEvent.getToAddress());
-                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                   // checkTable(callEvent.getCallVariable());
-                    removeDialogID(callEvent);
+                    writeCallEventLog("GetEventOnCallDRopped", evt, number01, state01, number02, state02, number03, state03);
+                    // checkTable(callEvent.getCallVariable());
+                    removeDialogID(evt);
                     GetEventOnCallDropped(evtMessage);
+                    break;
+
+                default:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: UNKWON EVENT ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    break;
+            }
+        }
+        private void raiseErrorEvent(ErrorEvent evt)
+        {
+            string evtCode = evt.getEvtCode();
+            string evtMessage = evt.getEvtMsg();
+
+            evtMessage = evtMessage.Replace("\n", "");
+
+            switch (evtCode)
+            {
+
+                case EVENT_TYPE.ON_CONNECTION:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnConnection ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(), evtMessage);
+                    break;
+
+                case EVENT_TYPE.ON_DISCONNECTION:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnDisConnection ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnDisConnection(evt.getCurFinesseIP(), evt.getCurAemsIP(), evt.getCurIspsIP(), evtMessage);
                     break;
 
                 case EVENT_TYPE.ERROR:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnError ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
-                    logwrite.write("raiseEvent", "ERROR TYPE : " + errorEvent.getErrorType() + " , ERROR MESSAGE : " + errorEvent.getErrorMessage());
+                    logwrite.write("raiseEvent", "ERROR TYPE : " + evt.getErrorType() + " , ERROR MESSAGE : " + evt.getErrorMessage());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnCallWrapup(evtMessage);
                     break;
-                default :
+                default:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: UNKWON EVENT ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                break;
+                    break;
             }
+        }
 
+        private void writeCallEventLog(string eventName , CallEvent evt , string number01 ,string state01 , string number02 , string state02 , string number03 , string state03)
+        {
+
+            logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: "+eventName+" ::::::::::::::::::::::::::::::::::::");
+            logwrite.write("raiseEvent", evt.getEvtMsg());
+            logwrite.write("raiseEvent", "ID : " + evt.getDialogID());
+            logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType());
+            logwrite.write("raiseEvent", "FromAddress : " + evt.getFromAddress());
+            logwrite.write("raiseEvent", "ToAddress : " + evt.getToAddress());
+            logwrite.write("raiseEvent", "STATE : [" + number01 + " -> " + state01 + "][" + number02 + " -> " + state02 + "][" + number03 + " -> " + state03 + "]");
+            logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
         }
 
         private void removeDialogID(CallEvent evt)
@@ -629,16 +698,25 @@ namespace CTIFnClient
 
         }
 
+        public abstract void GetEventOnConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
+        public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
+        public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        
+
+
+
+
+
+
 
         public abstract void GetEventOnCallDropped(String evt);
         public abstract void GetEventOnCallHeld(String evt);
         public abstract void GetEventOnCallWrapup(String evt);
-        public abstract void GetEventOnCallActive(String evt);
-        public abstract void GetEventOnCallAlerting(String evt);
+        
         public abstract void GetEventOnAgentStateChange(string state , string reasonCode  , String evt);
         public abstract void GetEventOnError(String evt);
-        public abstract void GetEventOnConnection(string finesseIP , string aemsIP , string ispsIP , String evt);
-        public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
+        
         public abstract void GetEventOnCallInitiated(String evt);
         public abstract void GetEventOnCallInitiating(String evt);
         

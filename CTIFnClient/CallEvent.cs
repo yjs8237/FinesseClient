@@ -17,7 +17,29 @@ namespace EVENTOBJ
 
         private Hashtable callVarTable;
 
-        private string callState;
+        //private string callState;
+
+        private Hashtable callStateTable;
+
+        public CallEvent()
+        {
+            callStateTable = new Hashtable();
+        }
+
+        public void setCallState(string number , string state)
+        {
+            if (callStateTable.ContainsKey(number))
+            {
+                callStateTable.Remove(number);
+            }
+            callStateTable.Add(number, state);
+        }
+
+        public Hashtable getCallStateTable()
+        {
+            return this.callStateTable;
+        }
+
 
         public void setFromAddress(string fromAddress)
         {
@@ -45,16 +67,7 @@ namespace EVENTOBJ
         {
             return this.callVarTable;
         }
-
-        public void setCallState(string callState)
-        {
-            this.callState = callState;
-        }
-        public string getCallState()
-        {
-            return this.callState;
-        }
-
+     
         public void setDialogID(string dialogID)
         {
             this.dialogID = dialogID;

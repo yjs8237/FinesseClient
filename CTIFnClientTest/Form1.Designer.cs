@@ -91,12 +91,12 @@
             this.label14 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.label19 = new System.Windows.Forms.Label();
-            this.textBox18 = new System.Windows.Forms.TextBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.textBox19 = new System.Windows.Forms.TextBox();
-            this.button20 = new System.Windows.Forms.Button();
             this.button21 = new System.Windows.Forms.Button();
+            this.button20 = new System.Windows.Forms.Button();
+            this.textBox19 = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.textBox18 = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -157,7 +157,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 21);
             this.textBox3.TabIndex = 6;
-            this.textBox3.Text = "192.168.230.131";
+            this.textBox3.Text = "127.0.0.1";
             // 
             // label2
             // 
@@ -174,7 +174,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 21);
             this.textBox4.TabIndex = 8;
-            this.textBox4.Text = "192.168.230.131";
+            this.textBox4.Text = "127.0.0.1";
             // 
             // label3
             // 
@@ -475,7 +475,7 @@
             this.textBox15.Name = "textBox15";
             this.textBox15.Size = new System.Drawing.Size(100, 21);
             this.textBox15.TabIndex = 32;
-            this.textBox15.Text = "reasonCode";
+            this.textBox15.Text = "201";
             // 
             // groupBox4
             // 
@@ -722,38 +722,14 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "폰패드";
             // 
-            // label19
+            // button21
             // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(7, 18);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(65, 12);
-            this.label19.TabIndex = 6;
-            this.label19.Text = "폰패드번호";
-            // 
-            // textBox18
-            // 
-            this.textBox18.Location = new System.Drawing.Point(87, 14);
-            this.textBox18.Name = "textBox18";
-            this.textBox18.Size = new System.Drawing.Size(100, 21);
-            this.textBox18.TabIndex = 39;
-            this.textBox18.Text = "50500";
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(7, 47);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(53, 12);
-            this.label20.TabIndex = 40;
-            this.label20.Text = "계좌번호";
-            // 
-            // textBox19
-            // 
-            this.textBox19.Location = new System.Drawing.Point(87, 44);
-            this.textBox19.Name = "textBox19";
-            this.textBox19.Size = new System.Drawing.Size(100, 21);
-            this.textBox19.TabIndex = 41;
+            this.button21.Location = new System.Drawing.Point(208, 42);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(90, 23);
+            this.button21.TabIndex = 42;
+            this.button21.Text = "주민번호수취";
+            this.button21.UseVisualStyleBackColor = true;
             // 
             // button20
             // 
@@ -765,14 +741,38 @@
             this.button20.UseVisualStyleBackColor = true;
             this.button20.Click += new System.EventHandler(this.button20_Click);
             // 
-            // button21
+            // textBox19
             // 
-            this.button21.Location = new System.Drawing.Point(208, 42);
-            this.button21.Name = "button21";
-            this.button21.Size = new System.Drawing.Size(90, 23);
-            this.button21.TabIndex = 42;
-            this.button21.Text = "주민번호수취";
-            this.button21.UseVisualStyleBackColor = true;
+            this.textBox19.Location = new System.Drawing.Point(87, 44);
+            this.textBox19.Name = "textBox19";
+            this.textBox19.Size = new System.Drawing.Size(100, 21);
+            this.textBox19.TabIndex = 41;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(7, 47);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(53, 12);
+            this.label20.TabIndex = 40;
+            this.label20.Text = "계좌번호";
+            // 
+            // textBox18
+            // 
+            this.textBox18.Location = new System.Drawing.Point(87, 14);
+            this.textBox18.Name = "textBox18";
+            this.textBox18.Size = new System.Drawing.Size(100, 21);
+            this.textBox18.TabIndex = 39;
+            this.textBox18.Text = "50500";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(7, 18);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(65, 12);
+            this.label19.TabIndex = 6;
+            this.label19.Text = "폰패드번호";
             // 
             // Form1
             // 

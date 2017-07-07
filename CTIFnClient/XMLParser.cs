@@ -7,6 +7,7 @@ using System.Collections;
 using EVENTOBJ;
 using CTIFnClient;
 using VO;
+using CONST;
 
 namespace XML
 {
@@ -67,7 +68,7 @@ namespace XML
                 nodeList = xmlDoucment.GetElementsByTagName("Dialog");
                 if (nodeList.Count > 0)
                 {
-                    evt = getDialogEvent(nodeList);
+                    evt = getdialogEvent(nodeList);
                     evt.setEvtMsg(xml);
                     return evt;
                 }
@@ -211,11 +212,15 @@ namespace XML
                     }
                     if (node1.Name.Equals("participants"))
                     {
+
                         ArrayList list = getCallState(node1);
                         for (int i = 0; i < list.Count; i++)
                         {
                             Hashtable table = (Hashtable)list[i];
                             string extension = (string)table["mediaAddress"];
+                            string state = (string)table["state"];
+                            evt.setCallState(extension, state);
+                            /*
                             if (extension.Equals(agent.getExtension()))
                             {
                                 // 상담원 내선과 이벤트 내선이 같을 경우 이벤트 데이터에 포함시킨다.
@@ -223,7 +228,28 @@ namespace XML
                                 evt.setEvtCode((string)table["state"]);
                                 //logwrite.write("### EVENT CHECK ###", "setCallState : " + (string)table["state"]);
                             }
+                             * */
                         }
+
+                        Hashtable callStateList = evt.getCallStateTable();
+                        int tempInt = 0;
+                        foreach (DictionaryEntry item in callStateList)
+                        {
+                            if (item.Value.Equals("DROPPED"))
+                            {
+                                tempInt++;
+                            }
+                        }
+
+                        if(tempInt == 0) 
+                        {
+                            evt.setEvtCode(EVENT_TYPE.ESTABLISHED);
+                        } else if (tempInt < callStateList.Count){
+                            evt.setEvtCode(EVENT_TYPE.CONNECTIONCLEARED);
+                        } else {
+                            evt.setEvtCode(EVENT_TYPE.CALLEND);
+                        }
+
                     }
 
                 }
@@ -290,7 +316,7 @@ namespace XML
                             if (extension.Equals(agent.getExtension()))
                             {
                                 // 상담원 내선과 이벤트 내선이 같을 경우 이벤트 데이터에 포함시킨다.
-                                evt.setCallState((string)table["state"]);
+                                //evt.setCallState((string)table["state"]);
                                 evt.setEvtCode((string)table["state"]);
                               //  logwrite.write("### EVENT CHECK ###", "setCallState : " + (string)table["state"]);
                             }
