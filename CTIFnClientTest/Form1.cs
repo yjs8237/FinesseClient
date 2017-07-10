@@ -226,8 +226,7 @@ namespace CTIFnClientTest
         {
             string account = textBox19.Text; // 계좌번호
             string dialNum = textBox18.Text;    // 폰패드 번호
-
-            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnPhonePad(dialNum, account));
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnPhonePad(dialNum, "1" , account));
         }
 
     }

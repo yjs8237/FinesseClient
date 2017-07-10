@@ -33,12 +33,17 @@ namespace CTIFnClient
 
         private string dialNumber;
         private string phonePadNum;
+        private string phonePadSysNum;
+
 
         private Hashtable reasonCodeTable;
 
         private ServerInfo finesseInfo;
          private ServerInfo aemsInfo;
          private ServerInfo ispsInfo;
+
+         private PhonePad phonePadVO;
+
         public Finesse()
         {
             logwrite = LogWrite.getInstance();
@@ -271,7 +276,7 @@ namespace CTIFnClient
         public int fnTransfer()
         {
             logwrite.write("fnTransfer", "\t ** call fnTransfer() **");
-            return FinesseClient.transfer(dialNumber, activeDialogID);
+            return FinesseClient.transfer(dialNumber, dialogID);
         }
         public int fnCCConference(string dialNumber)
         {
@@ -308,53 +313,123 @@ namespace CTIFnClient
             return FinesseClient.agentState(state, reasonCodeID);
         }
 
-        public int fnPhonePad(string phonePadNum, string account)
+
+        public int fnPhonePad(string phonePadNum, string type , string account)
         {
 
             logwrite.write("fnPhonePad", "\t ** call fnPhonePad(" + phonePadNum + " , " + account + ") **");
-
             this.phonePadNum = phonePadNum;
 
-            if (AEMSClient.aemsConnect() != ERRORCODE.SUCCESS)
+            if (setPhonePadData(type, account) != ERRORCODE.SUCCESS)
             {
-                logwrite.write("fnPhonePad", "AEMS Cannot Connect");
-                isAEMSConnected = false;
                 return ERRORCODE.FAIL;
             }
-            logwrite.write("fnPhonePad", "AEMS SEND MESSAGE [" + account + "]");
-
-            Agent agent = Agent.getInstance();
-            JsonHandler jsonhandler = new JsonHandler(agent.getExtension());
-            jsonhandler.setAccount(account);
-            string jsonData = jsonhandler.getJsonData();
-
-
-            if (AEMSClient.send(jsonData) != ERRORCODE.SUCCESS)
+            else
             {
-                logwrite.write("fnPhonePad", "AEMS SEND FAIL!!");
-                return ERRORCODE.FAIL;
-            }
-
-            string retStr = AEMSClient.recv();
-            logwrite.write("fnPhonePad", "AEMS RECV MESSAGE [" + retStr + "]");
-
-            if (retStr == null)
-            {
-                logwrite.write("fnPhonePad", "AEMS RECV MESSAGE IS NULL !!");
-                return ERRORCODE.FAIL;
-            }
-
-            PhonePad phonePadVO =  jsonhandler.recvJson(retStr);
-
-            if (phonePadVO.getRet().Equals("0"))
-            {
+                // AEMS 서버로 부터 OK 받으면 컨퍼런스 실시
                 fnCCConference(phonePadNum);
             }
-
 
             return ERRORCODE.SUCCESS;
 
         }
+
+        private int getPhonePadInfo()
+        {
+            if (AEMSClient.aemsConnect() != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("getPhonePadInfo", "AEMS Cannot Connect");
+                isAEMSConnected = false;
+                return ERRORCODE.FAIL;
+            }
+
+            Agent agent = Agent.getInstance();
+            JsonHandler jsonhandler = new JsonHandler(agent.getExtension());
+
+            jsonhandler.setType(phonePadVO.getType());
+            jsonhandler.setCmd("get");            
+
+            string jsonData = jsonhandler.getJsonData();
+
+            jsonData = jsonData.Replace("classType", "@type");
+            logwrite.write("getPhonePadInfo", "AEMS SEND MESSAGE [" + jsonData + "]");
+
+            if (AEMSClient.send(jsonData) != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("getPhonePadInfo", "AEMS SEND FAIL!!");
+                return ERRORCODE.FAIL;
+            }
+
+            string retStr = AEMSClient.recv();
+            logwrite.write("getPhonePadInfo", "AEMS RECV MESSAGE [" + retStr + "]");
+
+            AEMSClient.disconnect();
+
+            if (retStr == null || retStr.Length <= 0)
+            {
+                logwrite.write("getPhonePadInfo", "AEMS RECV MESSAGE IS NULL !!");
+                return ERRORCODE.FAIL;
+            }
+
+            phonePadVO = jsonhandler.recvJson(retStr);
+
+            if (!phonePadVO.getRet().Equals("0"))
+            {
+                return ERRORCODE.FAIL;
+            }
+
+
+            return ERRORCODE.SUCCESS;
+        }
+
+        private int setPhonePadData(string type , string account)
+        {
+            if (AEMSClient.aemsConnect() != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("setPhonePadData", "AEMS Cannot Connect");
+                isAEMSConnected = false;
+                return ERRORCODE.FAIL;
+            }
+
+            Agent agent = Agent.getInstance();
+            JsonHandler jsonhandler = new JsonHandler(agent.getExtension());
+
+            jsonhandler.setType(type);
+            jsonhandler.setCmd("set");
+            jsonhandler.setAccount(account);
+            
+            string jsonData = jsonhandler.getJsonData();
+
+            jsonData = jsonData.Replace("classType", "@type");
+            logwrite.write("setPhonePadData", "AEMS SEND MESSAGE [" + jsonData + "]");
+
+            if (AEMSClient.send(jsonData) != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("setPhonePadData", "AEMS SEND FAIL!!");
+                return ERRORCODE.FAIL;
+            }
+
+            string retStr = AEMSClient.recv();
+            logwrite.write("setPhonePadData", "AEMS RECV MESSAGE [" + retStr + "]");
+
+            AEMSClient.disconnect();
+
+            if (retStr == null || retStr.Length <= 0)
+            {
+                logwrite.write("setPhonePadData", "AEMS RECV MESSAGE IS NULL !!");
+                return ERRORCODE.FAIL;
+            }
+
+            phonePadVO = jsonhandler.recvJson(retStr);
+
+            if (!phonePadVO.getRet().Equals("0"))
+            {
+                return ERRORCODE.FAIL;
+            }
+           
+            return ERRORCODE.SUCCESS;
+        }
+
 
         private void setReasonCodeList(string xml)
         {
@@ -529,8 +604,6 @@ namespace CTIFnClient
                 index++;
             }
 
-            
-
 
             switch (evtCode)
             {
@@ -555,6 +628,12 @@ namespace CTIFnClient
                     GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
                     break;
 
+                case EVENT_TYPE.FAILED:
+                    writeCallEventLog("GetEventOnCallFailed", evt, number01, state01, number02, state02, number03, state03);
+                    setActiveDialogID(evt);
+                    GetEventOnCallFailed(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    break;
+
                 case EVENT_TYPE.ESTABLISHED:
                     writeCallEventLog("GetEventOnCallEstablished", evt, number01, state01, number02, state02, number03, state03);
                     setActiveDialogID(evt);
@@ -563,44 +642,63 @@ namespace CTIFnClient
                     {
                         // 폰패드 컨퍼런스 
                         logwrite.write("raiseEvent", "PhonePad Conference Start");
+                        if (state02.Length > 0) { phonePadSysNum = state02; }
+                        else if (state03.Length > 0) { phonePadSysNum = state03;  }
                         fnConference();
                     }
                     break;
 
-
                 case EVENT_TYPE.HELD:
                     writeCallEventLog("GetEventOnCallHeld", evt, number01, state01, number02, state02, number03, state03);
-                    GetEventOnCallHeld(evtMessage);
+                    //setActiveDialogID(evt);
+                    GetEventOnCallHeld(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    break;
+
+                case EVENT_TYPE.INITIATING:
+                    writeCallEventLog("GetEventOnCallInitiating", evt, number01, state01, number02, state02, number03, state03);
+                    setActiveDialogID(evt);
+                    GetEventOnCallInitiating(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
                     break;
 
                 case EVENT_TYPE.INITIATED:
                     writeCallEventLog("GetEventOnCallInitiated", evt, number01, state01, number02, state02, number03, state03);
                     setActiveDialogID(evt);
-                    GetEventOnCallInitiated(evtMessage);
+                    GetEventOnCallInitiated(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
                     break;
 
-                case EVENT_TYPE.INITIATING:
-                    writeCallEventLog("GetEventOnCallInitiating", evt, number01, state01, number02, state02, number03, state03);
-                    GetEventOnCallInitiating(evtMessage);
-                    break;
 
-                case EVENT_TYPE.WRAP_UP:
+            case EVENT_TYPE.WRAP_UP:
                     writeCallEventLog("GetEventOnCallWrapUp", evt, number01, state01, number02, state02, number03, state03);
-                    //checkTable(callEvent.getCallVariable());
-                    GetEventOnCallWrapup(evtMessage);
-                    break;
-
-                case EVENT_TYPE.DROPPED:
-                    writeCallEventLog("GetEventOnCallDRopped", evt, number01, state01, number02, state02, number03, state03);
                     // checkTable(callEvent.getCallVariable());
                     removeDialogID(evt);
-                    GetEventOnCallDropped(evtMessage);
+                    GetEventOnCallWrapUp(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
                     break;
+
+            case EVENT_TYPE.DROPPED:
+                    writeCallEventLog("GetEventOnCallDropped", evt, number01, state01, number02, state02, number03, state03);
+                    // checkTable(callEvent.getCallVariable());
+                    removeDialogID(evt);
+                    GetEventOnCallDropped(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    if (evt.getCallType().Equals(CALL.CONFERENCE))
+                    {
+                        if (number02.Equals(phonePadSysNum) && state02.Equals(EVENT_TYPE.DROPPED))
+                        {
+                            getPhonePadInfo();
+                        }
+                        else if (number03.Equals(phonePadSysNum) && state03.Equals(EVENT_TYPE.DROPPED))
+                        {
+                            getPhonePadInfo();
+                        }
+                    }
+
+
+                    break;     
 
                 default:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: UNKWON EVENT ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    setActiveDialogID(evt);
                     break;
             }
         }
@@ -633,8 +731,9 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", evtMessage);
                     logwrite.write("raiseEvent", "ERROR TYPE : " + evt.getErrorType() + " , ERROR MESSAGE : " + evt.getErrorMessage());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-                    GetEventOnCallWrapup(evtMessage);
+                    GetEventOnCallError(evtMessage);
                     break;
+
                 default:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: UNKWON EVENT ::::::::::::::::::::::::::::::::::::");
                     logwrite.write("raiseEvent", evtMessage);
@@ -686,7 +785,7 @@ namespace CTIFnClient
                 dialogID = evt.getDialogID();
                 activeDialogID = dialogID;
             }
-            logwrite.write("removeDialogID", "Active DialogID : " + activeDialogID + " , first ID : " + dialogID + " , seconde ID : " + dialogID_second);
+            logwrite.write("setDialogID", "Active DialogID : " + activeDialogID + " , first ID : " + dialogID + " , seconde ID : " + dialogID_second);
         }
 
         private void checkTable(Hashtable table) {
@@ -698,27 +797,34 @@ namespace CTIFnClient
 
         }
 
+
+        /*
+         *  Call 이벤트
+         * */
         public abstract void GetEventOnConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
         public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+
+        public abstract void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        
         
 
+        /*
+         *  Agent State 이벤트
+         * */
+        public abstract void GetEventOnAgentStateChange(string state , string reasonCode , string evtMessage);
 
+        public abstract void GetEventOnCallError(string errorMessage);
 
-
-
-
-
-        public abstract void GetEventOnCallDropped(String evt);
-        public abstract void GetEventOnCallHeld(String evt);
-        public abstract void GetEventOnCallWrapup(String evt);
         
-        public abstract void GetEventOnAgentStateChange(string state , string reasonCode  , String evt);
-        public abstract void GetEventOnError(String evt);
-        
-        public abstract void GetEventOnCallInitiated(String evt);
-        public abstract void GetEventOnCallInitiating(String evt);
+
+   
         
     }
 

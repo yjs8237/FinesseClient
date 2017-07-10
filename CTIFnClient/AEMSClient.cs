@@ -52,7 +52,6 @@ namespace TCPSOCKET
             // 서버의 IP ArrayList 를 가져온다. serverInfo 객체는 부모 클래스에 존재
             ipArrList = serverInfo.getIPList();
 
-
             // IP 리스트 중에서 A Side를 먼저 바라본다.
             for (int i = 0; i < ipArrList.Count; i++)
             {

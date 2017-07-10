@@ -157,7 +157,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 21);
             this.textBox3.TabIndex = 6;
-            this.textBox3.Text = "127.0.0.1";
+            this.textBox3.Text = "192.168.20.181";
             // 
             // label2
             // 
@@ -191,7 +191,7 @@
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(100, 21);
             this.textBox5.TabIndex = 10;
-            this.textBox5.Text = "9990";
+            this.textBox5.Text = "9881";
             // 
             // label4
             // 

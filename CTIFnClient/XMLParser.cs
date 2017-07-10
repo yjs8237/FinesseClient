@@ -214,41 +214,94 @@ namespace XML
                     {
 
                         ArrayList list = getCallState(node1);
+
                         for (int i = 0; i < list.Count; i++)
                         {
                             Hashtable table = (Hashtable)list[i];
                             string extension = (string)table["mediaAddress"];
                             string state = (string)table["state"];
                             evt.setCallState(extension, state);
-                            /*
-                            if (extension.Equals(agent.getExtension()))
-                            {
-                                // 상담원 내선과 이벤트 내선이 같을 경우 이벤트 데이터에 포함시킨다.
-                                evt.setCallState((string)table["state"]);
-                                evt.setEvtCode((string)table["state"]);
-                                //logwrite.write("### EVENT CHECK ###", "setCallState : " + (string)table["state"]);
-                            }
-                             * */
                         }
 
                         Hashtable callStateList = evt.getCallStateTable();
-                        int tempInt = 0;
+                        string myState = ""; string state2 = ""; string state3 = "";
+                        int callCount = 0;
                         foreach (DictionaryEntry item in callStateList)
                         {
-                            if (item.Value.Equals("DROPPED"))
+                            if (item.Key.Equals(agent.getExtension()))
                             {
-                                tempInt++;
+                                // 상담원의 콜 상태
+                                myState = (string) item.Value;
+
+                                if (!myState.Equals(EVENT_TYPE.ACTIVE) && !myState.Equals(EVENT_TYPE.DROPPED))
+                                {
+                                    // 상담원의 콜 상태가 ALERTING 이면 ALERTING 이벤트 발생
+                                    evt.setEvtCode(myState);
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                // 상담원이 아닌 콜 상태
+                                if (callCount == 0)
+                                {
+                                    state2 = (string)item.Value;
+                                }
+                                else
+                                {
+                                    // 콜 주체가 3명일 경우
+                                    state3 = (string)item.Value;
+                                }
+                                callCount++;
                             }
                         }
 
-                        if(tempInt == 0) 
+                        if (myState.Length > 0 && state2.Length == 0 && state3.Length == 0)
                         {
-                            evt.setEvtCode(EVENT_TYPE.ESTABLISHED);
-                        } else if (tempInt < callStateList.Count){
-                            evt.setEvtCode(EVENT_TYPE.CONNECTIONCLEARED);
-                        } else {
-                            evt.setEvtCode(EVENT_TYPE.CALLEND);
+                            // Participant 의 개수가 1개일 경우
+                            evt.setEvtCode(myState);                           
                         }
+                        else if (myState.Length > 0 && state2.Length > 0 && state3.Length == 0)
+                        {
+                            // Participant 의 개수가 2개일 경우
+                            if (myState.Equals(EVENT_TYPE.ACTIVE) && state2.Equals(EVENT_TYPE.ACTIVE))
+                            {
+                                // 모든 콜이 ACTIVE 인 경우
+                                evt.setEvtCode(EVENT_TYPE.ESTABLISHED);
+                            }
+                            else if (myState.Equals(EVENT_TYPE.DROPPED) && state2.Equals(EVENT_TYPE.DROPPED))
+                            {
+                                // 모든 콜이 DRROPED 인 경우
+                                evt.setEvtCode(EVENT_TYPE.WRAP_UP);
+                            }
+                            else if (myState.Equals(EVENT_TYPE.DROPPED) || state2.Equals(EVENT_TYPE.DROPPED))
+                            {
+                                // 한 콜만 DRROPED 인 경우
+                                evt.setEvtCode(EVENT_TYPE.DROPPED);
+                            }
+                        }
+                        else if (myState.Length > 0 && state2.Length > 0 && state3.Length > 0)
+                        {
+                            // Participant 의 개수가 3개일 경우
+                            if (myState.Equals(EVENT_TYPE.ACTIVE) && state2.Equals(EVENT_TYPE.ACTIVE) && state3.Equals(EVENT_TYPE.ACTIVE))
+                            {
+                                // 모든 콜이 ACTIVE 인 경우
+                                evt.setEvtCode(EVENT_TYPE.ESTABLISHED);
+                            }
+                            else if (myState.Equals(EVENT_TYPE.DROPPED) && state2.Equals(EVENT_TYPE.DROPPED) && state3.Equals(EVENT_TYPE.DROPPED))
+                            {
+                                // 모든 콜이 DRROPED 인 경우
+                                evt.setEvtCode(EVENT_TYPE.WRAP_UP);
+                            }
+                            else if (myState.Equals(EVENT_TYPE.DROPPED) || state2.Equals(EVENT_TYPE.DROPPED) || state3.Equals(EVENT_TYPE.DROPPED))
+                            {
+                                // 한 콜만 DRROPED 인 경우
+                                evt.setEvtCode(EVENT_TYPE.DROPPED);
+                            }
+                        }
+
+                        logwrite.write("########", "EVENT CODE -> " + evt.getEvtCode());
+
 
                     }
 

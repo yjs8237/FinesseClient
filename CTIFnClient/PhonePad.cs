@@ -13,7 +13,8 @@ namespace VO
 
         public PhonePad()
         {
-            this.data = new Hashtable();
+            this.data = new ArrayList();
+            this.classType = "PhonePadInfo";
         }
         [DataMember]
         private string cmd;
@@ -24,7 +25,10 @@ namespace VO
         [DataMember]
         private string ret;
         [DataMember]
-        private Hashtable data;
+        private ArrayList data;
+        [DataMember]
+        private string classType;
+
 
         public void setCmd(string cmd)
         {
@@ -33,6 +37,14 @@ namespace VO
         public string getCmd()
         {
             return this.cmd;
+        }
+        public void setClassType(string classType)
+        {
+            this.classType = classType;
+        }
+        public string getClassType()
+        {
+            return this.classType;
         }
 
         public void setKey(string key)
@@ -52,18 +64,14 @@ namespace VO
         {
             return this.type;
         }
-        public Hashtable getData()
+        public ArrayList getData()
         {
             return this.data;
         }
 
-        public void setData(string key , string value)
+        public void setData(string value)
         {
-            if (this.data.ContainsKey(key))
-            {
-                this.data.Remove(key);
-            }
-            this.data.Add(key, value);
+            this.data.Add(value);
         }
 
         public void setRet(string ret)

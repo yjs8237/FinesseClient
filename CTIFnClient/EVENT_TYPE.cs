@@ -8,18 +8,15 @@ namespace EVENTOBJ
     class EVENT_TYPE
     {
         public const string ALERTING = "ALERTING";
-        public const string CALLEND = "CALLEND";
-        public const string CONNECTIONCLEARED = "CONNECTIONCLEARED";
         public const string ESTABLISHED = "ESTABLISHED";
-
-
-
-
-        public const  string DROPPED = "DROPPED";
+        public const string DROPPED = "DROPPED";
+        public const string WRAP_UP = "WRAP_UP";
+        public const string ACTIVE = "ACTIVE";
+        public const string FAILED = "FAILED";
         public const  string ON_AGENTSTATE_CHANGE = "ON_AGENTSTATE_CHANGE";
         public const  string ON_CONNECTION = "ON_CONNECTION";
         public const string ON_DISCONNECTION = "ON_DISCONNECTION";
-        public const string WRAP_UP = "WRAP_UP";
+        
         public const string INITIATING = "INITIATING";
         public const string INITIATED = "INITIATED";
         public const string ERROR = "ERROR";
