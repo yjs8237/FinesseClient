@@ -8,24 +8,22 @@ namespace XML
     class XMLHandler
     {
 
-
         public string getLogin(string extension)
         {
             return "<User><state>"+CALL.LOGIN+"</state> <extension>" + extension + "</extension></User>";
         }
-
         public string getLogout()
         {
             return "<User><state>"+CALL.LOGOUT+"</state></User>";
         }
-
         public string getMakeCall(string extension , string dialNumber)
         {
             return "<Dialog><requestedAction>"+CALL.MAKE_CALL+"</requestedAction><fromAddress>" + extension + "</fromAddress><toAddress>" + dialNumber + "</toAddress></Dialog>";
         }
-
-      
-
+        public string getArsTransfer(string extension, string dialNumber)
+        {
+            return "<Dialog><requestedAction>" + CALL.TRANSFER_SST + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
+        }
         public string getAnswer(string extension)
         {
             return "<Dialog><targetMediaAddress>"+extension+"</targetMediaAddress><requestedAction>"+CALL.ANSWER+"</requestedAction></Dialog>";
@@ -38,17 +36,14 @@ namespace XML
         {
             return "<Dialog><targetMediaAddress>" + extension + "</targetMediaAddress><requestedAction>"+CALL.RETRIEVE+"</requestedAction></Dialog>";
         }
-
         public string getRelease(string extension)
         {
             return "<Dialog><targetMediaAddress>" + extension + "</targetMediaAddress><requestedAction>"+CALL.DROP+"</requestedAction></Dialog>";
         }
-
         public string getAgentState(string state)
         {
             return "<User><state>"+state+"</state></User>";
         }
-
         public string getSetCallData(string varName , string varValue)
         {
             StringBuilder sb = new StringBuilder();
@@ -60,7 +55,6 @@ namespace XML
             sb.Append("</callvariables>").Append("</mediaProperties></Dialog>");
             return sb.ToString();
         }
-
         public string getCCTransfer(string extension, string dialNumber)
         {
             return "<Dialog><requestedAction>"+CALL.CONSULT_CALL+"</requestedAction><toAddress>"+dialNumber+"</toAddress><targetMediaAddress>"+extension+"</targetMediaAddress></Dialog>";
@@ -78,7 +72,6 @@ namespace XML
             //return "<Dialog><requestedAction>" + CALL.CONFERENCE + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
             return "<Dialog><requestedAction>" + CALL.CONSULT_CALL + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
         }
-
         public string getAgentState(string state, string reasonCode)
         {
             return "<User><state>"+state+"</state><reasonCodeId>"+reasonCode+"</reasonCodeId></User>";

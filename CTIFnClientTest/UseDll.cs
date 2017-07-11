@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using CTIFnClient;
-
+using System.Collections;
 
 namespace CTIFnClientTest
 {
@@ -51,7 +51,7 @@ namespace CTIFnClientTest
         }
       
 
-        public override void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             string[] arr = { BTNMASK.ANSWER };
             form.setButtonMask(arr);
@@ -85,7 +85,7 @@ namespace CTIFnClientTest
         }
 
 
-        public override void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
             string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -94,7 +94,7 @@ namespace CTIFnClientTest
         }
 
 
-        public override void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
            string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -107,7 +107,7 @@ namespace CTIFnClientTest
             
         }
 
-        public override void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
          string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -115,7 +115,7 @@ namespace CTIFnClientTest
           * */
         }
 
-        public override void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
      string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -123,7 +123,7 @@ namespace CTIFnClientTest
       * */
         }
 
-        public override void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
      string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -131,7 +131,7 @@ namespace CTIFnClientTest
       * */
         }
 
-        public override void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
      string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -139,12 +139,20 @@ namespace CTIFnClientTest
       * */
         }
 
-        public override void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03)
+        public override void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
             /*
     string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
     form.setButtonMask(arr);
      * */
+        }
+
+        public override void GetEventOnPassCheck(string ret, string data)
+        {
+            /*
+   string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
+   form.setButtonMask(arr);
+    * */
         }
     }
 }

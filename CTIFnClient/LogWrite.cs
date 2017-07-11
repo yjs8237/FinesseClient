@@ -63,6 +63,12 @@ namespace CTIFnClient
             {
                 lock (lockObject)
                 {
+                    if (methodName.Length == 0 && msg.Length == 0)
+                    {
+                        sw.WriteLine("");
+                        sw.Flush();
+                        return;
+                    }
 
                     String nowTime = DateTime.Now.ToString("yyyyMMdd-HH:mm:ss:fff");
 

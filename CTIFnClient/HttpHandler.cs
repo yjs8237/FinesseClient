@@ -171,6 +171,11 @@ namespace HTTP
             return requestRESTAPI(urlHandler.getCallDialogURL(serverIP, agent, dialogID), agent, "PUT", xmlHandler.getSetCallData(varName, varValue));
         }
 
+        public int arsTransferRequest(string serverIP, Agent agent, string dialNumber, string dialogID)
+        {
+            return requestRESTAPI(urlHandler.getCallDialogURL(serverIP, agent, dialogID), agent, "PUT", xmlHandler.getArsTransfer(agent.getExtension(), dialNumber));
+        }
+
         public int makeCallRequest(string serverIP, Agent agent , string dialNumber)
         {
             return requestRESTAPI(urlHandler.getDialogURL(serverIP, agent), agent ,"POST", xmlHandler.getMakeCall(agent.getExtension(), dialNumber));

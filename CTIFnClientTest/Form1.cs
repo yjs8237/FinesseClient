@@ -229,5 +229,11 @@ namespace CTIFnClientTest
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnPhonePad(dialNum, "1" , account));
         }
 
+        private void button22_Click(object sender, EventArgs e)
+        {
+            string dialNum = textBox20.Text;
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnArsTransfer(dialNum));
+        }
+
     }
 }

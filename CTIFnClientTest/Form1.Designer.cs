@@ -97,6 +97,9 @@
             this.label20 = new System.Windows.Forms.Label();
             this.textBox18 = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
+            this.button22 = new System.Windows.Forms.Button();
+            this.textBox20 = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -157,7 +160,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 21);
             this.textBox3.TabIndex = 6;
-            this.textBox3.Text = "192.168.20.181";
+            this.textBox3.Text = "192.168.9.130";
             // 
             // label2
             // 
@@ -715,9 +718,9 @@
             this.groupBox8.Controls.Add(this.label20);
             this.groupBox8.Controls.Add(this.textBox18);
             this.groupBox8.Controls.Add(this.label19);
-            this.groupBox8.Location = new System.Drawing.Point(275, 471);
+            this.groupBox8.Location = new System.Drawing.Point(275, 459);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(445, 100);
+            this.groupBox8.Size = new System.Drawing.Size(317, 100);
             this.groupBox8.TabIndex = 36;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "폰패드";
@@ -774,11 +777,41 @@
             this.label19.TabIndex = 6;
             this.label19.Text = "폰패드번호";
             // 
+            // button22
+            // 
+            this.button22.Location = new System.Drawing.Point(483, 574);
+            this.button22.Name = "button22";
+            this.button22.Size = new System.Drawing.Size(90, 23);
+            this.button22.TabIndex = 43;
+            this.button22.Text = "ARS호전환";
+            this.button22.UseVisualStyleBackColor = true;
+            this.button22.Click += new System.EventHandler(this.button22_Click);
+            // 
+            // textBox20
+            // 
+            this.textBox20.Location = new System.Drawing.Point(362, 574);
+            this.textBox20.Name = "textBox20";
+            this.textBox20.Size = new System.Drawing.Size(100, 21);
+            this.textBox20.TabIndex = 44;
+            this.textBox20.Text = "50500";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(282, 578);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(65, 12);
+            this.label21.TabIndex = 43;
+            this.label21.Text = "ARS호전환";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(759, 642);
+            this.Controls.Add(this.textBox20);
+            this.Controls.Add(this.label21);
+            this.Controls.Add(this.button22);
             this.Controls.Add(this.groupBox8);
             this.Controls.Add(this.groupBox7);
             this.Controls.Add(this.groupBox6);
@@ -898,6 +931,9 @@
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.TextBox textBox18;
         private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Button button22;
+        private System.Windows.Forms.TextBox textBox20;
+        private System.Windows.Forms.Label label21;
     }
 }
 

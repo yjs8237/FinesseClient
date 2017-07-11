@@ -29,8 +29,6 @@ namespace TCPSOCKET
 
         private bool isDisconnectReq;
 
-        private bool isSocketConnected;
-
         protected Hashtable currentServer;
 
         protected ClientSocket(LogWrite logwrite)
@@ -67,7 +65,6 @@ namespace TCPSOCKET
         {
             try
             {
-                isSocketConnected = false;
                 
                 sock = new TcpClient();
 
@@ -191,6 +188,7 @@ namespace TCPSOCKET
             string recvMsg = null;
             try
             {
+                /*
                 int BUFFERSIZE = sock.ReceiveBufferSize;
                 byte[] buffer = new byte[BUFFERSIZE];
                 int bytelen = 0;
@@ -199,6 +197,8 @@ namespace TCPSOCKET
 
                 bytelen = writeStream.Read(buffer, 0, buffer.Length);
                 recvMsg = Encoding.UTF8.GetString(buffer, 0, bytelen);
+                */
+                recvMsg = reader.ReadLine();
                
             }
             catch (Exception e)
@@ -211,6 +211,10 @@ namespace TCPSOCKET
             }
             finally
             {
+                if (reader != null)
+                {
+                    reader.Close();
+                }
             }
             return recvMsg;
         }

@@ -307,6 +307,7 @@ namespace TCPSOCKET
 
         private void send(String msg)
         {
+
             if (sock == null || !sock.Connected)
             {
                 if (reConnect() == ERRORCODE.SUCCESS)
@@ -466,6 +467,16 @@ namespace TCPSOCKET
             }
 
             return httpHandler.holdRequest((string)currentServer["IP"], agent, dialogID);
+        }
+
+        public int arsTransfer(string dialNumber , string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.arsTransferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
         }
 
 

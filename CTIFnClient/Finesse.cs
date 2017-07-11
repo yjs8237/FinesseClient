@@ -33,8 +33,7 @@ namespace CTIFnClient
 
         private string dialNumber;
         private string phonePadNum;
-        private string phonePadSysNum;
-
+        private string phonePadCallID;
 
         private Hashtable reasonCodeTable;
 
@@ -49,7 +48,6 @@ namespace CTIFnClient
             logwrite = LogWrite.getInstance();
             dialogID = "";  dialogID_second="";  activeDialogID = "";
         }
-     
 
         public int fnConnect(String fn_A_IP , String fn_B_IP ,String finesseDomain, String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
         {
@@ -292,6 +290,13 @@ namespace CTIFnClient
             return FinesseClient.conference(dialNumber, dialogID);
         }
 
+        public int fnDropParticipant(string mediaAddress)
+        {
+            logwrite.write("fnDropParticipant", "\t ** call fnDropParticipant() **");
+            return 0;
+            //return FinesseClient.dropParticipant(mediaAddress);
+        }
+
 
         public int fnAgentState(string state)
         {
@@ -313,6 +318,11 @@ namespace CTIFnClient
             return FinesseClient.agentState(state, reasonCodeID);
         }
 
+        public int fnArsTransfer(string dialNumber)
+        {
+            logwrite.write("fnArsTransfer", "\t ** call fnArsTransfer(" + dialNumber + ") **");
+            return FinesseClient.arsTransfer(dialNumber , activeDialogID);
+        }
 
         public int fnPhonePad(string phonePadNum, string type , string account)
         {
@@ -373,11 +383,16 @@ namespace CTIFnClient
 
             phonePadVO = jsonhandler.recvJson(retStr);
 
-            if (!phonePadVO.getRet().Equals("0"))
-            {
-                return ERRORCODE.FAIL;
-            }
+            string result = "";
+            for (int i = 0; i < phonePadVO.getData().Count; i++)
+			{
+			    result = (string)phonePadVO.getData()[i];
+			}
 
+            GetEventOnPassCheck(phonePadVO.getRet(), result);
+
+            logwrite.write("","");
+            logwrite.write("getPhonePadInfo", "::::::::::::::::::::::: Raise Event GetEventOnPassCheck(" + phonePadVO.getRet() + " , " + result + ") ::::::::::::::::::::::: ");
 
             return ERRORCODE.SUCCESS;
         }
@@ -526,8 +541,6 @@ namespace CTIFnClient
             }
 
 
-           
-
         }
 
         private void raiseAgentEvent(AgentEvent evt)
@@ -574,36 +587,7 @@ namespace CTIFnClient
             string evtCode = evt.getEvtCode();
             string evtMessage = evt.getEvtMsg();
 
-            string number01 = "";
-            string state01 = "";
-            string number02 = "";
-            string state02 = "";
-            string number03 = "";
-            string state03 = "";
-
             evtMessage = evtMessage.Replace("\n", "");
-
-            int index = 0;
-            foreach (DictionaryEntry item in evt.getCallStateTable())
-            {
-                if (index == 0)
-                {
-                    number01 = (string)item.Key;
-                    state01 = (string)item.Value;
-                }
-                else if (index == 1)
-                {
-                    number02 = (string)item.Key;
-                    state02 = (string)item.Value;
-                }
-                else if (index == 2)
-                {
-                    number03 = (string)item.Key;
-                    state03 = (string)item.Value;
-                }
-                index++;
-            }
-
 
             switch (evtCode)
             {
@@ -623,75 +607,66 @@ namespace CTIFnClient
                     break;
 
                 case EVENT_TYPE.ALERTING:
-                    writeCallEventLog("GetEventOnCallAlerting", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallAlerting", evt, evt.getCallStateTable());
                     setActiveDialogID(evt);
-                    GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
                 case EVENT_TYPE.FAILED:
-                    writeCallEventLog("GetEventOnCallFailed", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallFailed", evt, evt.getCallStateTable());
                     setActiveDialogID(evt);
-                    GetEventOnCallFailed(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallFailed(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
                 case EVENT_TYPE.ESTABLISHED:
-                    writeCallEventLog("GetEventOnCallEstablished", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallEstablished", evt, evt.getCallStateTable());
                     setActiveDialogID(evt);
-                    GetEventOnCallEstablished(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallEstablished(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     if (evt.getToAddress().Equals(phonePadNum))
                     {
                         // 폰패드 컨퍼런스 
                         logwrite.write("raiseEvent", "PhonePad Conference Start");
-                        if (state02.Length > 0) { phonePadSysNum = state02; }
-                        else if (state03.Length > 0) { phonePadSysNum = state03;  }
+                        phonePadCallID = dialogID;  // phonePad 콜 구분을 위한 DialogID 세팅
                         fnConference();
                     }
                     break;
 
                 case EVENT_TYPE.HELD:
-                    writeCallEventLog("GetEventOnCallHeld", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallHeld", evt, evt.getCallStateTable());
                     //setActiveDialogID(evt);
-                    GetEventOnCallHeld(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallHeld(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
                 case EVENT_TYPE.INITIATING:
-                    writeCallEventLog("GetEventOnCallInitiating", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallInitiating", evt, evt.getCallStateTable());
                     setActiveDialogID(evt);
-                    GetEventOnCallInitiating(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallInitiating(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
                 case EVENT_TYPE.INITIATED:
-                    writeCallEventLog("GetEventOnCallInitiated", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallInitiated", evt, evt.getCallStateTable());
                     setActiveDialogID(evt);
-                    GetEventOnCallInitiated(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallInitiated(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
 
             case EVENT_TYPE.WRAP_UP:
-                    writeCallEventLog("GetEventOnCallWrapUp", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallWrapUp", evt, evt.getCallStateTable());
                     // checkTable(callEvent.getCallVariable());
                     removeDialogID(evt);
-                    GetEventOnCallWrapUp(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
+                    GetEventOnCallWrapUp(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
             case EVENT_TYPE.DROPPED:
-                    writeCallEventLog("GetEventOnCallDropped", evt, number01, state01, number02, state02, number03, state03);
+                    writeCallEventLog("GetEventOnCallDropped", evt, evt.getCallStateTable());
                     // checkTable(callEvent.getCallVariable());
                     removeDialogID(evt);
-                    GetEventOnCallDropped(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), number01, state01, number02, state02, number03, state03);
-                    if (evt.getCallType().Equals(CALL.CONFERENCE))
+                    GetEventOnCallDropped(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    if (evt.getCallType().Equals(CALL.CONFERENCE) && evt.getDialogID().Equals(phonePadCallID))
                     {
-                        if (number02.Equals(phonePadSysNum) && state02.Equals(EVENT_TYPE.DROPPED))
-                        {
-                            getPhonePadInfo();
-                        }
-                        else if (number03.Equals(phonePadSysNum) && state03.Equals(EVENT_TYPE.DROPPED))
-                        {
-                            getPhonePadInfo();
-                        }
+                        // 폰패드 이후 Dropped 이벤트일 경우 폰패드 결과를 요청한다.
+                        getPhonePadInfo();
                     }
-
-
                     break;     
 
                 default:
@@ -742,16 +717,21 @@ namespace CTIFnClient
             }
         }
 
-        private void writeCallEventLog(string eventName , CallEvent evt , string number01 ,string state01 , string number02 , string state02 , string number03 , string state03)
+        private void writeCallEventLog(string eventName , CallEvent evt , Hashtable table)
         {
-
+            StringBuilder sb = new StringBuilder();
+            sb.Append("STATE : ");
+            foreach (DictionaryEntry item in table)
+            {
+                sb.Append("[" + item.Key + " -> " + item.Value + "]");
+            }
             logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: "+eventName+" ::::::::::::::::::::::::::::::::::::");
             logwrite.write("raiseEvent", evt.getEvtMsg());
             logwrite.write("raiseEvent", "ID : " + evt.getDialogID());
             logwrite.write("raiseEvent", "CALLTYPE : " + evt.getCallType());
             logwrite.write("raiseEvent", "FromAddress : " + evt.getFromAddress());
             logwrite.write("raiseEvent", "ToAddress : " + evt.getToAddress());
-            logwrite.write("raiseEvent", "STATE : [" + number01 + " -> " + state01 + "][" + number02 + " -> " + state02 + "][" + number03 + " -> " + state03 + "]");
+            logwrite.write("raiseEvent", sb.ToString());
             logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
         }
 
@@ -803,17 +783,17 @@ namespace CTIFnClient
          * */
         public abstract void GetEventOnConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
-        public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
+        public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
 
-        public abstract void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        public abstract void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        public abstract void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        public abstract void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        public abstract void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        public abstract void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, string num01, string state01, string number02, string state02, string number03, string state03);
-        
-        
+        public abstract void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+
+        public abstract void GetEventOnPassCheck(string ret, string data);
 
         /*
          *  Agent State 이벤트
