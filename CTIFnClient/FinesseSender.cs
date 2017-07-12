@@ -73,7 +73,7 @@ namespace ThreadGroup
                 sock.Close();
             }
 
-            finesseClient.reConnect();
+            finesseClient.finesseReConnect();
            
         }
 

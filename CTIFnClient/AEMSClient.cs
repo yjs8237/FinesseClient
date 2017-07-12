@@ -100,7 +100,8 @@ namespace TCPSOCKET
 
         public void callConnectionEvent()
         {
-            Event evt = new Event();
+            ErrorEvent evt = new ErrorEvent();
+            evt.setServerType("02");   // AEMS Server Code : 03
             evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
             evt.setCurAemsIP((string)currentServer["IP"]);
             evt.setEvtMsg("AEMS Connection Success!!");

@@ -59,6 +59,8 @@ namespace ThreadGroup
 
                 logwrite.write("FinesseReceiver runThread", " Finesse Recv Thread Start !!");
 
+                writeStream.ReadTimeout = Timeout.Infinite;
+
                 Event evt = null;
 
                 if (writeStream == null)
@@ -252,9 +254,9 @@ namespace ThreadGroup
             }
             finally
             {
+
                 finesseClient.sessionClose();
                 finesseClient.setXMPPAuth(false);   // Finesse 세션이 끊어지면 다른 서버로 재접속 할떄 XMPP 인증이 필요하기 때문에 Flag 세팅
-
 
                 // 사용자가 Disconnect 를 요청하지 않고 세션이 끊어진 경우 재접속 시도
                 if (!finesseClient.getDisconnectReq())
@@ -262,14 +264,16 @@ namespace ThreadGroup
 
                     logwrite.write("FinesseReceiver runThread", "########## Finesse Session Closed !! ##########");
 
-                    Event evt = new Event();
+                    Event evt = new ErrorEvent();
                     evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
                     evt.setEvtMsg("Finesse Session Disconnected");
                     evt.setCurFinesseIP(finesseClient.getCurrentServerIP());
                     finesseObj.raiseEvent(evt);
 
-                    if (finesseClient.connectXMPPAuth() == ERRORCODE.SUCCESS)
+
+                    if (finesseClient.finesseReConnect() == ERRORCODE.SUCCESS)
                     {
+                        logwrite.write("FinesseReceiver runThread", " TRY TO CHECK AGENT PREVIOUS STATE");
                         // XMPP 인증 성공하면 이전 상담원 상태를 가져온다.
                         finesseClient.checkAgentState();
                     }

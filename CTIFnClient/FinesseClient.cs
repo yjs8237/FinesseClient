@@ -40,11 +40,11 @@ namespace TCPSOCKET
         }
 
 
-        public int reConnect()
+        public int finesseReConnect()
         {
             if (sock != null && sock.Connected)
             {
-                logwrite.write("reConnect", "Finesse Already Connected !!");
+                logwrite.write("finesseReConnect", "Finesse Already Connected !!");
                 return ERRORCODE.FAIL;
             }
             if (finesseConnect() == ERRORCODE.SUCCESS)
@@ -53,6 +53,7 @@ namespace TCPSOCKET
             }
             else
             {
+                logwrite.write("finesseReConnect", "Finesse ReConnection FAIL !! ");
                 return ERRORCODE.FAIL;
             }
         }
@@ -66,18 +67,23 @@ namespace TCPSOCKET
                 logwrite.write("startClient", "Finesse Already Connected !!");
                 return ERRORCODE.SUCCESS;
             }
-
             return finesseConnect();
-
         }
         public int finesseConnect()
         {
 
             // 서버의 IP ArrayList 를 가져온다. serverInfo 객체는 부모 클래스에 존재
             ipArrList = serverInfo.getIPList();
+
             Random ran = new Random();
             // Finesse 서버 접속은 랜덤으로 접속을 시도한다.
             int randomServer = ran.Next(0, ipArrList.Count);
+
+            string currentServerIP = (string)currentServer["IP"];
+            if (currentServerIP == null)
+            {
+                currentServerIP = "";
+            }
 
             Boolean bisConnected = false;
 
@@ -85,6 +91,21 @@ namespace TCPSOCKET
             for (int i = 0; i < ipArrList.Count; i++)
             {
                 String serverIP = (String)ipArrList[randomServer];
+
+                if (randomServer >= ipArrList.Count - 1)
+                {
+                    randomServer = 0;
+                }
+                else
+                {
+                    randomServer++;
+                }
+
+                if (currentServerIP.Equals(serverIP))
+                {
+                    // 재접속일 경우 접속되어있던 서버는 건너 뛴다.
+                    continue;
+                }
 
                 logwrite.write("startClient", "Finesse Try Connection [" + serverIP + "][" + serverInfo.getPort() + "]");
 
@@ -96,8 +117,6 @@ namespace TCPSOCKET
                     bisConnected = true;
                     finesseObj.setFinesseConnected(true);   // 접속 여부 flag 재접속 할때 Flag 참조한다
 
-                    callConnectionEvent();  // Connection 성공 이벤트 전달
-
                     break;
                 }
                 else
@@ -106,23 +125,10 @@ namespace TCPSOCKET
                     bisConnected = false;
                 }
 
-                if (randomServer >= ipArrList.Count - 1)
-                {
-                    randomServer = 0;
-                }
-                else
-                {
-                    randomServer++;
-                }
-
             }
 
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
         }
-
-     
-
-
 
         public  int logout()
         {
@@ -167,8 +173,10 @@ namespace TCPSOCKET
             }
             else
             {
-                logwrite.write("login", "## Finesse Authentication is Already Success ##");
+                logwrite.write("connectXMPPAuth", "## Finesse Authentication is Already Success ##");
             }
+
+            logwrite.write("connectXMPPAuth", "## Finesse Authentication Success ##");
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
@@ -177,6 +185,9 @@ namespace TCPSOCKET
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();
+
+
+            callConnectionEvent();  // Connection 성공 이벤트 전달
 
             return ERRORCODE.SUCCESS;
         }
@@ -202,7 +213,7 @@ namespace TCPSOCKET
                 agentState = xmlParser.getData(agentStateXml, "state");
                 agentReasonCode = xmlParser.getData(agentStateXml, "code");
 
-                logwrite.write("login", "CURRENT AGENT STATE : " + agentState + " , REASON CODE : " + agentReasonCode);
+                logwrite.write("checkAgentState", "CURRENT AGENT STATE : " + agentState + " , REASON CODE : " + agentReasonCode);
 
                 // 서버에 이미 남아 있는 상담원 상태가 로그아웃이 아닐경우에 이벤트를 발생한다.
                 if (!agentState.Equals(AGENTSTATE.LOGOUT))
@@ -227,10 +238,8 @@ namespace TCPSOCKET
 
         private int startPreProcess()
         {
-
             try
             {
-
                 int tempindex = 0;
 
                 FinesseDomain domain = FinesseDomain.getInstance();
@@ -242,36 +251,36 @@ namespace TCPSOCKET
 
                 string strMsg = @"<?xml version='1.0' ?><stream:stream to='" + (string)currentServer["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
                 send(strMsg);
-                recv(tempindex++);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
 
                 strMsg = @"<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN' xmlns:ga='http://www.google.com/talk/protocol/auth' ga:client-uses-full-bind-result='true'>" + util.AuthBase64_IDAndPw(agent.getAgentID(), agent.getAgentPwd()) + "</auth>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
 
                 strMsg = @"<stream:stream to='" + (string)currentServer["IP"] + "' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
 
                 strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'><resource>isi</resource></bind></iq>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
                 strMsg = @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><session xmlns='urn:ietf:params:xml:ns:xmpp-session'/></iq>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
                 strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items'/></iq>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
 
                 strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
 
@@ -280,19 +289,19 @@ namespace TCPSOCKET
                 strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#items' node='http://jabber.org/protocol/commands'/></iq>";
                 strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy.eu.jabber.org'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
                 send(strMsg);
-                recv(tempindex++);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
                 strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='proxy." + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/bytestreams'/></iq>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
                 strMsg = @"<presence><priority>1</priority><c xmlns='http://jabber.org/protocol/caps' node='http://pidgin.im/' hash='sha-1' ver='I22W7CegORwdbnu0ZiQwGpxr0Go='/><x xmlns='vcard-temp:x:update'><photo/></x></presence>";
                 strMsg += @"<iq type='set' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><pubsub xmlns='http://jabber.org/protocol/pubsub'><publish node='http://jabber.org/protocol/tune'><item><tune xmlns='http://jabber.org/protocol/tune'/></item></publish></pubsub></iq>";
                 send(strMsg);
-                recv(tempindex++);
+                if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
             }
             catch (Exception e)
@@ -310,7 +319,7 @@ namespace TCPSOCKET
 
             if (sock == null || !sock.Connected)
             {
-                if (reConnect() == ERRORCODE.SUCCESS)
+                if (finesseReConnect() == ERRORCODE.SUCCESS)
                 {
                     logwrite.write("send", msg);
                     writer.WriteLine(msg);
@@ -325,74 +334,88 @@ namespace TCPSOCKET
             }
         }
 
-        private void recv(int tempIndex)
+        private int recv(int tempIndex)
         {
-
+            
             //int BUFFERSIZE = sock.ReceiveBufferSize;
             byte[] buffer = new byte[32768];
             //int bytes = writeStream.Read(buffer, 0, buffer.Length);
 
+            writeStream.ReadTimeout = 3000;
+
             int read;
 
-            read = writeStream.Read(buffer, 0, buffer.Length);
-            if (read > 0)
+            try
             {
-                string message = Encoding.UTF8.GetString(buffer, 0, read);
-                logwrite.write("recv", message);
 
-                /*
-                 *  Finesse 서버의 도메인을 가져오기 위한 로직
-                 * */
-                if (message.Contains("stream:stream") && tempIndex == 0)
+                read = writeStream.Read(buffer, 0, buffer.Length);
+                if (read > 0)
                 {
-                    int startIndex = message.IndexOf("<stream:stream");
-                    int messageLen = message.Length;
-                    string tempStr = message.Substring(startIndex, messageLen - startIndex);
+                    string message = Encoding.UTF8.GetString(buffer, 0, read);
+                    logwrite.write("recv", message);
 
-                    startIndex = tempStr.IndexOf("from=");
-                    tempStr = tempStr.Substring(startIndex, tempStr.Length - startIndex);
-
-                    startIndex = 0;
-                    int endIndex = 0;
-                    int tempInt = 0;
-                    for (int i = 0; i < tempStr.Length; i++)
+                    /*
+                     *  Finesse 서버의 도메인을 가져오기 위한 로직
+                     * */
+                    if (message.Contains("stream:stream") && tempIndex == 0)
                     {
-                        string str = tempStr.Substring(i, 1);
-                        if (str.Equals("\""))
+                        int startIndex = message.IndexOf("<stream:stream");
+                        int messageLen = message.Length;
+                        string tempStr = message.Substring(startIndex, messageLen - startIndex);
+
+                        startIndex = tempStr.IndexOf("from=");
+                        tempStr = tempStr.Substring(startIndex, tempStr.Length - startIndex);
+
+                        startIndex = 0;
+                        int endIndex = 0;
+                        int tempInt = 0;
+                        for (int i = 0; i < tempStr.Length; i++)
                         {
-                            tempInt++;
-                            if (tempInt == 1)
+                            string str = tempStr.Substring(i, 1);
+                            if (str.Equals("\""))
                             {
-                                startIndex = i + 1;
-                            }
-                            else if (tempInt == 2)
-                            {
-                                endIndex = i;
-                                break;
-                            }
+                                tempInt++;
+                                if (tempInt == 1)
+                                {
+                                    startIndex = i + 1;
+                                }
+                                else if (tempInt == 2)
+                                {
+                                    endIndex = i;
+                                    break;
+                                }
 
+                            }
                         }
+
+                        tempStr = tempStr.Substring(startIndex, endIndex - startIndex);
+                        logwrite.write("recv", " ** Finesse Domain ** : [" + tempStr + "]");
+
+                        FinesseDomain domain = FinesseDomain.getInstance();
+                        domain.setFinesseDomain(tempStr);
+
                     }
-
-                    tempStr = tempStr.Substring(startIndex, endIndex - startIndex);
-                    logwrite.write("recv", " ** Finesse Domain ** : [" + tempStr + "]");
-
-                    FinesseDomain domain = FinesseDomain.getInstance();
-                    domain.setFinesseDomain(tempStr);
-
+                }
+                else
+                {
+                    logwrite.write("recv", "return bytes size -> " + read);
                 }
             }
-            else
+            catch (Exception e)
             {
-                logwrite.write("recv", "return bytes size -> " + read);
+                if (sock != null)
+                {
+                    sessionClose();
+                }
+                return ERRORCODE.FAIL;
             }
-
+            return ERRORCODE.SUCCESS;
         }
-
 
         public void callConnectionEvent()
         {
-            Event evt = new Event();
+            ErrorEvent evt = new ErrorEvent();
+            evt.setServerType("01");   // FINESSE Server Code : 03
             evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
             evt.setCurFinesseIP((string)currentServer["IP"]);
             evt.setEvtMsg("Finesse Connection Success!!");

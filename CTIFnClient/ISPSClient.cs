@@ -92,7 +92,8 @@ namespace TCPSOCKET
 
          public void callConnectionEvent()
          {
-             Event evt = new Event();
+             ErrorEvent evt = new ErrorEvent();
+             evt.setServerType("03");   // ISPS Server Code : 03
              evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
              evt.setCurIspsIP((string)currentServer["IP"]);
              evt.setEvtMsg("ISPS Connection Success!!");
