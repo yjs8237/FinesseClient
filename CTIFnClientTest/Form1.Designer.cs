@@ -100,6 +100,9 @@
             this.button22 = new System.Windows.Forms.Button();
             this.textBox20 = new System.Windows.Forms.TextBox();
             this.label21 = new System.Windows.Forms.Label();
+            this.textBox21 = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.button23 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -804,11 +807,40 @@
             this.label21.TabIndex = 43;
             this.label21.Text = "ARS호전환";
             // 
+            // textBox21
+            // 
+            this.textBox21.Location = new System.Drawing.Point(362, 607);
+            this.textBox21.Name = "textBox21";
+            this.textBox21.Size = new System.Drawing.Size(100, 21);
+            this.textBox21.TabIndex = 47;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(269, 610);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(89, 12);
+            this.label22.TabIndex = 45;
+            this.label22.Text = "지점데이터연동";
+            // 
+            // button23
+            // 
+            this.button23.Location = new System.Drawing.Point(483, 607);
+            this.button23.Name = "button23";
+            this.button23.Size = new System.Drawing.Size(90, 23);
+            this.button23.TabIndex = 46;
+            this.button23.Text = "SEND ISPS";
+            this.button23.UseVisualStyleBackColor = true;
+            this.button23.Click += new System.EventHandler(this.button23_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(759, 642);
+            this.ClientSize = new System.Drawing.Size(752, 642);
+            this.Controls.Add(this.textBox21);
+            this.Controls.Add(this.label22);
+            this.Controls.Add(this.button23);
             this.Controls.Add(this.textBox20);
             this.Controls.Add(this.label21);
             this.Controls.Add(this.button22);
@@ -934,6 +966,9 @@
         private System.Windows.Forms.Button button22;
         private System.Windows.Forms.TextBox textBox20;
         private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textBox21;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Button button23;
     }
 }
 

@@ -324,6 +324,43 @@ namespace CTIFnClient
             return FinesseClient.arsTransfer(dialNumber , activeDialogID);
         }
 
+        public int fnSendISPS(string ispsData)
+        {
+            logwrite.write("fnSendISPS", "\t ** call fnSendISPS(" + ispsData + ") **");
+            if (ISPSClient.ispsConnect() != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("setPhonePadData", "AEMS Cannot Connect");
+                isAEMSConnected = false;
+                return ERRORCODE.FAIL;
+            }
+
+            Agent agent = Agent.getInstance();
+
+            string delimiter = Convert.ToString((char) 0x02);
+
+            //"C302" & DELIMETER & "001" & DELIMETER & "" & DELIMETER & Trim$(tmpIspsSendAni) & DELIMETER & Trim$(tmpIspsSendData) & LF
+            StringBuilder sb = new StringBuilder();
+            sb.Append("C302").Append(delimiter).Append("001").Append(delimiter).Append("").Append(delimiter).Append(agent.getExtension()).Append(delimiter).Append(ispsData);
+
+            if (ISPSClient.send(sb.ToString()) != ERRORCODE.SUCCESS)
+            {
+                logwrite.write("fnSendISPS", "ISPS SEND FAIL!!");
+                return ERRORCODE.FAIL;
+            }
+
+            string retStr = ISPSClient.recv();
+
+            ISPSClient.disconnect();
+
+            if (retStr == null)
+            {
+                logwrite.write("fnSendISPS", "ISPS RECV FAIL!!");
+                return ERRORCODE.FAIL;
+            }
+
+            return ERRORCODE.SUCCESS;
+        }
+
         public int fnPhonePad(string phonePadNum, string type , string account)
         {
 
@@ -679,6 +716,7 @@ namespace CTIFnClient
         }
         private void raiseErrorEvent(ErrorEvent evt)
         {
+
             string evtCode = evt.getEvtCode();
             string evtMessage = evt.getEvtMsg();
 

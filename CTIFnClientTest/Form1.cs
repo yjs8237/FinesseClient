@@ -235,5 +235,11 @@ namespace CTIFnClientTest
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnArsTransfer(dialNum));
         }
 
+        private void button23_Click(object sender, EventArgs e)
+        {
+            string ispsData = textBox21.Text;
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSendISPS(ispsData));
+        }
+
     }
 }

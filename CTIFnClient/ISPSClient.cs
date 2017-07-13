@@ -66,12 +66,13 @@ namespace TCPSOCKET
                      Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
                      reader = new StreamReader(writeStream, encode);
 
+                     /*
                      // 소켓이 연결되면 서버로 부터 패킷을 받는 스레드 시작
                      ISocketReceiver ispsRecv = new ISPSReceiver(sock, finesseObj, this);
                      ThreadStart ts = new ThreadStart(ispsRecv.runThread);
                      Thread thread = new Thread(ts);
                      thread.Start();
-
+                     */
 
                      callConnectionEvent();
 
