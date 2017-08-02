@@ -39,8 +39,6 @@ namespace XML
 
         public Event parseXML(string xml)
         {
-            
-
 
             try
             {
@@ -257,7 +255,7 @@ namespace XML
 
                         if (callStateList.Count == isAllActive)
                         {
-                            evt.setEvtCode(EVENT_TYPE.ESTABLISHED);
+                            evt.setEvtCode(EVENT_TYPE.ACTIVE);
                         }
                         if (callStateList.Count == isAllDrop)
                         {

@@ -261,7 +261,6 @@ namespace ThreadGroup
                 // 사용자가 Disconnect 를 요청하지 않고 세션이 끊어진 경우 재접속 시도
                 if (!finesseClient.getDisconnectReq())
                 {
-
                     logwrite.write("FinesseReceiver runThread", "########## Finesse Session Closed !! ##########");
 
                     Event evt = new ErrorEvent();
@@ -269,7 +268,6 @@ namespace ThreadGroup
                     evt.setEvtMsg("Finesse Session Disconnected");
                     evt.setCurFinesseIP(finesseClient.getCurrentServerIP());
                     finesseObj.raiseEvent(evt);
-
 
                     if (finesseClient.finesseReConnect() == ERRORCODE.SUCCESS)
                     {

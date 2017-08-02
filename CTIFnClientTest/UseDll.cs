@@ -21,10 +21,8 @@ namespace CTIFnClientTest
             string[] arr = { BTNMASK.LOGIN, BTNMASK.DISCONNECT };
             form.setButtonMask(arr);
             form.setServerInfo(finesseip, aemsip, ispsip);
-
            // Console.WriteLine(evt);
         }
-
 
         public override void GetEventOnAgentStateChange(string state, string reasonCode, string evtMessage)
         {
@@ -49,7 +47,6 @@ namespace CTIFnClientTest
                 form.setButtonMask(arr);
             } 
         }
-      
 
         public override void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
@@ -79,27 +76,15 @@ namespace CTIFnClientTest
 
             //Console.WriteLine("2. finesseIP : " + finesseIP + " , aemsIP : " + aemsIP + " , ispsIP : " + ispsIP);
 
-            form.setServerInfo(finesseIP, aemsIP, ispsIP);
+            form.setDisconnectServerInfo(finesseIP, aemsIP, ispsIP);
 
             //Console.WriteLine(evt);
         }
 
-
-        public override void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
-        {
-            /*
-            string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
-            form.setButtonMask(arr);
-             * */
-        }
-
-
         public override void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
-            /*
-           string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
+           string[] arr = { BTNMASK.REASON, BTNMASK.READY };
            form.setButtonMask(arr);
-            * */
         }
 
         public override void GetEventOnCallError(string errorMessage)
@@ -109,18 +94,16 @@ namespace CTIFnClientTest
 
         public override void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
-            /*
+         /*
          string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
          form.setButtonMask(arr);
-          * */
+         */
         }
 
         public override void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
         {
-            /*
-     string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
-     form.setButtonMask(arr);
-      * */
+            string[] arr = { BTNMASK.RETRIEVE };
+            form.setButtonMask(arr);
         }
 
         public override void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
@@ -153,6 +136,12 @@ namespace CTIFnClientTest
    string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
    form.setButtonMask(arr);
     * */
+        }
+
+        public override void GetEventOnCallActive(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        {
+           string[] arr = { BTNMASK.RELEASE, BTNMASK.CCTRANSFER, BTNMASK.HOLD , BTNMASK.CCCONFERENCE};
+           form.setButtonMask(arr);
         }
     }
 }

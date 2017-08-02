@@ -39,12 +39,16 @@ namespace CTIFnClientTest
             buttonTable.Add(BTNMASK.NOT_READY, button10);
             buttonTable.Add(BTNMASK.REASON, button8);
             buttonTable.Add(BTNMASK.MAKECALL, button5);
-            buttonTable.Add(BTNMASK.TRANSFER, button11);
+            buttonTable.Add(BTNMASK.CCTRANSFER, button11);
             buttonTable.Add(BTNMASK.ANSWER, button6);
             buttonTable.Add(BTNMASK.RELEASE, button9);
             buttonTable.Add(BTNMASK.HOLD, button13);
             buttonTable.Add(BTNMASK.RETRIEVE, button14);
-
+            buttonTable.Add(BTNMASK.TRANSFER, button16);
+            buttonTable.Add(BTNMASK.CCCONFERENCE, button17);
+            buttonTable.Add(BTNMASK.CONFERENCE, button18);
+            buttonTable.Add(BTNMASK.RECONNECT, button19);
+            
             setInitialButton();
 
         }
@@ -68,9 +72,9 @@ namespace CTIFnClientTest
              * */
         }
 
-        public void setButtonMask(string[] buttonMask)
+        public void setButtonMask(string []buttonMask)
         {
-            /*
+            
             foreach (DictionaryEntry item in buttonTable)
             {
                 string buttonKey = (string)item.Key;
@@ -84,7 +88,7 @@ namespace CTIFnClientTest
                     button.Enabled = false;
                 }
             }
-             * */
+            
         }
 
         public void setServerInfo(string finesseip, string aemsip, string ispsip)
@@ -102,7 +106,21 @@ namespace CTIFnClientTest
                 label17.Text = ispsip;
             }
         }
-
+        public void setDisconnectServerInfo(string finesseip, string aemsip, string ispsip)
+        {
+            if (finesseip != null && finesseip.Length > 0)
+            {
+                label14.Text = "0.0.0.0";
+            }
+            if (aemsip != null && aemsip.Length > 0)
+            {
+                label15.Text = "0.0.0.0";
+            }
+            if (ispsip != null && ispsip.Length > 0)
+            {
+                label17.Text = "0.0.0.0";
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {

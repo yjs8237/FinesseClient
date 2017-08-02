@@ -94,19 +94,15 @@ namespace TCPSOCKET
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
             
         }
-        
-        
-
 
         public void callConnectionEvent()
         {
             ErrorEvent evt = new ErrorEvent();
-            evt.setServerType("02");   // AEMS Server Code : 03
+            evt.setServerType("02");   // AEMS Server Code : 02
             evt.setEvtCode(EVENT_TYPE.ON_CONNECTION);
             evt.setCurAemsIP((string)currentServer["IP"]);
             evt.setEvtMsg("AEMS Connection Success!!");
             finesseObj.raiseEvent(evt);
         }
-
     }
 }

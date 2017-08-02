@@ -1,5 +1,5 @@
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\bin\Release\CTIFnClient.dll
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\bin\Release\CTIFnClient.pdb
+C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Release\CTIFnClient.csprojResolveAssemblyReference.cache
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Release\CTIFnClient.dll
 C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Release\CTIFnClient.pdb
-C:\Development\SRC\CTIFnClient\CTIFnClient\CTIFnClient\obj\Release\CTIFnClient.csprojResolveAssemblyReference.cache

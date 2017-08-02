@@ -74,7 +74,6 @@ namespace CTIFnClient
             /*
              *  finesse 세션 연결
              * */
-
             
             if (isFinesseConnected)
             {
@@ -88,6 +87,7 @@ namespace CTIFnClient
                 {
                     logwrite.write("fnConnect", "Finesse Cannot Connect");
                      isFinesseConnected = false;
+                     logwrite.write("fnConnect", "\t Return Data : " + ERRORCODE.FAIL);
                     return ERRORCODE.FAIL;
                 }
                 else
@@ -96,13 +96,14 @@ namespace CTIFnClient
                 }
             }
 
+            /*
             AEMSClient = new AEMSClient(logwrite, this);
             AEMSClient.setServerInfo(aemsInfo);
 
             ISPSClient = new ISPSClient(logwrite, this);
             ISPSClient.setServerInfo(ispsInfo);
-
-            /*
+            */
+            
             if (isAEMSConnected)
             {
                 logwrite.write("fnConnect", "AEMS is Already Connected!!");
@@ -142,8 +143,10 @@ namespace CTIFnClient
                     isISPSConnected = true;
                 }
             }
-             * */
+        
+            logwrite.write("fnConnect", "\t Return Data : " + ERRORCODE.SUCCESS);
 
+          
             return ERRORCODE.SUCCESS;
         }
 
@@ -151,7 +154,7 @@ namespace CTIFnClient
         {
             logwrite.write("fnConnect", "\t ** call fnDisconnect() ** ");
 
-            Event evt = new Event();
+            ErrorEvent evt = new ErrorEvent();
             evt.setEvtCode(EVENT_TYPE.ON_DISCONNECTION);
 
             if (FinesseClient != null)
@@ -179,7 +182,7 @@ namespace CTIFnClient
             isFinesseConnected = false;
             isAEMSConnected = false;
             isISPSConnected = false;
-
+            logwrite.write("fnDisconnect", "\t Return Data : " + ERRORCODE.SUCCESS);
             return ERRORCODE.SUCCESS;
 
         }
@@ -195,99 +198,189 @@ namespace CTIFnClient
             agent.setAgentPwd(agentPwd);
             agent.setExtension(extension);
 
-
-            if (FinesseClient.login() == ERRORCODE.SUCCESS)
+            if (FinesseClient != null)
             {
-                // 로그인이 성공하면 Finesse 에 등록된 이석사유코드 리스트를 가져와 메모리에 올린다.
-                string reasonCodeXML = fnGetReasonCodeList();
-                setReasonCodeList(reasonCodeXML);
-                return ERRORCODE.SUCCESS;
+                if (FinesseClient.login() == ERRORCODE.SUCCESS)
+                {
+                    // 로그인이 성공하면 Finesse 에 등록된 이석사유코드 리스트를 가져와 메모리에 올린다.
+                    string reasonCodeXML = fnGetReasonCodeList();
+                    setReasonCodeList(reasonCodeXML);
+                    logwrite.write("fnLogin", "\t Return Data : " + ERRORCODE.SUCCESS);
+                    return ERRORCODE.SUCCESS;
+                }
+                else
+                {
+                    logwrite.write("fnLogin", "\t Return Data : " + ERRORCODE.FAIL);
+                    return ERRORCODE.FAIL;
+                }
             }
             else
             {
                 return ERRORCODE.FAIL;
             }
+            
         }
 
         public int fnLogout()
         {
             logwrite.write("fnConnect", "\t ** call fnLogout() ** ");
-            return FinesseClient.logout();
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.logout();
+                logwrite.write("fnLogout", "\t Return Data : " + ret);
+            }
+             return ret;
         }
 
         public string fnGetReasonCodeList()
         {
             logwrite.write("fnGetReasonCodeList", "\t ** call fnGetReasonCodeList() **");
-            return FinesseClient.getReasonCodeList();
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                return FinesseClient.getReasonCodeList();
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public int fnMakeCall(string dialNumber)
         {
             logwrite.write("fnMakeCall", "\t ** call fnMakeCall() **");
             this.dialNumber = dialNumber;
-            return FinesseClient.makeCall(dialNumber);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+               ret =  FinesseClient.makeCall(dialNumber);
+                logwrite.write("fnMakeCall", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnHold()
         {
             logwrite.write("fnHold", "\t ** call fnHold() **");
-            return FinesseClient.hold(activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.hold(activeDialogID);
+                logwrite.write("fnHold", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnRetrieve()
         {
             logwrite.write("fnRetrieve", "\t ** call fnRetrieve() **");
-            return FinesseClient.retrieve(activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.retrieve(activeDialogID);
+                logwrite.write("fnRetrieve", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnReconnect()
         {
             logwrite.write("fnReconnect", "\t ** call fnReconnect() **");
-            return FinesseClient.reconnect(dialogID, dialogID_second);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.reconnect(dialogID, dialogID_second);
+                logwrite.write("fnReconnect", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnAnswer()
         {
             logwrite.write("fnAnswer", "\t ** call fnAnswer() **");
-            return FinesseClient.answer(activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.answer(activeDialogID);
+                logwrite.write("fnAnswer", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnRelease()
         {
             logwrite.write("fnRelease", "\t ** call fnRelease() **");
-            return FinesseClient.release(activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.release(activeDialogID);
+                logwrite.write("fnRelease", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnSetCallData(string varName, string varValue)
         {
             logwrite.write("fnSetCallData", "\t ** call fnSetCallData() **");
-            return FinesseClient.setCallData(varName, varValue, activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.setCallData(varName, varValue, activeDialogID);
+                logwrite.write("fnSetCallData", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnCCTransfer(string dialNumber)
         {
             logwrite.write("fnCCTransfer", "\t ** call fnCCTransfer() **");
             this.dialNumber = dialNumber;
-            return FinesseClient.ccTransfer(dialNumber, activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.ccTransfer(dialNumber, activeDialogID);
+                logwrite.write("fnCCTransfer", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnTransfer()
         {
             logwrite.write("fnTransfer", "\t ** call fnTransfer() **");
-            return FinesseClient.transfer(dialNumber, dialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                 ret = FinesseClient.transfer(dialNumber, dialogID);
+                logwrite.write("fnTransfer", "\t Return Data : " + ret);
+            }
+            return ret;
         }
         public int fnCCConference(string dialNumber)
         {
             logwrite.write("fnCCConference", "\t ** call fnCCConference() **");
             this.dialNumber = dialNumber;
             // Conference 는 첫번째 콜 DialogID 로 요청해야한다.
-            return FinesseClient.ccConference(dialNumber, activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.ccConference(dialNumber, activeDialogID);
+                logwrite.write("fnCCConference", "\t Return Data : " + ret);
+            }
+            
+            return ret;
         }
 
         public int fnConference()
         {
             logwrite.write("fnConference", "\t ** call fnConference() **");
-            return FinesseClient.conference(dialNumber, dialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.conference(dialNumber, dialogID);
+                logwrite.write("fnConference", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnDropParticipant(string mediaAddress)
@@ -301,7 +394,13 @@ namespace CTIFnClient
         public int fnAgentState(string state)
         {
             logwrite.write("fnAgentState", "\t ** call fnAgentState(" + state + ") **");
-            return FinesseClient.agentState(state);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.agentState(state);
+                logwrite.write("fnAgentState", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnAgentState(string state, string reasonCode)
@@ -315,13 +414,25 @@ namespace CTIFnClient
                 setReasonCodeList(reasonCodeXML);
             }
             string reasonCodeID = (string) reasonCodeTable[reasonCode];
-            return FinesseClient.agentState(state, reasonCodeID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.agentState(state, reasonCodeID);
+                logwrite.write("fnAgentState", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnArsTransfer(string dialNumber)
         {
             logwrite.write("fnArsTransfer", "\t ** call fnArsTransfer(" + dialNumber + ") **");
-            return FinesseClient.arsTransfer(dialNumber , activeDialogID);
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.arsTransfer(dialNumber, activeDialogID);
+                logwrite.write("fnArsTransfer", "\t Return Data : " + ret);
+            }
+            return ret;
         }
 
         public int fnSendISPS(string ispsData)
@@ -329,7 +440,7 @@ namespace CTIFnClient
             logwrite.write("fnSendISPS", "\t ** call fnSendISPS(" + ispsData + ") **");
             if (ISPSClient.ispsConnect() != ERRORCODE.SUCCESS)
             {
-                logwrite.write("setPhonePadData", "AEMS Cannot Connect");
+                logwrite.write("fnSendISPS", "ISPS Cannot Connect");
                 isAEMSConnected = false;
                 return ERRORCODE.FAIL;
             }
@@ -453,6 +564,7 @@ namespace CTIFnClient
             string jsonData = jsonhandler.getJsonData();
 
             jsonData = jsonData.Replace("classType", "@type");
+            jsonData = jsonData.Replace("null", "0");
             logwrite.write("setPhonePadData", "AEMS SEND MESSAGE [" + jsonData + "]");
 
             if (AEMSClient.send(jsonData) != ERRORCODE.SUCCESS)
@@ -655,10 +767,10 @@ namespace CTIFnClient
                     GetEventOnCallFailed(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     break;
 
-                case EVENT_TYPE.ESTABLISHED:
-                    writeCallEventLog("GetEventOnCallEstablished", evt, evt.getCallStateTable());
+                case EVENT_TYPE.ACTIVE:
+                    writeCallEventLog("GetEventOnCallActive", evt, evt.getCallStateTable());
                     setActiveDialogID(evt);
-                    GetEventOnCallEstablished(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallActive(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
                     if (evt.getToAddress().Equals(phonePadNum))
                     {
                         // 폰패드 컨퍼런스 
@@ -822,8 +934,8 @@ namespace CTIFnClient
         public abstract void GetEventOnConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-
+        //public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallActive(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
         public abstract void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
         public abstract void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
         public abstract void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);

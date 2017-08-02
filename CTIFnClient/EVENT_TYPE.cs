@@ -8,7 +8,8 @@ namespace EVENTOBJ
     class EVENT_TYPE
     {
         public const string ALERTING = "ALERTING";
-        public const string ESTABLISHED = "ESTABLISHED";
+        //public const string ESTABLISHED = "ESTABLISHED";
+
         public const string DROPPED = "DROPPED";
         public const string WRAP_UP = "WRAP_UP";
         public const string ACTIVE = "ACTIVE";

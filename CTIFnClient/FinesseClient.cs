@@ -39,7 +39,6 @@ namespace TCPSOCKET
             this.isAlreadyAuth = isAlreadyAuth;
         }
 
-
         public int finesseReConnect()
         {
             if (sock != null && sock.Connected)
@@ -57,7 +56,6 @@ namespace TCPSOCKET
                 return ERRORCODE.FAIL;
             }
         }
-
         public int startClient()
         {
 
@@ -127,6 +125,15 @@ namespace TCPSOCKET
 
             }
 
+            if (bisConnected)
+            {
+                // 사용자가 직접 Disconnect 요청을 했는지, Network 문제로 Session이 끊어진건지 구분하기 위함
+                // 사용자 요청으로 서버 접속이 이루어지면 false 로 SET , 이 값은 FinesseReceiver 클래스에서 참조한다.
+                setDisconnectReq(false);
+
+                callConnectionEvent();
+            }
+
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
         }
 
@@ -136,23 +143,18 @@ namespace TCPSOCKET
             {
                 httpHandler = new HttpHandler(logwrite);
             }
-
             return httpHandler.logoutRequest((string)currentServer["IP"], agent); 
         }
 
         public int login()
         {
-
             // XMPP 인증 시도
             if (connectXMPPAuth() != ERRORCODE.SUCCESS)
             {
                 return ERRORCODE.FAIL;
             }
-
             checkAgentState();  // 이전 상담원 상태체크
-
             return httpHandler.loginRequest((string)currentServer["IP"], agent);
-
         }
 
         public int connectXMPPAuth()
@@ -187,7 +189,7 @@ namespace TCPSOCKET
             recvThread.Start();
 
 
-            callConnectionEvent();  // Connection 성공 이벤트 전달
+//            callConnectionEvent();  // Connection 성공 이벤트 전달
 
             return ERRORCODE.SUCCESS;
         }
@@ -233,8 +235,6 @@ namespace TCPSOCKET
                 return ERRORCODE.FAIL;
             }
         }
-
-
 
         private int startPreProcess()
         {

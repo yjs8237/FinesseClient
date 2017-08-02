@@ -100,35 +100,6 @@ namespace TCPSOCKET
                 {
                     return ERRORCODE.SOCKET_CONNECTION_FAIL;
                 }
-                
-                /*
-                IAsyncResult result = sock.BeginConnect(ip, port, null, null);
-
-                // TCP Socket Connect Timeout 구현
-                int time = 0;
-                while (!isSocketConnected && time < CONNECTION.CONNECTION_TIMEOUT)
-                {
-                    Thread.Sleep(100);
-                    time += 100;
-                }
-
-                if (!isSocketConnected)
-                {
-                    logwrite.write("connect", "[" + ip + "][" + port + "] Connection Timeout " + CONNECTION.CONNECTION_TIMEOUT + " Fail !!");
-                    return ERRORCODE.SOCKET_CONNECTION_FAIL;
-                }
-                else
-                {
-                    writeStream = sock.GetStream();
-
-                    //writeStream.ReadTimeout = 3000;
-
-                    writer = new StreamWriter(writeStream);
-
-                    Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
-                    reader = new StreamReader(writeStream, encode);
-                }
-                */
 
             }
             catch (Exception e)
@@ -143,11 +114,8 @@ namespace TCPSOCKET
                 return ERRORCODE.SOCKET_CONNECTION_FAIL;
             }
 
-
-
             return ERRORCODE.SUCCESS;
         }
-
 
         public int send(string sendMsg)
         {
@@ -223,7 +191,7 @@ namespace TCPSOCKET
         {
             if (sock != null)
             {
-                isDisconnectReq = true;
+                setDisconnectReq(true);
                 sock.Close();
                 sock = null;
             }
