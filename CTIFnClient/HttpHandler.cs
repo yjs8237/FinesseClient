@@ -153,6 +153,11 @@ namespace HTTP
             return requestGETAPI(urlHandler.getReasonCodeURL(serverIP, agent), agent, "GET");
         }
 
+        public string checkDialogID(string serverIP, Agent agent)
+        {
+            return requestGETAPI(urlHandler.getDialogIDURL(serverIP, agent), agent, "GET");
+        }
+
         /*
         *  POST , PUT 방식 
         * */
@@ -174,6 +179,11 @@ namespace HTTP
         public int arsTransferRequest(string serverIP, Agent agent, string dialNumber, string dialogID)
         {
             return requestRESTAPI(urlHandler.getCallDialogURL(serverIP, agent, dialogID), agent, "PUT", xmlHandler.getArsTransfer(agent.getExtension(), dialNumber));
+        }
+
+        public int ssTransferRequest(string serverIP, Agent agent, string dialNumber, string dialogID)
+        {
+            return requestRESTAPI(urlHandler.getCallDialogURL(serverIP, agent, dialogID), agent, "PUT", xmlHandler.getSSTransfer(agent.getExtension(), dialNumber));
         }
 
         public int makeCallRequest(string serverIP, Agent agent , string dialNumber)

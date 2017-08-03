@@ -28,7 +28,7 @@ namespace CTIFnClientTest
         {
             if (state.Equals(BTNMASK.NOT_READY))
             {
-                string[] arr = { BTNMASK.LOGOUT, BTNMASK.READY, BTNMASK.REASON, BTNMASK.MAKECALL };
+                string[] arr = { BTNMASK.LOGOUT, BTNMASK.READY, BTNMASK.REASON, BTNMASK.MAKE_CALL };
                 form.setButtonMask(arr);
             }
             else if (state.Equals(BTNMASK.READY))
@@ -45,13 +45,33 @@ namespace CTIFnClientTest
             {
                 string[] arr = { BTNMASK.REASON, BTNMASK.READY };
                 form.setButtonMask(arr);
-            } 
+            }
+            else if (state.Equals(BTNMASK.HOLD))
+            {
+                string[] arr = { BTNMASK.RETRIEVE};
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.TALKING))
+            {
+                string[] arr = { BTNMASK.DROP };
+                form.setButtonMask(arr);
+            }
         }
 
-        public override void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
-            string[] arr = { BTNMASK.ANSWER };
-            form.setButtonMask(arr);
+            if (actionList != null && actionList.Length != 0)
+            {
+                char[] delimiterChars = { '^' };
+                string[] arr = actionList.Split(delimiterChars);
+                form.setButtonMask(arr);
+            }
+            else
+            {
+                string[] arr = { BTNMASK.ANSWER };
+                form.setButtonMask(arr);
+            }
+            
         }
 
         public override void GetEventOnDisConnection(string finesseIP , string aemsIP , string ispsIP , String evt)
@@ -81,10 +101,13 @@ namespace CTIFnClientTest
             //Console.WriteLine(evt);
         }
 
-        public override void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
-           string[] arr = { BTNMASK.REASON, BTNMASK.READY };
-           form.setButtonMask(arr);
+           
+                string[] arr = { BTNMASK.REASON, BTNMASK.READY };
+                form.setButtonMask(arr);
+        
+          
         }
 
         public override void GetEventOnCallError(string errorMessage)
@@ -92,7 +115,7 @@ namespace CTIFnClientTest
             
         }
 
-        public override void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
          /*
          string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -100,13 +123,24 @@ namespace CTIFnClientTest
          */
         }
 
-        public override void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
+            /*
+            if (actionList != null && actionList.Length != 0)
+            {
+                actionList = actionList.Replace("CONSULT_CALL", "CCTRANSFER^CCCONFERENCE");
+                char[] delimiterChars = { '^' };
+                string[] arr = actionList.Split(delimiterChars);
+                form.setButtonMask(arr);
+            }
+            */
+            /*
             string[] arr = { BTNMASK.RETRIEVE };
             form.setButtonMask(arr);
+           */
         }
 
-        public override void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
             /*
      string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -114,15 +148,24 @@ namespace CTIFnClientTest
       * */
         }
 
-        public override void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
-            /*
-     string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
-     form.setButtonMask(arr);
-      * */
+            if (actionList != null && actionList.Length != 0)
+            {
+                char[] delimiterChars = { '^' };
+                string[] arr = actionList.Split(delimiterChars);
+                form.setButtonMask(arr);
+            }
+            else
+            {
+                string[] arr = { BTNMASK.DROP };
+                form.setButtonMask(arr);
+            }
+                
+            
         }
 
-        public override void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
             /*
     string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
@@ -138,10 +181,72 @@ namespace CTIFnClientTest
     * */
         }
 
-        public override void GetEventOnCallActive(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table)
+        public override void GetEventOnCallActive(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
-           string[] arr = { BTNMASK.RELEASE, BTNMASK.CCTRANSFER, BTNMASK.HOLD , BTNMASK.CCCONFERENCE};
-           form.setButtonMask(arr);
+            /*
+            if (actionList != null && actionList.Length != 0)
+            {
+                actionList = actionList.Replace("CONSULT_CALL", "CCTRANSFER^CCCONFERENCE");
+                char[] delimiterChars = { '^' };
+                string[] arr = actionList.Split(delimiterChars);
+                form.setButtonMask(arr);
+            }
+         */
+
+            if (form.isTransfer)
+            {
+                // 호전환 시도하여 컨설트콜이 Active 상태가 되었을경우
+                string[] arr = { BTNMASK.RECONNECT, BTNMASK.TRANSFER };
+                form.setButtonMask(arr);
+            }
+            else if (form.isConference)
+            {
+                // 3자통화 시도하여 컨설트콜이 Active 상태가 되었을경우
+                string[] arr = { BTNMASK.RECONNECT, BTNMASK.CONFERENCE };
+                form.setButtonMask(arr);
+            }
+            else
+            {
+                // 일반 아웃바운드 콜 (내선말고)
+                string[] arr = { BTNMASK.DROP, BTNMASK.CCTRANSFER, BTNMASK.HOLD, BTNMASK.CCCONFERENCE, BTNMASK.TRANSFER_SST };
+                form.setButtonMask(arr);
+            }
+
+            /*
+            if (callType.Equals("OUT"))
+            {
+                if (form.isTransfer)
+                {
+                    // 호전환 시도하여 컨설트콜이 Active 상태가 되었을경우
+                    string[] arr = { BTNMASK.RECONNECT, BTNMASK.TRANSFER };
+                    form.setButtonMask(arr);
+                }
+                else if (form.isConference)
+                {
+                    // 3자통화 시도하여 컨설트콜이 Active 상태가 되었을경우
+                    string[] arr = { BTNMASK.RECONNECT, BTNMASK.CONFERENCE };
+                    form.setButtonMask(arr);
+                }
+                else
+                {
+                    // 일반 아웃바운드 콜 (내선말고)
+                    string[] arr = { BTNMASK.DROP, BTNMASK.CCTRANSFER, BTNMASK.HOLD, BTNMASK.CCCONFERENCE , BTNMASK.TRANSFER_SST };
+                    form.setButtonMask(arr);
+                }
+            }
+            else if (callType.Equals("CONSULT") && form.isConference)
+            {
+                // 3자통화 완료하였을 경우
+                string[] arr = { BTNMASK.RECONNECT, BTNMASK.TRANSFER };
+                form.setButtonMask(arr);
+            }
+            else
+            {
+                string[] arr = { BTNMASK.DROP, BTNMASK.CCTRANSFER, BTNMASK.HOLD, BTNMASK.CCCONFERENCE, BTNMASK.TRANSFER_SST };
+                form.setButtonMask(arr);
+            } 
+             * */
+            
         }
     }
 }

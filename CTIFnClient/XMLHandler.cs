@@ -24,6 +24,11 @@ namespace XML
         {
             return "<Dialog><requestedAction>" + CALL.TRANSFER_SST + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
         }
+        public string getSSTransfer(string extension, string dialNumber)
+        {
+            return "<Dialog><requestedAction>" + CALL.TRANSFER_SST + "</requestedAction><toAddress>" + dialNumber + "</toAddress><targetMediaAddress>" + extension + "</targetMediaAddress></Dialog>";
+        }
+        
         public string getAnswer(string extension)
         {
             return "<Dialog><targetMediaAddress>"+extension+"</targetMediaAddress><requestedAction>"+CALL.ANSWER+"</requestedAction></Dialog>";

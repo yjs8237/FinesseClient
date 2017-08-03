@@ -19,6 +19,10 @@ namespace CTIFnClientTest
 
         private Hashtable buttonTable;
 
+
+        public bool isTransfer;
+        public bool isConference;
+
         public Form1()
         {
             InitializeComponent();
@@ -27,6 +31,13 @@ namespace CTIFnClientTest
             buttonTable = new Hashtable();
             initialButtonMask();
             CheckForIllegalCrossThreadCalls = false;
+        }
+
+
+        private void setConsultCallSetting()
+        {
+            isTransfer = false;
+            isConference = false;
         }
 
         private void initialButtonMask()
@@ -38,16 +49,17 @@ namespace CTIFnClientTest
             buttonTable.Add(BTNMASK.READY, button7);
             buttonTable.Add(BTNMASK.NOT_READY, button10);
             buttonTable.Add(BTNMASK.REASON, button8);
-            buttonTable.Add(BTNMASK.MAKECALL, button5);
+            buttonTable.Add(BTNMASK.MAKE_CALL, button5);
             buttonTable.Add(BTNMASK.CCTRANSFER, button11);
             buttonTable.Add(BTNMASK.ANSWER, button6);
-            buttonTable.Add(BTNMASK.RELEASE, button9);
+            buttonTable.Add(BTNMASK.DROP, button9);
             buttonTable.Add(BTNMASK.HOLD, button13);
             buttonTable.Add(BTNMASK.RETRIEVE, button14);
             buttonTable.Add(BTNMASK.TRANSFER, button16);
             buttonTable.Add(BTNMASK.CCCONFERENCE, button17);
             buttonTable.Add(BTNMASK.CONFERENCE, button18);
             buttonTable.Add(BTNMASK.RECONNECT, button19);
+            buttonTable.Add(BTNMASK.TRANSFER_SST, button24);
             
             setInitialButton();
 
@@ -124,6 +136,8 @@ namespace CTIFnClientTest
 
         private void button1_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
+
             String finesse_A = textBox1.Text;
             String finesse_B = textBox2.Text;
             String finesseDomain = textBox13.Text;
@@ -141,11 +155,14 @@ namespace CTIFnClientTest
 
         private void button2_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "RETURN DATA : " +  useDll.fnDisconnect());
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
+
             // 로그인버튼 클릭
             string agentID = textBox9.Text;    // agentID
             string agentPwd = textBox10.Text;   // agentPwd
@@ -156,49 +173,59 @@ namespace CTIFnClientTest
 
         private void button4_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnLogout());
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string dialNumber = textBox14.Text;    // dialNumber
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnMakeCall(dialNumber));
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAnswer());
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("READY"));
         }
 
         private void button8_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string reasoncode = textBox15.Text;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("NOT_READY", reasoncode));
         }
 
         private void button9_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnRelease());
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnAgentState("NOT_READY"));
         }
 
         private void button11_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string dialNumber = textBox14.Text;    // dialNumber
+            isTransfer = true;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnCCTransfer(dialNumber));
         }
 
         private void button12_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string varname = textBox16.Text;    // 변수명
             string varvalue = textBox17.Text;    // 데이터
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
@@ -206,42 +233,51 @@ namespace CTIFnClientTest
 
         private void button13_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnHold());
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnRetrieve());
         }
 
         private void button15_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetReasonCodeList());
         }
 
         private void button16_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnTransfer());
         }
 
         private void button17_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string dialNumber = textBox14.Text;    // dialNumber
+            isConference = true;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnCCConference(dialNumber));
         }
 
         private void button18_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnConference());
         }
 
         private void button19_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnReconnect());
         }
 
         private void button20_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string account = textBox19.Text; // 계좌번호
             string dialNum = textBox18.Text;    // 폰패드 번호
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnPhonePad(dialNum, "1" , account));
@@ -249,14 +285,23 @@ namespace CTIFnClientTest
 
         private void button22_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string dialNum = textBox20.Text;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnArsTransfer(dialNum));
         }
 
         private void button23_Click(object sender, EventArgs e)
         {
+            setConsultCallSetting();
             string ispsData = textBox21.Text;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSendISPS(ispsData));
+        }
+
+        private void button24_Click(object sender, EventArgs e)
+        {
+            setConsultCallSetting();
+            string dialNum = textBox14.Text;
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnArsTransfer(dialNum));
         }
 
     }

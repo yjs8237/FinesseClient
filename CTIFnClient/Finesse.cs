@@ -435,6 +435,18 @@ namespace CTIFnClient
             return ret;
         }
 
+        public int fnSSTransfer(string dialNumber)
+        {
+            logwrite.write("fnSSTransfer", "\t ** call fnSSTransfer(" + dialNumber + ") **");
+            int ret = ERRORCODE.FAIL;
+            if (FinesseClient != null)
+            {
+                ret = FinesseClient.ssTransfer(dialNumber, activeDialogID);
+                logwrite.write("fnSSTransfer", "\t Return Data : " + ret);
+            }
+            return ret;
+        }
+
         public int fnSendISPS(string ispsData)
         {
             logwrite.write("fnSendISPS", "\t ** call fnSendISPS(" + ispsData + ") **");
@@ -738,6 +750,32 @@ namespace CTIFnClient
 
             evtMessage = evtMessage.Replace("\n", "");
 
+            StringBuilder callState = new StringBuilder();
+
+            foreach (DictionaryEntry item in evt.getCallStateTable())
+            {
+                callState.Append(item.Key).Append("^").Append(item.Value).Append("|");
+            }
+            if (callState.ToString().EndsWith("|"))
+            {
+                string tempStr = callState.ToString().Substring(0, callState.ToString().Length - 1);
+                callState = new StringBuilder();
+                callState.Append(tempStr);
+            }
+
+            StringBuilder callAction = new StringBuilder();
+            foreach (string str in evt.getActionList())
+            {
+                callAction.Append(str).Append("^");
+            }
+            if (callAction.ToString().EndsWith("^"))
+            {
+                string tempStr = callAction.ToString().Substring(0, callAction.ToString().Length - 1);
+                callAction = new StringBuilder();
+                callAction.Append(tempStr);
+            }
+            
+
             switch (evtCode)
             {
 
@@ -756,22 +794,23 @@ namespace CTIFnClient
                     break;
 
                 case EVENT_TYPE.ALERTING:
-                    writeCallEventLog("GetEventOnCallAlerting", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallAlerting", evt);
                     setActiveDialogID(evt);
-                    GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString() , callAction.ToString());
                     break;
 
                 case EVENT_TYPE.FAILED:
-                    writeCallEventLog("GetEventOnCallFailed", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallFailed", evt);
                     setActiveDialogID(evt);
-                    GetEventOnCallFailed(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallFailed(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     break;
 
                 case EVENT_TYPE.ACTIVE:
-                    writeCallEventLog("GetEventOnCallActive", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallActive", evt);
                     setActiveDialogID(evt);
-                    GetEventOnCallActive(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
-                    if (evt.getToAddress().Equals(phonePadNum))
+                    GetEventOnCallActive(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
+
+                    if (evt.getToAddress()!=null && evt.getToAddress().Equals(phonePadNum))
                     {
                         // 폰패드 컨퍼런스 
                         logwrite.write("raiseEvent", "PhonePad Conference Start");
@@ -781,36 +820,36 @@ namespace CTIFnClient
                     break;
 
                 case EVENT_TYPE.HELD:
-                    writeCallEventLog("GetEventOnCallHeld", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallHeld", evt);
                     //setActiveDialogID(evt);
-                    GetEventOnCallHeld(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallHeld(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     break;
 
                 case EVENT_TYPE.INITIATING:
-                    writeCallEventLog("GetEventOnCallInitiating", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallInitiating", evt);
                     setActiveDialogID(evt);
-                    GetEventOnCallInitiating(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallInitiating(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     break;
 
                 case EVENT_TYPE.INITIATED:
-                    writeCallEventLog("GetEventOnCallInitiated", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallInitiated", evt);
                     setActiveDialogID(evt);
-                    GetEventOnCallInitiated(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallInitiated(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     break;
 
 
             case EVENT_TYPE.WRAP_UP:
-                    writeCallEventLog("GetEventOnCallWrapUp", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallWrapUp", evt);
                     // checkTable(callEvent.getCallVariable());
                     removeDialogID(evt);
-                    GetEventOnCallWrapUp(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallWrapUp(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     break;
 
             case EVENT_TYPE.DROPPED:
-                    writeCallEventLog("GetEventOnCallDropped", evt, evt.getCallStateTable());
+                    writeCallEventLog("GetEventOnCallDropped", evt);
                     // checkTable(callEvent.getCallVariable());
                     removeDialogID(evt);
-                    GetEventOnCallDropped(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), evt.getCallStateTable());
+                    GetEventOnCallDropped(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     if (evt.getCallType().Equals(CALL.CONFERENCE) && evt.getDialogID().Equals(phonePadCallID))
                     {
                         // 폰패드 이후 Dropped 이벤트일 경우 폰패드 결과를 요청한다.
@@ -867,13 +906,20 @@ namespace CTIFnClient
             }
         }
 
-        private void writeCallEventLog(string eventName , CallEvent evt , Hashtable table)
+        private void writeCallEventLog(string eventName , CallEvent evt )
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("STATE : ");
-            foreach (DictionaryEntry item in table)
+            foreach (DictionaryEntry item in evt.getCallStateTable())
             {
                 sb.Append("[" + item.Key + " -> " + item.Value + "]");
+            }
+
+            StringBuilder actionBuilder = new StringBuilder();
+            actionBuilder.Append("ACTION : ");
+            foreach (string str in evt.getActionList()) 
+            {
+                actionBuilder.Append("[" + str + "]");
             }
             logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: "+eventName+" ::::::::::::::::::::::::::::::::::::");
             logwrite.write("raiseEvent", evt.getEvtMsg());
@@ -882,6 +928,7 @@ namespace CTIFnClient
             logwrite.write("raiseEvent", "FromAddress : " + evt.getFromAddress());
             logwrite.write("raiseEvent", "ToAddress : " + evt.getToAddress());
             logwrite.write("raiseEvent", sb.ToString());
+            logwrite.write("raiseEvent", actionBuilder.ToString());
             logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
         }
 
@@ -912,10 +959,22 @@ namespace CTIFnClient
             }
             else
             {
-                dialogID = evt.getDialogID();
-                activeDialogID = dialogID;
+                if (evt.getDialogID().Equals(dialogID_second))
+                {
+                    dialogID_second = evt.getDialogID();
+                    activeDialogID = dialogID_second;
+                }
+                else
+                {
+                    dialogID = evt.getDialogID();
+                    activeDialogID = dialogID;
+                }
             }
             logwrite.write("setDialogID", "Active DialogID : " + activeDialogID + " , first ID : " + dialogID + " , seconde ID : " + dialogID_second);
+        }
+        public void setActiveDialogID(string dialogID)
+        {
+            activeDialogID = dialogID;
         }
 
         private void checkTable(Hashtable table) {
@@ -933,15 +992,15 @@ namespace CTIFnClient
          * */
         public abstract void GetEventOnConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
         public abstract void GetEventOnDisConnection(string finesseIP, string aemsIP, string ispsIP, String evt);
-        public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallAlerting(string dialogID, string callType, string fromAddress, string toAddress, string callState , string actionList);
         //public abstract void GetEventOnCallEstablished(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallActive(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
-        public abstract void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, Hashtable table);
+        public abstract void GetEventOnCallActive(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
+        public abstract void GetEventOnCallDropped(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
+        public abstract void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
+        public abstract void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
+        public abstract void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
+        public abstract void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
+        public abstract void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList);
 
         public abstract void GetEventOnPassCheck(string ret, string data);
 

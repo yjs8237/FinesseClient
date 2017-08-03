@@ -19,11 +19,13 @@ namespace EVENTOBJ
 
         //private string callState;
 
-        private Hashtable callStateTable;
+        private Hashtable callStateTable;   // 각 콜 주체의 콜 state 체크
+        private ArrayList actionList;       // Action List
 
         public CallEvent()
         {
             callStateTable = new Hashtable();
+            actionList = new ArrayList();
         }
 
         public void setCallState(string number , string state)
@@ -34,10 +36,18 @@ namespace EVENTOBJ
             }
             callStateTable.Add(number, state);
         }
-
         public Hashtable getCallStateTable()
         {
             return this.callStateTable;
+        }
+
+        public void setActionList (ArrayList actionList)
+        {
+            this.actionList = actionList;
+        }
+        public ArrayList getActionList()
+        {
+            return actionList;
         }
 
 

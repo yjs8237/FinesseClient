@@ -228,6 +228,16 @@ namespace TCPSOCKET
                     finesseObj.raiseEvent(evt);
                 }
 
+                if (agentState.Equals(AGENTSTATE.TALKING))
+                {
+                    string talkingState = httpHandler.checkDialogID((string)currentServer["IP"], agent);
+                    talkingState = talkingState.Replace("\n", "");
+                    
+                    Event evt = xmlParser.parseXML(talkingState);
+                    finesseObj.raiseEvent(evt);
+
+                }
+
                 return ERRORCODE.SUCCESS;
             }
             else
@@ -502,6 +512,15 @@ namespace TCPSOCKET
             return httpHandler.arsTransferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
         }
 
+        public int ssTransfer(string dialNumber, string dialogID)
+        {
+            if (httpHandler == null)
+            {
+                httpHandler = new HttpHandler(logwrite);
+            }
+
+            return httpHandler.ssTransferRequest((string)currentServer["IP"], agent, dialNumber, dialogID);
+        }
 
         public int retrieve(string dialogID)
         {

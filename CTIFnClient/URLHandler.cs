@@ -32,6 +32,12 @@ namespace HTTP
         {
             return "http://" + serverIP + "/finesse/api/User/"+agent.getAgentID()+"/ReasonCodes?category=NOT_READY";
         }
+
+        public string getDialogIDURL(string serverIP, Agent agent)
+        {
+            return "http://" + serverIP + "/finesse/api/User/" + agent.getAgentID() + "/Dialogs";
+        }
+        
       
     }
 }

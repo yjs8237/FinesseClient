@@ -211,6 +211,10 @@ namespace XML
                     if (node1.Name.Equals("participants"))
                     {
 
+                        // 현재 사용할 수 있는 Action 리스트를 담는다.
+                        evt.setActionList(getActionList(node1, agent.getAgentID()));
+
+
                         ArrayList list = getCallState(node1);
 
                         for (int i = 0; i < list.Count; i++)
@@ -344,6 +348,8 @@ namespace XML
                               //  logwrite.write("### EVENT CHECK ###", "setCallState : " + (string)table["state"]);
                             }
                         }
+                        // 현재 사용할 수 있는 Action 리스트를 담는다.
+                        evt.setActionList(getActionList(node1, agent.getAgentID()));
                     }
 
                 }
@@ -416,6 +422,65 @@ namespace XML
             }
         }
 
+        public ArrayList getActionList(XmlNode parentNode, string agentID)
+        {
+            // 통화중일 경우 현재상태에서 할 수 있는 Action 리스트를 리턴한다.
+            ArrayList list = new ArrayList();
+
+            try
+            {
+                if (parentNode == null)
+                {
+                    return null;
+                }
+
+                bool isAgent = false;
+
+                // Participant 노드
+                foreach (XmlNode node1 in parentNode.ChildNodes)
+                {
+                    foreach (XmlNode node2 in node1.ChildNodes)
+                    {
+                        if (node2.Name.Equals("actions"))
+                        {
+                            foreach (XmlNode node3 in node2.ChildNodes)
+                            {
+                                // Action 리스트를 List 에 일단 담는다.
+                                list.Add(node3.InnerText.ToString());
+                            }
+                        }
+                        if (node2.Name.Equals("mediaAddress"))
+                        {
+                            if (node2.InnerText.ToString().Equals(agentID))
+                            {
+                                // 상담원 본인의 Participant 데이터의 경우...
+                                isAgent = true;
+                            }
+                        }
+                    }
+
+                    if (isAgent)
+                    {
+                        // 상담원 본인의 데이터 XML 파싱이 이루어졌을 경우
+                        return list;
+                    }
+                    else
+                    {
+                        // 상담원 본인의 데이터가 아닌경우 list 를 초기화 시킨다.
+                        list.Clear();
+                    }
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                logwrite.write("getActionList", e.ToString());
+                return null;
+            }
+
+            return list;
+        }
 
         private ArrayList getCallState(XmlNode node)
         {

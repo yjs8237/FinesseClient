@@ -103,6 +103,7 @@
             this.textBox21 = new System.Windows.Forms.TextBox();
             this.label22 = new System.Windows.Forms.Label();
             this.button23 = new System.Windows.Forms.Button();
+            this.button24 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -485,6 +486,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.button24);
             this.groupBox4.Controls.Add(this.button19);
             this.groupBox4.Controls.Add(this.button18);
             this.groupBox4.Controls.Add(this.button17);
@@ -833,6 +835,16 @@
             this.button23.UseVisualStyleBackColor = true;
             this.button23.Click += new System.EventHandler(this.button23_Click);
             // 
+            // button24
+            // 
+            this.button24.Location = new System.Drawing.Point(304, 97);
+            this.button24.Name = "button24";
+            this.button24.Size = new System.Drawing.Size(90, 23);
+            this.button24.TabIndex = 39;
+            this.button24.Text = "SSTransfer";
+            this.button24.UseVisualStyleBackColor = true;
+            this.button24.Click += new System.EventHandler(this.button24_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -969,6 +981,7 @@
         private System.Windows.Forms.TextBox textBox21;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Button button23;
+        private System.Windows.Forms.Button button24;
     }
 }
 

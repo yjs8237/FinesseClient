@@ -10,5 +10,6 @@ namespace CONST
         public readonly static string NOT_READY = "NOT_READY";
         public readonly static string READY = "READY";
         public readonly static string LOGOUT = "LOGOUT";
+        public readonly static string TALKING = "TALKING";
     }
 }
