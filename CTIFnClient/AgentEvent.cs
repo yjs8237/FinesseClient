@@ -9,7 +9,16 @@ namespace EVENTOBJ
     {
         private string agentState;
         private string reasonCode;
+        private bool isFirstLogin;
 
+        public void setIsFirstLogin(bool isFirstLogin)
+        {
+            this.isFirstLogin = isFirstLogin;
+        }
+        public bool getIsFirstLogin()
+        {
+            return isFirstLogin;
+        }
         public void setAgentState(string agentState)
         {
             this.agentState = agentState;

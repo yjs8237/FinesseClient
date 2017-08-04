@@ -161,7 +161,6 @@ namespace CTIFnClientTest
                 string[] arr = { BTNMASK.DROP };
                 form.setButtonMask(arr);
             }
-                
             
         }
 
@@ -247,6 +246,12 @@ namespace CTIFnClientTest
             } 
              * */
             
+        }
+
+        public override void GetEventOnAgentLoggedOn(string state, string reasonCode, string evtMessage)
+        {
+                string[] arr = { BTNMASK.LOGOUT, BTNMASK.READY, BTNMASK.REASON, BTNMASK.MAKE_CALL };
+                form.setButtonMask(arr);
         }
     }
 }

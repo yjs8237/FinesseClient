@@ -121,6 +121,7 @@ namespace CTIFnClient
                 else
                 {
                     isAEMSConnected = true;
+                    AEMSClient.disconnect();
                 }
             }
 
@@ -141,6 +142,7 @@ namespace CTIFnClient
                 else
                 {
                     isISPSConnected = true;
+                    ISPSClient.disconnect();
                 }
             }
         
@@ -414,7 +416,15 @@ namespace CTIFnClient
                 setReasonCodeList(reasonCodeXML);
             }
             string reasonCodeID = (string) reasonCodeTable[reasonCode];
+
             int ret = ERRORCODE.FAIL;
+
+            if (reasonCodeID == null || reasonCodeID.Length == 0)
+            {
+                logwrite.write("fnAgentState", "\t ** THERE IS NO REASON CODE , PLEASE CHECK FINESSE WEB ADMIN CONFIGURATION. **");
+                return ret;
+            }
+
             if (FinesseClient != null)
             {
                 ret = FinesseClient.agentState(state, reasonCodeID);
@@ -486,7 +496,7 @@ namespace CTIFnClient
 
         public int fnPhonePad(string phonePadNum, string type , string account)
         {
-
+            logwrite.write("", "");
             logwrite.write("fnPhonePad", "\t ** call fnPhonePad(" + phonePadNum + " , " + account + ") **");
             this.phonePadNum = phonePadNum;
 
@@ -499,7 +509,6 @@ namespace CTIFnClient
                 // AEMS 서버로 부터 OK 받으면 컨퍼런스 실시
                 fnCCConference(phonePadNum);
             }
-
             return ERRORCODE.SUCCESS;
 
         }
@@ -734,6 +743,13 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnAgentStateChange(evt.getAgentState(), evt.getReasonCode(), evtMessage);
+                    break;
+                case EVENT_TYPE.ON_LOGGEDON:
+                    logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnAgentLoggedOn ::::::::::::::::::::::::::::::::::::");
+                    logwrite.write("raiseEvent", evtMessage);
+                    logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
+                    logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+                    GetEventOnAgentLoggedOn(evt.getAgentState(), evt.getReasonCode(), evtMessage);
                     break;
 
                 default:
@@ -1008,6 +1024,8 @@ namespace CTIFnClient
          *  Agent State 이벤트
          * */
         public abstract void GetEventOnAgentStateChange(string state , string reasonCode , string evtMessage);
+
+        public abstract void GetEventOnAgentLoggedOn(string state, string reasonCode, string evtMessage);
 
         public abstract void GetEventOnCallError(string errorMessage);
 

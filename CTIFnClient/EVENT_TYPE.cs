@@ -15,6 +15,7 @@ namespace EVENTOBJ
         public const string ACTIVE = "ACTIVE";
         public const string FAILED = "FAILED";
         public const  string ON_AGENTSTATE_CHANGE = "ON_AGENTSTATE_CHANGE";
+        public const string ON_LOGGEDON = "ON_LOGGEDON";
         public const  string ON_CONNECTION = "ON_CONNECTION";
         public const string ON_DISCONNECTION = "ON_DISCONNECTION";
         

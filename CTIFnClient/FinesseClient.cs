@@ -217,6 +217,18 @@ namespace TCPSOCKET
 
                 logwrite.write("checkAgentState", "CURRENT AGENT STATE : " + agentState + " , REASON CODE : " + agentReasonCode);
 
+                if (agentState != null)
+                {
+                    AgentEvent evt = new AgentEvent();
+                    evt.setEvtMsg(agentStateXml);
+                    evt.setAgentState(agentState);
+                    evt.setReasonCode(agentReasonCode);
+                    evt.setEvtCode(EVENT_TYPE.ON_LOGGEDON);
+                    evt.setIsFirstLogin(true);
+                    finesseObj.raiseEvent(evt);
+                }
+
+                /*
                 // 서버에 이미 남아 있는 상담원 상태가 로그아웃이 아닐경우에 이벤트를 발생한다.
                 if (!agentState.Equals(AGENTSTATE.LOGOUT))
                 {
@@ -227,6 +239,7 @@ namespace TCPSOCKET
                     evt.setEvtCode(EVENT_TYPE.ON_AGENTSTATE_CHANGE);
                     finesseObj.raiseEvent(evt);
                 }
+                */
 
                 if (agentState.Equals(AGENTSTATE.TALKING))
                 {
