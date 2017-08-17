@@ -11,15 +11,21 @@ namespace CTIFnClientTest
     class UseDll : Finesse
     {
         private Form1 form;
+        private LogWrite logwrite;
+
         public UseDll(Form1 form)
         {
             this.form = form;
+            this.logwrite = LogWrite.getInstance();
         }
 
         public override void GetEventOnConnection(string finesseip , string aemsip , string ispsip , String evt)
         {
-            string[] arr = { BTNMASK.LOGIN, BTNMASK.DISCONNECT };
-            form.setButtonMask(arr);
+            if (finesseip != null && finesseip.Length > 0)
+            {
+                string[] arr = { BTNMASK.LOGIN, BTNMASK.DISCONNECT };
+                form.setButtonMask(arr);
+            }
             form.setServerInfo(finesseip, aemsip, ispsip);
            // Console.WriteLine(evt);
         }
@@ -71,6 +77,11 @@ namespace CTIFnClientTest
                 string[] arr = { BTNMASK.ANSWER };
                 form.setButtonMask(arr);
             }
+
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
+
+
             
         }
 
@@ -103,11 +114,10 @@ namespace CTIFnClientTest
 
         public override void GetEventOnCallWrapUp(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
         {
-           
-                string[] arr = { BTNMASK.REASON, BTNMASK.READY };
-                form.setButtonMask(arr);
-        
-          
+            string[] arr = { BTNMASK.REASON, BTNMASK.READY };
+            form.setButtonMask(arr);
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
         }
 
         public override void GetEventOnCallError(string errorMessage)
@@ -121,6 +131,8 @@ namespace CTIFnClientTest
          string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
          form.setButtonMask(arr);
          */
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
         }
 
         public override void GetEventOnCallHeld(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
@@ -138,6 +150,8 @@ namespace CTIFnClientTest
             string[] arr = { BTNMASK.RETRIEVE };
             form.setButtonMask(arr);
            */
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
         }
 
         public override void GetEventOnCallInitiating(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
@@ -146,6 +160,8 @@ namespace CTIFnClientTest
      string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
      form.setButtonMask(arr);
       * */
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
         }
 
         public override void GetEventOnCallInitiated(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
@@ -161,7 +177,8 @@ namespace CTIFnClientTest
                 string[] arr = { BTNMASK.DROP };
                 form.setButtonMask(arr);
             }
-            
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
         }
 
         public override void GetEventOnCallFailed(string dialogID, string callType, string fromAddress, string toAddress, string callState, string actionList)
@@ -170,6 +187,8 @@ namespace CTIFnClientTest
     string[] arr = { BTNMASK.RELEASE, BTNMASK.TRANSFER, BTNMASK.HOLD };
     form.setButtonMask(arr);
      * */
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
         }
 
         public override void GetEventOnPassCheck(string ret, string data)
@@ -210,6 +229,8 @@ namespace CTIFnClientTest
                 string[] arr = { BTNMASK.DROP, BTNMASK.CCTRANSFER, BTNMASK.HOLD, BTNMASK.CCCONFERENCE, BTNMASK.TRANSFER_SST };
                 form.setButtonMask(arr);
             }
+            logwrite.write("USEDLL", "callState : " + callState);
+            logwrite.write("USEDLL", "actionList : " + actionList);
 
             /*
             if (callType.Equals("OUT"))

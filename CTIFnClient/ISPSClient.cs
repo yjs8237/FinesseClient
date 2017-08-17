@@ -75,9 +75,7 @@ namespace TCPSOCKET
                      */
 
                      callConnectionEvent();
-
-
-                     logwrite.write("startClient", "ISPS Thread Start!!");
+                     
 
                      break;
                  }

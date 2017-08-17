@@ -47,8 +47,6 @@
             this.label7 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBox13 = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
             this.textBox12 = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -69,6 +67,7 @@
             this.button10 = new System.Windows.Forms.Button();
             this.textBox15 = new System.Windows.Forms.TextBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.button24 = new System.Windows.Forms.Button();
             this.button19 = new System.Windows.Forms.Button();
             this.button18 = new System.Windows.Forms.Button();
             this.button17 = new System.Windows.Forms.Button();
@@ -103,7 +102,9 @@
             this.textBox21 = new System.Windows.Forms.TextBox();
             this.label22 = new System.Windows.Forms.Label();
             this.button23 = new System.Windows.Forms.Button();
-            this.button24 = new System.Windows.Forms.Button();
+            this.button25 = new System.Windows.Forms.Button();
+            this.textBox13 = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -139,7 +140,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 21);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "192.168.230.180";
+            this.textBox1.Text = "192.168.0.53";
             // 
             // textBox2
             // 
@@ -147,7 +148,7 @@
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(100, 21);
             this.textBox2.TabIndex = 4;
-            this.textBox2.Text = "192.168.230.182";
+            this.textBox2.Text = "192.168.0.43";
             // 
             // label1
             // 
@@ -164,7 +165,7 @@
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(100, 21);
             this.textBox3.TabIndex = 6;
-            this.textBox3.Text = "192.168.9.130";
+            this.textBox3.Text = "192.168.0.51";
             // 
             // label2
             // 
@@ -198,7 +199,7 @@
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(100, 21);
             this.textBox5.TabIndex = 10;
-            this.textBox5.Text = "9883";
+            this.textBox5.Text = "9990";
             // 
             // label4
             // 
@@ -272,8 +273,6 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.textBox13);
-            this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.textBox12);
             this.groupBox1.Controls.Add(this.label11);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
@@ -282,23 +281,6 @@
             this.groupBox1.TabIndex = 18;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Server Connection";
-            // 
-            // textBox13
-            // 
-            this.textBox13.Location = new System.Drawing.Point(79, 78);
-            this.textBox13.Name = "textBox13";
-            this.textBox13.Size = new System.Drawing.Size(100, 21);
-            this.textBox13.TabIndex = 21;
-            this.textBox13.Text = "finesse.shlife.ipcc";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(11, 81);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(48, 12);
-            this.label12.TabIndex = 20;
-            this.label12.Text = "Domain";
             // 
             // textBox12
             // 
@@ -360,7 +342,7 @@
             this.textBox11.Name = "textBox11";
             this.textBox11.Size = new System.Drawing.Size(100, 21);
             this.textBox11.TabIndex = 25;
-            this.textBox11.Text = "7112";
+            this.textBox11.Text = "2000";
             // 
             // label10
             // 
@@ -377,7 +359,7 @@
             this.textBox10.Name = "textBox10";
             this.textBox10.Size = new System.Drawing.Size(100, 21);
             this.textBox10.TabIndex = 23;
-            this.textBox10.Text = "7112";
+            this.textBox10.Text = "2000";
             // 
             // label9
             // 
@@ -390,11 +372,11 @@
             // 
             // textBox9
             // 
-            this.textBox9.Location = new System.Drawing.Point(79, 20);
+            this.textBox9.Location = new System.Drawing.Point(65, 20);
             this.textBox9.Name = "textBox9";
             this.textBox9.Size = new System.Drawing.Size(100, 21);
             this.textBox9.TabIndex = 21;
-            this.textBox9.Text = "7112";
+            this.textBox9.Text = "2000";
             // 
             // label8
             // 
@@ -504,6 +486,16 @@
             this.groupBox4.TabIndex = 32;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Call";
+            // 
+            // button24
+            // 
+            this.button24.Location = new System.Drawing.Point(304, 97);
+            this.button24.Name = "button24";
+            this.button24.Size = new System.Drawing.Size(90, 23);
+            this.button24.TabIndex = 39;
+            this.button24.Text = "SSTransfer";
+            this.button24.UseVisualStyleBackColor = true;
+            this.button24.Click += new System.EventHandler(this.button24_Click);
             // 
             // button19
             // 
@@ -621,7 +613,7 @@
             this.textBox16.Name = "textBox16";
             this.textBox16.Size = new System.Drawing.Size(100, 21);
             this.textBox16.TabIndex = 34;
-            this.textBox16.Text = "name";
+            this.textBox16.Text = "callVariable1";
             // 
             // groupBox6
             // 
@@ -835,22 +827,41 @@
             this.button23.UseVisualStyleBackColor = true;
             this.button23.Click += new System.EventHandler(this.button23_Click);
             // 
-            // button24
+            // button25
             // 
-            this.button24.Location = new System.Drawing.Point(304, 97);
-            this.button24.Name = "button24";
-            this.button24.Size = new System.Drawing.Size(90, 23);
-            this.button24.TabIndex = 39;
-            this.button24.Text = "SSTransfer";
-            this.button24.UseVisualStyleBackColor = true;
-            this.button24.Click += new System.EventHandler(this.button24_Click);
+            this.button25.Location = new System.Drawing.Point(97, 713);
+            this.button25.Name = "button25";
+            this.button25.Size = new System.Drawing.Size(638, 23);
+            this.button25.TabIndex = 45;
+            this.button25.Text = "SET";
+            this.button25.UseVisualStyleBackColor = true;
+            this.button25.Click += new System.EventHandler(this.button25_Click);
+            // 
+            // textBox13
+            // 
+            this.textBox13.Location = new System.Drawing.Point(97, 686);
+            this.textBox13.Name = "textBox13";
+            this.textBox13.Size = new System.Drawing.Size(638, 21);
+            this.textBox13.TabIndex = 44;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(17, 689);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(68, 12);
+            this.label12.TabIndex = 43;
+            this.label12.Text = "AEMS SET";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(752, 642);
+            this.ClientSize = new System.Drawing.Size(770, 876);
+            this.Controls.Add(this.button25);
             this.Controls.Add(this.textBox21);
+            this.Controls.Add(this.textBox13);
+            this.Controls.Add(this.label12);
             this.Controls.Add(this.label22);
             this.Controls.Add(this.button23);
             this.Controls.Add(this.textBox20);
@@ -936,8 +947,6 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textBox12;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox textBox13;
-        private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.TextBox textBox14;
         private System.Windows.Forms.Button button6;
@@ -982,6 +991,9 @@
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Button button23;
         private System.Windows.Forms.Button button24;
+        private System.Windows.Forms.Button button25;
+        private System.Windows.Forms.TextBox textBox13;
+        private System.Windows.Forms.Label label12;
     }
 }
 

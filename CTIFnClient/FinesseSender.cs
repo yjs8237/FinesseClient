@@ -9,7 +9,7 @@ using CTIFnClient;
 using TCPSOCKET;
 using System.Collections;
 using CONST;
-
+using VO;
 
 namespace ThreadGroup 
 {
@@ -20,11 +20,30 @@ namespace ThreadGroup
         private TcpClient sock = null;
         private FinesseClient finesseClient;
 
+        private NetworkStream writeStream;
+        private StreamReader reader;
+        private StreamWriter writer;
+
+        private Agent agent;
+
+        public FinesseSender(TcpClient sock , Agent agent , FinesseClient finesseClient)
+        {
+            this.sock = sock;
+            this.writeStream = sock.GetStream();
+            Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
+            writer = new StreamWriter(writeStream);
+            this.finesseClient = finesseClient;
+            this.logwrite = LogWrite.getInstance();
+            this.agent = agent;
+        }
+
+
         public FinesseSender(LogWrite logwrite, FinesseClient finesseClient)
         {
-            this.logwrite = logwrite;
             this.finesseClient = finesseClient;
+            this.logwrite = LogWrite.getInstance();
         }
+
 
 
         public void pingCheck()
@@ -34,6 +53,7 @@ namespace ThreadGroup
 
         public void runThread()
         {
+            
             ArrayList ipList = new ArrayList();
 
             ServerInfo serverInfo = finesseClient.getServerInfo();
@@ -74,7 +94,7 @@ namespace ThreadGroup
             }
 
             finesseClient.finesseReConnect();
-           
+            
         }
 
 

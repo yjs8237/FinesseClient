@@ -23,6 +23,7 @@ namespace TCPSOCKET
         private ArrayList ipArrList;
         private Finesse finesseObj;
         private ISocketReceiver finesseRecv;
+        private ISocketSender finesseKeepAlive;
         private Agent agent;
         private HttpHandler httpHandler;
 
@@ -153,7 +154,7 @@ namespace TCPSOCKET
             {
                 return ERRORCODE.FAIL;
             }
-            checkAgentState();  // 이전 상담원 상태체크
+            checkPreAgentState();  // 이전 상담원 상태체크
             return httpHandler.loginRequest((string)currentServer["IP"], agent);
         }
 
@@ -182,6 +183,16 @@ namespace TCPSOCKET
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
+
+            // Finesse KeepAlive 체크 스레드 (굳이 스레드를 돌려야 할까..??)
+
+            /*
+            finesseKeepAlive = new FinesseKeepAlive(sock, agent, this);
+            ThreadStart sendts = new ThreadStart(finesseKeepAlive.runThread);
+            Thread sendThread = new Thread(sendts);
+            sendThread.Start();
+            */
+
             // Finesse XMPP 이벤트 받는 스레드 시작
             finesseRecv = new FinesseReceiver(sock, finesseObj, agent, this);
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
@@ -194,16 +205,15 @@ namespace TCPSOCKET
             return ERRORCODE.SUCCESS;
         }
 
-        public int checkAgentState()
+        public AgentStateVO checkAgentState()
         {
-            // 로그인하기전 서버에 상담원 상태를 먼저 체크한다.
-
             if (httpHandler == null)
             {
                 httpHandler = new HttpHandler(logwrite);
             }
             string agentState = "";
             string agentReasonCode = "";
+            
             // 로그인 하기전에 상담원 상태 체크를 먼저한다.
             string agentStateXml = httpHandler.checkAgentState((string)currentServer["IP"], agent);
             if (agentStateXml != null)
@@ -217,46 +227,56 @@ namespace TCPSOCKET
 
                 logwrite.write("checkAgentState", "CURRENT AGENT STATE : " + agentState + " , REASON CODE : " + agentReasonCode);
 
-                if (agentState != null)
-                {
-                    AgentEvent evt = new AgentEvent();
-                    evt.setEvtMsg(agentStateXml);
-                    evt.setAgentState(agentState);
-                    evt.setReasonCode(agentReasonCode);
-                    evt.setEvtCode(EVENT_TYPE.ON_LOGGEDON);
-                    evt.setIsFirstLogin(true);
-                    finesseObj.raiseEvent(evt);
-                }
+                AgentStateVO agentStateVO = new AgentStateVO();
+                agentStateVO.setState(agentState);
+                agentStateVO.setReasonCode(agentReasonCode);
+                agentStateVO.setXmppMsg(agentStateXml);
 
-                /*
-                // 서버에 이미 남아 있는 상담원 상태가 로그아웃이 아닐경우에 이벤트를 발생한다.
-                if (!agentState.Equals(AGENTSTATE.LOGOUT))
-                {
-                    AgentEvent evt = new AgentEvent();
-                    evt.setEvtMsg(agentStateXml);
-                    evt.setAgentState(agentState);
-                    evt.setReasonCode(agentReasonCode);
-                    evt.setEvtCode(EVENT_TYPE.ON_AGENTSTATE_CHANGE);
-                    finesseObj.raiseEvent(evt);
-                }
-                */
+                return agentStateVO;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-                if (agentState.Equals(AGENTSTATE.TALKING))
+        public int checkPreAgentState()
+        {
+            // 로그인하기전 서버에 상담원 상태를 먼저 체크한다.
+
+            AgentStateVO agentStateVO = checkAgentState();
+
+            if (agentStateVO != null)
+            {
+                AgentEvent evt = new AgentEvent();
+                evt.setEvtMsg(agentStateVO.getXmppMsg());
+                evt.setAgentState(agentStateVO.getState());
+                evt.setReasonCode(agentStateVO.getReasonCode());
+                evt.setEvtCode(EVENT_TYPE.ON_LOGGEDON);
+                evt.setIsFirstLogin(true);
+                finesseObj.raiseEvent(evt);
+
+
+                if (agentStateVO.getState().Equals(AGENTSTATE.TALKING))
                 {
+                    XMLParser xmlParser = new XMLParser(logwrite, agent);
+
                     string talkingState = httpHandler.checkDialogID((string)currentServer["IP"], agent);
                     talkingState = talkingState.Replace("\n", "");
-                    
-                    Event evt = xmlParser.parseXML(talkingState);
-                    finesseObj.raiseEvent(evt);
+
+                    Event evt_ = xmlParser.parseXML(talkingState);
+                    finesseObj.raiseEvent(evt_);
 
                 }
 
                 return ERRORCODE.SUCCESS;
+
             }
             else
             {
                 return ERRORCODE.FAIL;
             }
+
         }
 
         private int startPreProcess()

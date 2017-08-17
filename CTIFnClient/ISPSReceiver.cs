@@ -42,6 +42,8 @@ namespace ThreadGroup
         {
             try
             {
+                logwrite.write("ISPSClient runThread", "\t ISPS Thread Start!!");
+
                 String readLine = "";
 
                 while (true)

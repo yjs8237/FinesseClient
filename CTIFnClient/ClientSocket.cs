@@ -81,6 +81,9 @@ namespace TCPSOCKET
                     writer = new StreamWriter(writeStream);
 
                     Encoding encode = System.Text.Encoding.GetEncoding("UTF-8");
+
+                    //Encoding encode = System.Text.Encoding.Default;
+
                     reader = new StreamReader(writeStream, encode);
 
                     if (currentServer.ContainsKey("IP"))
@@ -183,6 +186,10 @@ namespace TCPSOCKET
                 {
                     reader.Close();
                 }
+                if (sock != null)
+                {
+                    sock.Close();
+                }
             }
             return recvMsg;
         }
@@ -221,7 +228,6 @@ namespace TCPSOCKET
                 return false;
             }
         }
-
         public ServerInfo getServerInfo()
         {
             return this.serverInfo;

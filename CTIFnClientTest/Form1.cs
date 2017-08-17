@@ -140,7 +140,7 @@ namespace CTIFnClientTest
 
             String finesse_A = textBox1.Text;
             String finesse_B = textBox2.Text;
-            String finesseDomain = textBox13.Text;
+            
             String AEMS_A = textBox3.Text;
             String AEMS_B = textBox4.Text;
             int AEMS_Port = Int32.Parse(textBox5.Text);
@@ -149,7 +149,7 @@ namespace CTIFnClientTest
             int ISPS_Port = Int32.Parse(textBox6.Text);
             int loglevel = Int32.Parse(textBox12.Text);
             
-            int ret = useDll.fnConnect(finesse_A, finesse_B, finesseDomain, AEMS_A, AEMS_B, AEMS_Port, ISPS_A, ISPS_B, ISPS_Port, loglevel);
+            int ret = useDll.fnConnect(finesse_A, finesse_B, AEMS_A, AEMS_B, AEMS_Port, ISPS_A, ISPS_B, ISPS_Port, loglevel);
             logwrite.write("", "RETURN DATA : " + ret);
         }
 
@@ -302,6 +302,13 @@ namespace CTIFnClientTest
             setConsultCallSetting();
             string dialNum = textBox14.Text;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnArsTransfer(dialNum));
+        }
+
+        private void button25_Click(object sender, EventArgs e)
+        {
+            setConsultCallSetting();
+            string data = textBox13.Text;
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSendAEMS(data));
         }
 
     }

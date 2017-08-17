@@ -43,13 +43,17 @@ namespace CTIFnClient
 
          private PhonePad phonePadVO;
 
+         private string agentCurrentState;  // 현재 상담원 상태 관리
+         private bool isInternalCall;   // 내선 콜 여부
+
+
         public Finesse()
         {
             logwrite = LogWrite.getInstance();
             dialogID = "";  dialogID_second="";  activeDialogID = "";
         }
 
-        public int fnConnect(String fn_A_IP , String fn_B_IP ,String finesseDomain, String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
+        public int fnConnect(String fn_A_IP , String fn_B_IP , String AEMS_A_IP , String AEMS_B_IP , int AEMS_Port , String ISPS_A_IP , String ISPS_B_IP , int ISPS_Port , int loglevel )
         {
             logwrite.write("fnConnect", "\t ** call fnConnect() **");
             
@@ -67,7 +71,7 @@ namespace CTIFnClient
             int finesseport = SERVERINFO.Finesse_PORT;
 
             // 각 서버정보 객체화
-            finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport, finesseDomain);
+            finesseInfo = new ServerInfo(fn_A_IP, fn_B_IP, finesseport);
             aemsInfo = new ServerInfo(AEMS_A_IP, AEMS_B_IP, AEMS_Port );
             ispsInfo = new ServerInfo(ISPS_A_IP, ISPS_B_IP, ISPS_Port );
 
@@ -86,8 +90,8 @@ namespace CTIFnClient
                 if (FinesseClient.startClient() != ERRORCODE.SUCCESS)
                 {
                     logwrite.write("fnConnect", "Finesse Cannot Connect");
-                     isFinesseConnected = false;
-                     logwrite.write("fnConnect", "\t Return Data : " + ERRORCODE.FAIL);
+                    isFinesseConnected = false;
+                    logwrite.write("fnConnect", "\t Return Data : " + ERRORCODE.FAIL);
                     return ERRORCODE.FAIL;
                 }
                 else
@@ -445,6 +449,31 @@ namespace CTIFnClient
             return ret;
         }
 
+        public int fnSendAEMS(string data)
+        {
+            logwrite.write("fnSendAEMS", "\t ** call fnSendAEMS(" + data + ") **");
+            int ret = ERRORCODE.FAIL;
+            if (AEMSClient != null)
+            {
+                if (!AEMSClient.isConnected())
+                {
+                    AEMSClient.aemsConnect();
+                }
+                ret = AEMSClient.send(data);
+
+                string recv = AEMSClient.recv();
+
+                logwrite.write("fnSendAEMS", "\t Return Data : " + recv);
+                AEMSClient.disconnect();
+                
+            }
+            else
+            {
+                logwrite.write("fnSendAEMS", "\t AEMSClient is null " + ret);
+            }
+            return ret;
+        }
+
         public int fnSSTransfer(string dialNumber)
         {
             logwrite.write("fnSSTransfer", "\t ** call fnSSTransfer(" + dialNumber + ") **");
@@ -743,6 +772,9 @@ namespace CTIFnClient
                     logwrite.write("raiseEvent", "STATE : " + evt.getAgentState() + " , REASONCODE : " + evt.getReasonCode());
                     logwrite.write("raiseEvent", "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
                     GetEventOnAgentStateChange(evt.getAgentState(), evt.getReasonCode(), evtMessage);
+                    // NOTREADY 상태에서 내선 콜이 인입되었다가 Alerting 상태에서 콜이 종료되면, Finesse 가 이전 상태 이벤트를 주지 않는다..
+                    // 그래서 상태관리 하다가 NOTREADY 에서 Alerting 이벤트가 오고, Drop 이벤트가 오면 이전상태 이벤트를 강제로 발생시키도록...
+                    agentCurrentState = evt.getAgentState(); 
                     break;
                 case EVENT_TYPE.ON_LOGGEDON:
                     logwrite.write("raiseEvent", ":::::::::::::::::::::::::::::::::::: GetEventOnAgentLoggedOn ::::::::::::::::::::::::::::::::::::");
@@ -790,7 +822,6 @@ namespace CTIFnClient
                 callAction = new StringBuilder();
                 callAction.Append(tempStr);
             }
-            
 
             switch (evtCode)
             {
@@ -813,6 +844,16 @@ namespace CTIFnClient
                     writeCallEventLog("GetEventOnCallAlerting", evt);
                     setActiveDialogID(evt);
                     GetEventOnCallAlerting(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString() , callAction.ToString());
+                    
+                    if (agentCurrentState.Equals(AGENTSTATE.NOT_READY))
+                    {
+                        // 상담원 현재 상태가 NOTREADY 인데 Alerting 이벤트가 발생했다는건, 내선인입콜 케이스
+                        isInternalCall = true;
+                    }
+                    else
+                    {
+                        isInternalCall = false;
+                    }
                     break;
 
                 case EVENT_TYPE.FAILED:
@@ -857,6 +898,7 @@ namespace CTIFnClient
             case EVENT_TYPE.WRAP_UP:
                     writeCallEventLog("GetEventOnCallWrapUp", evt);
                     // checkTable(callEvent.getCallVariable());
+                    
                     removeDialogID(evt);
                     GetEventOnCallWrapUp(evt.getDialogID(), evt.getCallType(), evt.getFromAddress(), evt.getToAddress(), callState.ToString(), callAction.ToString());
                     break;
@@ -870,6 +912,18 @@ namespace CTIFnClient
                     {
                         // 폰패드 이후 Dropped 이벤트일 경우 폰패드 결과를 요청한다.
                         getPhonePadInfo();
+                    }
+                    if (isInternalCall)
+                    {
+                        // NOTREADY 상태에서 내선콜이 인입되었다가 Alerting 도중에 콜이 종료되면 상담원 이전상태 이벤트를 Finesse  가 주지 않아
+                        // 임의적으로 상담원상태 요청 이후 상태 이벤트를 발생시킨다.
+                        AgentStateVO agentStateVO = FinesseClient.checkAgentState();  // 이전 상담원 상태체크
+                        AgentEvent evt_ = new AgentEvent();
+                        evt_.setEvtMsg(agentStateVO.getXmppMsg());
+                        evt_.setAgentState(agentStateVO.getState());
+                        evt_.setReasonCode(agentStateVO.getReasonCode());
+                        evt_.setEvtCode(EVENT_TYPE.ON_AGENTSTATE_CHANGE);
+                        raiseEvent(evt_);
                     }
                     break;     
 
@@ -987,7 +1041,10 @@ namespace CTIFnClient
                 }
             }
             logwrite.write("setDialogID", "Active DialogID : " + activeDialogID + " , first ID : " + dialogID + " , seconde ID : " + dialogID_second);
+            logwrite.write("", "");
         }
+
+
         public void setActiveDialogID(string dialogID)
         {
             activeDialogID = dialogID;

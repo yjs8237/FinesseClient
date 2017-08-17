@@ -47,12 +47,14 @@
     <Compile Include="Agent.cs" />
     <Compile Include="AgentEvent.cs" />
     <Compile Include="AGENTSTATE.cs" />
+    <Compile Include="AgentStateVO.cs" />
     <Compile Include="ButtonMask.cs" />
     <Compile Include="CALL.cs" />
     <Compile Include="CallEvent.cs" />
     <Compile Include="ErrorEvent.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Finesse.cs" />
+    <Compile Include="FinesseKeepAlive.cs" />
     <Compile Include="JsonHandler.cs" />
     <Compile Include="LogWrite.cs" />
     <Compile Include="IEvent.cs" />

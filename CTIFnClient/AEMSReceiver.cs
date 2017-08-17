@@ -54,6 +54,7 @@ namespace ThreadGroup
                 }
                  * */
 
+                logwrite.write("AEMSReceiver runThread", "\t AEMS Receiver Thread Start!!");
 
                 int BUFFERSIZE = sock.ReceiveBufferSize;
                 byte[] buffer = new byte[BUFFERSIZE];

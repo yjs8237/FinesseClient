@@ -79,8 +79,6 @@ namespace TCPSOCKET
                     */
                     callConnectionEvent();
 
-                    logwrite.write("startClient", "AEMS Thread Start!!");
-
                     break;
                 }
                 else
