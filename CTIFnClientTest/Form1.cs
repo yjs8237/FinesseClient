@@ -33,6 +33,12 @@ namespace CTIFnClientTest
             CheckForIllegalCrossThreadCalls = false;
         }
 
+        private void Form1_FormClosing(Object sender, FormClosingEventArgs e)
+        {
+            setConsultCallSetting();
+            logwrite.write("", "RETURN DATA : " + useDll.fnDisconnect());
+        }
+
 
         private void setConsultCallSetting()
         {
@@ -226,9 +232,90 @@ namespace CTIFnClientTest
         private void button12_Click(object sender, EventArgs e)
         {
             setConsultCallSetting();
+
             string varname = textBox16.Text;    // 변수명
             string varvalue = textBox17.Text;    // 데이터
+
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+
+            varname = textBox23.Text; // 변수
+            varvalue = textBox22.Text; // data
+
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname = textBox25.Text; // name
+            varvalue = textBox24.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname= textBox27.Text; // name
+            varvalue=textBox26.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox29.Text; // name
+            varvalue=textBox28.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+            varname=textBox31.Text; // name
+            varvalue=textBox30.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox33.Text; // name
+            varvalue=textBox32.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox35.Text; // name
+            varvalue=textBox34.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox37.Text; // name
+            varvalue=textBox36.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox39.Text; // name
+            varvalue=textBox38.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox41.Text; // name
+            varvalue=textBox40.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            varname=textBox43.Text; // name
+            varvalue=textBox42.Text; // data
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSetCallData(varname, varvalue));
+            }
+
+            
         }
 
         private void button13_Click(object sender, EventArgs e)
@@ -309,6 +396,83 @@ namespace CTIFnClientTest
             setConsultCallSetting();
             string data = textBox13.Text;
             logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnSendAEMS(data));
+        }
+
+        private void button26_Click(object sender, EventArgs e)
+        {
+            setConsultCallSetting();
+
+            string varname = textBox16.Text;    // 변수명
+
+            logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+
+            varname = textBox23.Text; // 변수
+
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox25.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox27.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox29.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox31.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox33.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox35.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox37.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox39.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox41.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
+            varname = textBox43.Text; // name
+            if (varname != null && varname.Length != 0)
+            {
+                logwrite.write("", "<------- RETURN DATA -------> : " + useDll.fnGetCallData(varname));
+            }
+
         }
 
     }

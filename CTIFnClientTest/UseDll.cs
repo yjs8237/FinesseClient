@@ -271,8 +271,36 @@ namespace CTIFnClientTest
 
         public override void GetEventOnAgentLoggedOn(string state, string reasonCode, string evtMessage)
         {
+            if (state.Equals(BTNMASK.NOT_READY))
+            {
                 string[] arr = { BTNMASK.LOGOUT, BTNMASK.READY, BTNMASK.REASON, BTNMASK.MAKE_CALL };
                 form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.READY))
+            {
+                string[] arr = { BTNMASK.REASON };
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.LOGOUT))
+            {
+                string[] arr = { BTNMASK.REASON, BTNMASK.READY };
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.WORK_READY) || state.Equals(BTNMASK.WORK))
+            {
+                string[] arr = { BTNMASK.REASON, BTNMASK.READY };
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.HOLD))
+            {
+                string[] arr = { BTNMASK.RETRIEVE };
+                form.setButtonMask(arr);
+            }
+            else if (state.Equals(BTNMASK.TALKING))
+            {
+                string[] arr = { BTNMASK.DROP };
+                form.setButtonMask(arr);
+            }
         }
     }
 }

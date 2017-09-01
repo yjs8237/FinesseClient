@@ -59,7 +59,6 @@ namespace TCPSOCKET
         }
         public int startClient()
         {
-
             // 이미 소켓이 연결되어 있는지 체크
             if (isConnected())
             {
@@ -100,12 +99,13 @@ namespace TCPSOCKET
                     randomServer++;
                 }
 
+                /*
                 if (currentServerIP.Equals(serverIP))
                 {
                     // 재접속일 경우 접속되어있던 서버는 건너 뛴다.
                     continue;
                 }
-
+                */
                 logwrite.write("startClient", "Finesse Try Connection [" + serverIP + "][" + serverInfo.getPort() + "]");
 
                 // 서버 접속 성공할 경우 서버로부터 패킷받는 스레드 구동 시작
@@ -131,8 +131,7 @@ namespace TCPSOCKET
                 // 사용자가 직접 Disconnect 요청을 했는지, Network 문제로 Session이 끊어진건지 구분하기 위함
                 // 사용자 요청으로 서버 접속이 이루어지면 false 로 SET , 이 값은 FinesseReceiver 클래스에서 참조한다.
                 setDisconnectReq(false);
-
-                callConnectionEvent();
+                callConnectionEvent();  // Finesse Connection Event 발생
             }
 
             return bisConnected ? ERRORCODE.SUCCESS : ERRORCODE.SOCKET_CONNECTION_FAIL;
@@ -183,7 +182,6 @@ namespace TCPSOCKET
 
             isAlreadyAuth = true; // XMPP 인증 완료 여부 flag
 
-
             // Finesse KeepAlive 체크 스레드 (굳이 스레드를 돌려야 할까..??)
 
             /*
@@ -198,9 +196,7 @@ namespace TCPSOCKET
             ThreadStart recvts = new ThreadStart(finesseRecv.runThread);
             Thread recvThread = new Thread(recvts);
             recvThread.Start();
-
-
-//            callConnectionEvent();  // Connection 성공 이벤트 전달
+//          callConnectionEvent();  // Connection 성공 이벤트 전달
 
             return ERRORCODE.SUCCESS;
         }
@@ -243,7 +239,6 @@ namespace TCPSOCKET
         public int checkPreAgentState()
         {
             // 로그인하기전 서버에 상담원 상태를 먼저 체크한다.
-
             AgentStateVO agentStateVO = checkAgentState();
 
             if (agentStateVO != null)
@@ -256,7 +251,6 @@ namespace TCPSOCKET
                 evt.setIsFirstLogin(true);
                 finesseObj.raiseEvent(evt);
 
-
                 if (agentStateVO.getState().Equals(AGENTSTATE.TALKING))
                 {
                     XMLParser xmlParser = new XMLParser(logwrite, agent);
@@ -268,15 +262,12 @@ namespace TCPSOCKET
                     finesseObj.raiseEvent(evt_);
 
                 }
-
                 return ERRORCODE.SUCCESS;
-
             }
             else
             {
                 return ERRORCODE.FAIL;
             }
-
         }
 
         private int startPreProcess()
@@ -320,12 +311,10 @@ namespace TCPSOCKET
                 if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
 
-
                 strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "' to='" + domain.getFinesseDomain() + "'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
                 send(strMsg);
                 if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
-
 
                 strMsg = @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><vCard xmlns='vcard-temp'/></iq>";
                 strMsg += @"<iq type='get' id='" + strID + util.lpad(Convert.ToString(ranNum), "a", 3) + "'><query xmlns='jabber:iq:roster'/></iq>";
@@ -346,6 +335,7 @@ namespace TCPSOCKET
                 send(strMsg);
                 if (recv(tempindex++) != ERRORCODE.SUCCESS) { return ERRORCODE.FAIL; }
                 ranNum++;
+
             }
             catch (Exception e)
             {
@@ -359,7 +349,6 @@ namespace TCPSOCKET
 
         private void send(String msg)
         {
-
             if (sock == null || !sock.Connected)
             {
                 if (finesseReConnect() == ERRORCODE.SUCCESS)
